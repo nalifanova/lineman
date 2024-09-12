@@ -1,10 +1,11 @@
 #include "SceneMenu.hpp"
 
-#include "SFML/Graphics/View.hpp"
+#include "SFML/Graphics.hpp"
 
 #include "Action.hpp"
 #include "Assets.hpp"
 #include "GameEngine.hpp"
+#include "SceneMenuControls.hpp"
 
 SceneMenu::SceneMenu(GameEngine* gameEngine) :
     Scene(gameEngine)
@@ -23,32 +24,14 @@ void SceneMenu::sRender()
     // draw menu items
     for (int i = 0; i < m_menuStrings.size(); i++)
     {
-        if (i != m_selectedMenuIndex)
-        {
-            m_menuItems[i].setFillColor(sf::Color(100, 100, 100));
-        }
+        if (i != m_selectedMenuIndex) { m_menuItems[i].setFillColor(sf::Color(100, 100, 100)); }
         else
         {
             m_menuItems[i].setFillColor(sf::Color::White);
+            m_selectedMenuItem = m_menuItems[i].getString();
         }
-
-        m_menuItems[i].setPosition(
-            static_cast<float>((m_game->window().getSize().x)) / 2.0f -
-            static_cast<float>((26 * (m_menuStrings[i].length() + 1))) / 2.0f,
-            m_menuText.getGlobalBounds().top + 10.0f + 30.0f * static_cast<float>((i + 1))
-            );
         m_game->window().draw(m_menuItems[i]);
     }
-
-    // draw help
-    sf::Text help("W:UP  S:DOWN  D:PLAY  M:MUTE  ESC:BACK/QUIT", m_game->assets().getFont("Tech"), 26);
-    help.setFillColor(sf::Color(100, 100, 100));
-    help.setPosition(
-        static_cast<float>((m_game->window().getSize().x)) / 2.0f -
-        static_cast<float>((26 * (help.getString().getSize() + 1))) / 2.0f,
-        static_cast<float>((m_game->window().getSize().y)) - 30.0f * 2.0f
-        );
-    m_game->window().draw(help);
 }
 
 // protected
@@ -62,45 +45,17 @@ void SceneMenu::init()
     m_game->window().setView(view);
 
     registerAction(sf::Keyboard::W, "UP");
+    registerAction(sf::Keyboard::Up, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
-    registerAction(sf::Keyboard::D, "PLAY");
+    registerAction(sf::Keyboard::Down, "DOWN");
+    registerAction(sf::Keyboard::Enter, "PLAY");
+    registerAction(sf::Keyboard::Space, "PLAY");
     registerAction(sf::Keyboard::M, "MUTE");
-    registerAction(sf::Keyboard::Escape, "QUIT");
 
     // m_titleMusic = m_game->assets().getSound("TitleTheme");
     // m_titleMusic.play();
 
-    m_title = "LineMan";
-    int titleSize = 30;
-
-    m_menuText.setString(m_title);
-    m_menuText.setFont(m_game->assets().getFont("Tech"));
-    m_menuText.setCharacterSize(titleSize);
-    m_menuText.setFillColor(sf::Color(100, 100, 100));
-    m_menuText.setPosition(
-        static_cast<float>((m_game->window().getSize().x)) / 2.0f
-        - static_cast<float>((titleSize * (m_title.length() + 1))) / 2.0f,
-        static_cast<float>((titleSize * 3))
-        );
-
-    m_menuStrings.emplace_back("New Game");
-    m_menuStrings.emplace_back("Another Menu");
-
-    for (int i = 0; i < m_menuStrings.size(); i++)
-    {
-        sf::Text text(m_menuStrings[i], m_game->assets().getFont("Tech"), 26);
-        if (i != m_selectedMenuIndex)
-        {
-            text.setFillColor(sf::Color::Black);
-        }
-        text.setPosition(
-            static_cast<float>((m_game->window().getSize().x)) / 2.0f
-            - static_cast<float>((26 * (m_menuStrings[i].length() + 1))) / 2.0f,
-            m_menuText.getGlobalBounds().top + 10.0f + 30.0f * static_cast<float>((i + 1))
-            );
-        m_menuItems.push_back(text);
-    }
-
+    createMenu();
     m_levelPaths.emplace_back("config/level1.txt");
 }
 
@@ -120,14 +75,8 @@ void SceneMenu::sDoAction(const Action& action)
     {
         if (action.name() == "UP")
         {
-            if (m_selectedMenuIndex > 0)
-            {
-                m_selectedMenuIndex--;
-            }
-            else
-            {
-                m_selectedMenuIndex = m_menuStrings.size() - 1;
-            }
+            if (m_selectedMenuIndex > 0) { m_selectedMenuIndex--; }
+            else { m_selectedMenuIndex = m_menuStrings.size() - 1; }
         }
         else if (action.name() == "DOWN")
         {
@@ -135,23 +84,70 @@ void SceneMenu::sDoAction(const Action& action)
         }
         else if (action.name() == "PLAY")
         {
-            m_titleMusic.stop();
-            // m_game->changeScene("PLAY", std::make_shared<ScenePlay>(m_game, m_levelPaths[m_selectedMenuIndex]));
+            playMenu();
         }
         else if (action.name() == "MUTE")
         {
-            if (m_titleMusic.getStatus() == sf::SoundSource::Playing)
-            {
-                m_titleMusic.stop();
-            }
-            else
-            {
-                m_titleMusic.play();
-            }
+            if (m_titleMusic.getStatus() == sf::SoundSource::Playing) { m_titleMusic.stop(); }
+            else { m_titleMusic.play(); }
         }
         else if (action.name() == "QUIT")
         {
             onEnd();
         }
     }
+}
+
+void SceneMenu::createMenu()
+{
+    m_title = "Line Man";
+    int titleSize = 60;
+
+    m_menuText.setString(m_title);
+    m_menuText.setFont(m_game->assets().getFont("Tech"));
+    m_menuText.setCharacterSize(titleSize);
+    m_menuText.setFillColor(sf::Color(100, 100, 100));
+    m_menuText.setOrigin(
+        m_menuText.getLocalBounds().width / 2.0f,
+        m_menuText.getLocalBounds().height / 2.0f
+        );
+    m_menuText.setPosition(width() / 2.0f, height() / 4.0f);
+
+    m_menuStrings.emplace_back("Play");
+    m_menuStrings.emplace_back("Controls");
+    m_menuStrings.emplace_back("Options");
+    m_menuStrings.emplace_back("Quit");
+
+    int menuSize = 30;
+    for (int i = 0; i < m_menuStrings.size(); i++)
+    {
+        sf::Text text(m_menuStrings[i], m_game->assets().getFont("Tech"), menuSize);
+        auto textRect = text.getLocalBounds();
+        // Set the reference point to the center of the text
+        text.setOrigin(textRect.width / 2.0f, 0);
+        // Set the position to the center of the window
+        text.setPosition(
+            width() / 2.0f,
+            m_menuText.getGlobalBounds().top + static_cast<float>(menuSize * i * 2 + 100)
+            );
+        m_menuItems.push_back(text);
+    }
+}
+
+void SceneMenu::playMenu()
+{
+    if (m_selectedMenuItem == "Play")
+    {
+        m_titleMusic.stop();
+        std::cout << "Play is chosen\n";
+        // m_game->changeScene("PLAY", std::make_shared<ScenePlay>(m_game, m_levelPaths[m_selectedMenuIndex]));
+    }
+    else if (m_selectedMenuItem == "Controls")
+    {
+        std::cout << "Controls is chosen\n";
+        m_game->changeScene("MENU_CONTROLS", std::make_shared<SceneMenuControls>(m_game));
+    }
+    else if (m_selectedMenuItem == "Option") { std::cout << "Option is chosen\n"; }
+    else
+        if (m_selectedMenuItem == "Quit") { onEnd(); }
 }

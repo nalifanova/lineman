@@ -52,6 +52,10 @@ add_executable(${PROJECT_NAME}
     include/Entity.hpp
     include/EntityManager.hpp
     include/EntityMemoryPool.hpp
+    include/GameEngine.hpp
+    include/Scene.hpp
+    include/SceneMenu.hpp
+    include/SceneMenuControls.hpp
     include/Tags.hpp
     include/Vec2.hpp
     src/Action.cpp
@@ -63,6 +67,7 @@ add_executable(${PROJECT_NAME}
     src/GameEngine.cpp
     src/Scene.cpp
     src/SceneMenu.cpp
+    src/SceneMenuControls.cpp
     src/Vec2.cpp
 )
 
