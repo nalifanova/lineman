@@ -6,7 +6,6 @@
 #include "SFML/Graphics/Text.hpp"
 #include "SFML/Audio/Sound.hpp"
 
-#include "EntityManager.hpp"
 #include "Scene.hpp"
 
 class SceneMenu: public Scene
@@ -21,6 +20,8 @@ protected:
     void update() override;
     void onEnd() override;
     void sDoAction(const Action& action) override;
+    void createMenu();
+    void playMenu();
 
     std::vector<std::string> m_menuStrings;
     std::vector<sf::Text> m_menuItems;
@@ -31,6 +32,7 @@ protected:
 
     std::string m_title;
     size_t m_selectedMenuIndex = 0;
+    std::string m_selectedMenuItem;
 };
 
 #endif //SCENE_MENU_H
