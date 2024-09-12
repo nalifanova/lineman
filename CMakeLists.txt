@@ -97,11 +97,13 @@ file(
     DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/fonts
 )
 
-file(GLOB images ${CMAKE_SOURCE_DIR}/assets/images/*.png)
+file(GLOB img_tiles ${CMAKE_SOURCE_DIR}/assets/images/tiles/*.png)
+file(GLOB img_man ${CMAKE_SOURCE_DIR}/assets/images/lineman/*.png)
 #file(GLOB sounds ${CMAKE_SOURCE_DIR}/assets/sounds/*.*)
 file(GLOB texts ${CMAKE_SOURCE_DIR}/config/*.txt)
 
 file(COPY ${fonts} DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/fonts)
-file(COPY ${images} DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/images)
+file(COPY ${img_tiles} DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/images/tiles)
+file(COPY ${img_man} DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/images/lineman)
 #file(COPY ${sounds} DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/sounds)
 file(COPY ${texts} DESTINATION ${CMAKE_BINARY_DIR}/bin/config)

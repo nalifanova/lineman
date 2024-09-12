@@ -21,6 +21,8 @@ public:
     bool operator -=(const Vec2& rhs);
     bool operator /=(float val);
     bool operator *=(float val);
+    bool operator +=(float val);
+    bool operator -=(float val);
 
     bool operator<(const Vec2& rhs) const;
 
