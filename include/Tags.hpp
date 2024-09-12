@@ -3,7 +3,7 @@
 
 #include <map>
 
-enum TagName { ePlayer = 0, eNpc, eTile };
+enum TagName { ePlayer = 10, eNpc, eTile };
 
 inline std::map<size_t, std::string> tags = {
     {TagName::ePlayer, "Player"},

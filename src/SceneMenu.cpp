@@ -6,6 +6,7 @@
 #include "Assets.hpp"
 #include "GameEngine.hpp"
 #include "SceneMenuControls.hpp"
+#include "ScenePlay.hpp"
 
 SceneMenu::SceneMenu(GameEngine* gameEngine) :
     Scene(gameEngine)
@@ -24,7 +25,7 @@ void SceneMenu::sRender()
     // draw menu items
     for (int i = 0; i < m_menuStrings.size(); i++)
     {
-        if (i != m_selectedMenuIndex) { m_menuItems[i].setFillColor(sf::Color(100, 100, 100)); }
+        if (i != m_selectedMenuIndex) { m_menuItems[i].setFillColor(sf::Color(game::Gray)); }
         else
         {
             m_menuItems[i].setFillColor(sf::Color::White);
@@ -106,7 +107,7 @@ void SceneMenu::createMenu()
     m_menuText.setString(m_title);
     m_menuText.setFont(m_game->assets().getFont("Tech"));
     m_menuText.setCharacterSize(titleSize);
-    m_menuText.setFillColor(sf::Color(100, 100, 100));
+    m_menuText.setFillColor(sf::Color(game::Gray));
     m_menuText.setOrigin(
         m_menuText.getLocalBounds().width / 2.0f,
         m_menuText.getLocalBounds().height / 2.0f
@@ -140,7 +141,7 @@ void SceneMenu::playMenu()
     {
         m_titleMusic.stop();
         std::cout << "Play is chosen\n";
-        // m_game->changeScene("PLAY", std::make_shared<ScenePlay>(m_game, m_levelPaths[m_selectedMenuIndex]));
+        m_game->changeScene("PLAY", std::make_shared<ScenePlay>(m_game, m_levelPaths[m_selectedMenuIndex]));
     }
     else if (m_selectedMenuItem == "Controls")
     {

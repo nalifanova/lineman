@@ -1,12 +1,11 @@
+#include "GameEngine.hpp"
+
 #include <iostream>
 #include <string>
 
 #include "imgui.h"
 #include "imgui-SFML.h"
-#include "SFML/Window/Event.hpp"
 
-#include "Assets.hpp"
-#include "GameEngine.hpp"
 #include "SceneMenu.hpp"
 
 GameEngine::GameEngine(const std::string& path)
@@ -141,9 +140,6 @@ void GameEngine::sUserInput()
                 case sf::Mouse::Left:
                     currentScene()->doAction(Action("LEFT_CLICK", "START", pos));
                     break;
-                case sf::Mouse::Middle:
-                    currentScene()->doAction(Action("MIDDLE_CLICK", "START", pos));
-                    break;
                 case sf::Mouse::Right:
                     currentScene()->doAction(Action("RIGHT_CLICK", "START", pos));
                     break;
@@ -158,9 +154,6 @@ void GameEngine::sUserInput()
             {
                 case sf::Mouse::Left:
                     currentScene()->doAction(Action("LEFT_CLICK", "END", pos));
-                    break;
-                case sf::Mouse::Middle:
-                    currentScene()->doAction(Action("MIDDLE_CLICK", "END", pos));
                     break;
                 case sf::Mouse::Right:
                     currentScene()->doAction(Action("RIGHT_CLICK", "END", pos));
