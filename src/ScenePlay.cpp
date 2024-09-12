@@ -40,9 +40,9 @@ void ScenePlay::update()
 // protected
 void ScenePlay::init(const std::string& levelPath)
 {
-    // loadLevel(levelPath);
-    spawnPlayer();
     m_grid.emplace(m_game->window()); // initialize m_grid
+    loadLevel(levelPath);
+
     m_grid->text().setCharacterSize(12);
     m_grid->text().setFont(m_game->assets().getFont("Tech"));
 
@@ -87,6 +87,11 @@ void ScenePlay::loadLevel(const std::string& fileName)
             tile.add<CTransform>(m_grid->getPosition(rx, ry, tx, ty));
             tile.add<CBoundingBox>(tile.get<CAnimation>().animation.getSize(), bm, bv);
             tile.add<CDraggable>();
+            if (name.find("Saw") != std::string::npos)
+            {
+                tile.add<CDamage>(4); // saw takes 4 HP
+            }
+            std::cout << "DEBUG: Tile is onboarded: " << name << "\n";
         }
         else if (token == "NPC")
         {
@@ -294,15 +299,52 @@ void ScenePlay::sMovement()
     {
         auto& t = el.get<CTransform>();
         t.prevPos = t.pos;
+        if (t.velocity.x > m_playerConfig.speed) { t.velocity.x = m_playerConfig.speed; }
+        if (t.velocity.y > m_playerConfig.speed) { t.velocity.y = m_playerConfig.speed; }
         t.pos += t.velocity;
     }
 }
 
 void ScenePlay::sAI() {}
 
-void ScenePlay::sStatus() {}
+void ScenePlay::sStatus()
+{
+    for (auto& entity: m_entityManager.getEntities())
+    {
+        if (entity.tagId() == eTile) { continue; }
 
-void ScenePlay::sAnimation() {}
+        if (entity.has<CInvincibility>())
+        {
+            auto& invincibility = entity.get<CInvincibility>();
+            invincibility.iframes -= 1;
+            if (invincibility.iframes < 0) { entity.remove<CInvincibility>(); }
+        }
+    }
+}
+
+void ScenePlay::sAnimation()
+{
+    // Implement destruction of entities with non-repeating finished animations ?
+    auto mPlayer = player();
+    auto& state = mPlayer.get<CState>();
+
+    if (state.changed)
+    {
+        std::string animName = state.state; // prefix like LinkStand
+        // stateAnimation(animName, mPlayer);
+        state.changed = false;
+    }
+
+    // Animate entities
+    for (auto& entity: m_entityManager.getEntities())
+    {
+        if (!entity.has<CAnimation>()) { continue; }
+
+        auto& anim = entity.get<CAnimation>();
+        if (anim.animation.hasEnded() && !anim.repeat) { entity.destroy(); }
+        if (!anim.paused) { anim.animation.update(); }
+    }
+}
 
 void ScenePlay::sCamera()
 {
@@ -310,7 +352,11 @@ void ScenePlay::sCamera()
     m_game->window().setView(view);
 }
 
-void ScenePlay::sCollision() {}
+void ScenePlay::sCollision()
+{
+    entityTileCollision();
+    // playerNpcCollision();
+}
 
 void ScenePlay::sGUI() {}
 
@@ -327,10 +373,15 @@ void ScenePlay::spawnPlayer()
     player.add<CTransform>(Vec2(m_playerConfig.x, m_playerConfig.y));
     player.get<CTransform>().facing = Vec2(0.0, -1.0f); // down
 
-    // player.add<CAnimation>(m_game->assets().getAnimation("stand"), true);
+    player.add<CAnimation>(m_game->assets().getAnimation("standIdle"), true);
     player.add<CBoundingBox>(Vec2(m_playerConfig.cX, m_playerConfig.cY), true, false);
     player.add<CHealth>(m_playerConfig.health, m_playerConfig.health);
-    player.add<CState>("stand");
+    player.add<CState>("standIdle");
+}
+
+void ScenePlay::spawnEntity(const size_t tag)
+{
+    if (tag == ePlayer) { spawnPlayer(); }
 }
 
 // helpers
@@ -374,15 +425,15 @@ void ScenePlay::drawTextures()
                         transform.pos.x - 32,
                         transform.pos.y - 48
                         );
-                    rect.setFillColor(sf::Color(96, 96, 96));
-                    rect.setOutlineColor(sf::Color::Black);
-                    rect.setOutlineThickness(2);
+                    rect.setFillColor(sf::Color::Black);
+                    rect.setOutlineColor(sf::Color(game::DarkGray));
+                    rect.setOutlineThickness(1);
                     m_game->window().draw(rect);
 
                     float ratio = (float)(h.current) / h.max;
                     size.x *= ratio;
                     rect.setSize({size.x, size.y});
-                    rect.setFillColor(sf::Color(255, 0, 0));
+                    rect.setFillColor(sf::Color(game::LightGray));
                     rect.setOutlineThickness(0);
                     m_game->window().draw(rect);
 
@@ -420,7 +471,7 @@ void ScenePlay::drawCollisions()
 
                 if (box.blockMove && box.blockVision)
                 {
-                    rect.setOutlineColor(sf::Color::Black);
+                    rect.setOutlineColor(sf::Color(game::Gray));
                 }
                 if (box.blockMove && !box.blockVision)
                 {
@@ -473,6 +524,63 @@ void ScenePlay::drawCollisions()
                     m_game->window().draw(dot);
                 }
             }
+        }
+    }
+}
+
+void ScenePlay::collisionEntities(Entity& entity, Entity& tile)
+{
+    const auto overlap = Physics::getOverlap(entity, tile);
+    if (overlap.x > 0.0f && overlap.y > 0.0f)
+    {
+        if (tile.get<CBoundingBox>().blockMove)
+        {
+            // Overlap: defining a direction
+            const auto prevOverlap = Physics::getPreviousOverlap(entity, tile);
+            auto& entityPos = entity.get<CTransform>().pos;
+            auto& tilePos = tile.get<CTransform>().pos;
+
+            // top/bottom collision
+            if (prevOverlap.x > 0.0f) { entityPos.y += entityPos.y < tilePos.y ? -overlap.y : overlap.y; }
+
+            // side collision
+            if (prevOverlap.y > 0.0f) { entityPos.x += entityPos.x < tilePos.x ? -overlap.x : overlap.x; }
+        }
+
+        if (entity.has<CInvincibility>()) { return; }
+        if (tile.has<CDamage>())
+        {
+            entity.get<CHealth>().current -= tile.get<CDamage>().damage;
+            // entity.get<CTransform>().velocity.x -= 1;
+            entity.add<CInvincibility>(kInvincibility);
+            // Debug msg
+            std::cout << "Damage from " << tile.get<CAnimation>().animation.getName() << " is "
+                << tile.get<CDamage>().damage << "\n";
+
+            if (entity.get<CHealth>().current <= 0)
+            {
+                entity.destroy();
+                // m_game->playSound("died");
+                spawnEntity(entity.tagId());
+            }
+            else
+            {
+                // m_game->playSound("hit");
+            }
+        }
+    }
+}
+
+void ScenePlay::entityTileCollision()
+{
+    auto mPlayer = player();
+    for (auto& tile: m_entityManager.getEntities(TagName::eTile))
+    {
+        collisionEntities(mPlayer, tile);
+
+        for (auto& npc: m_entityManager.getEntities(TagName::eNpc))
+        {
+            collisionEntities(npc, tile);
         }
     }
 }

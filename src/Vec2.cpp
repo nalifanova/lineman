@@ -68,6 +68,20 @@ bool Vec2::operator*=(float val)
     return true; // why bool??
 }
 
+bool Vec2::operator+=(const float val)
+{
+    x += val;
+    y += val;
+    return true;
+}
+
+bool Vec2::operator-=(const float val)
+{
+    x -= val;
+    y -= val;
+    return true;
+}
+
 bool Vec2::operator<(const Vec2& rhs) const
 {
     return (x < rhs.x) || (x == rhs.x && y < rhs.y);

@@ -12,9 +12,10 @@ public:
 
     [[nodiscard]] size_t id() const;
     [[nodiscard]] bool isActive() const;
+    [[nodiscard]] size_t tagId() const;
     [[nodiscard]] const std::string& tag() const;
 
-    void destroy();
+    void destroy() const;
 
     template <class T>
     [[nodiscard]] bool has() const

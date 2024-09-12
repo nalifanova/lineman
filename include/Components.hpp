@@ -6,6 +6,8 @@
 #include "Animation.hpp"
 #include "Vec2.hpp"
 
+constexpr int kInvincibility = 60;
+
 class Component
 {
 public:

@@ -10,21 +10,21 @@ Vec2 Physics::overlap(const Vec2& aPos, const Vec2& bPos, const Vec2& aSize, con
     return {aSize.x + bSize.x - d.x, aSize.y + bSize.y - d.y};
 }
 
-Vec2 Physics::getOverlap(const std::shared_ptr<Entity>& a, const std::shared_ptr<Entity>& b)
+Vec2 Physics::getOverlap(Entity& a, Entity& b)
 {
-    const auto& aPos = a->get<CTransform>().pos;
-    const auto& bPos = b->get<CTransform>().pos;
-    const auto& aSize = a->get<CBoundingBox>().halfSize;
-    const auto& bSize = b->get<CBoundingBox>().halfSize;
+    const auto& aPos = a.get<CTransform>().pos;
+    const auto& bPos = b.get<CTransform>().pos;
+    const auto& aSize = a.get<CBoundingBox>().halfSize;
+    const auto& bSize = b.get<CBoundingBox>().halfSize;
     return overlap(aPos, bPos, aSize, bSize);
 }
 
-Vec2 Physics::getPreviousOverlap(const std::shared_ptr<Entity>& a, const std::shared_ptr<Entity>& b)
+Vec2 Physics::getPreviousOverlap(Entity& a, Entity& b)
 {
-    const auto& aPos = a->get<CTransform>().prevPos;
-    const auto& bPos = b->get<CTransform>().prevPos;
-    const auto& aSize = a->get<CBoundingBox>().halfSize;
-    const auto& bSize = b->get<CBoundingBox>().halfSize;
+    const auto& aPos = a.get<CTransform>().prevPos;
+    const auto& bPos = b.get<CTransform>().prevPos;
+    const auto& aSize = a.get<CBoundingBox>().halfSize;
+    const auto& bSize = b.get<CBoundingBox>().halfSize;
     return overlap(aPos, bPos, aSize, bSize);
 }
 
@@ -43,12 +43,12 @@ Intersect Physics::lineIntersect(const Vec2& a, const Vec2& b, const Vec2& c, co
     return {false, Vec2(0.0f, 0.0f)};
 }
 
-bool Physics::entityIntersect(const Vec2& a, const Vec2& b, const std::shared_ptr<Entity>& entity)
+bool Physics::entityIntersect(const Vec2& a, const Vec2& b, Entity& entity)
 {
     // Position is a center point of an entity thus we should find position of each vertex
     // Then we have to check if line a-b intersects with each life of a BBox of the entity
-    const auto& halfSize = entity->get<CBoundingBox>().halfSize;
-    const auto& pos = entity->get<CTransform>().pos;
+    const auto& halfSize = entity.get<CBoundingBox>().halfSize;
+    const auto& pos = entity.get<CTransform>().pos;
 
     Vec2 topLeft(pos.x - halfSize.x, pos.y - halfSize.y);
     Vec2 topRight(pos.x + halfSize.x, pos.y - halfSize.y);

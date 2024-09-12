@@ -14,13 +14,17 @@ bool Entity::isActive() const
     return EntityMemoryPool::instance().isActive(m_id);
 }
 
-const std::string& Entity::tag() const
+size_t Entity::tagId() const
 {
-    const auto tagId = EntityMemoryPool::instance().getTag(m_id);
-    return tags[tagId];
+    return EntityMemoryPool::instance().getTag(m_id);
 }
 
-void Entity::destroy()
+const std::string& Entity::tag() const
+{
+    return tags[tagId()];
+}
+
+void Entity::destroy() const
 {
     EntityMemoryPool::instance().destroy(m_id);
 }

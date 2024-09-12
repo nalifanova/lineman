@@ -6,6 +6,7 @@
 #include "EntityManager.hpp"
 #include "Grid.hpp"
 #include "Scene.hpp"
+#include "Tags.hpp"
 
 class ScenePlay final: public Scene
 {
@@ -39,19 +40,20 @@ protected:
     void sGUI();
 
     void spawnPlayer();
+    void spawnEntity(size_t tag);
 
     // help functions
     void drawTextures();
     void drawCollisions();
 
-    // void collisionEntities(std::shared_ptr<Entity>& entity, std::shared_ptr<Entity>& tile);
-    // void entityTileCollision();
+    void collisionEntities(Entity& entity, Entity& tile);
+    void entityTileCollision();
     // void playerNpcCollision();
     // void entityItemCollision();
     // void teleportCollision();
     // void roomCollision(std::shared_ptr<Entity>& entity);
     //
-    // void stateAnimation(std::string& animName, const std::shared_ptr<Entity>& entity) const;
+    // void stateAnimation(std::string& animName, const Entity& entity) const;
     // bool isPositionOccupied(const sf::Vector2f& position);
     //
     // void guiShowTable(const std::vector<std::shared_ptr<Entity>>& entities, bool showHeader = true);
