@@ -7,6 +7,14 @@
 #include "Assets.hpp"
 #include "Scene.hpp"
 
+namespace game
+{
+    const sf::Color DarkGray(50, 50, 50);
+    const sf::Color Gray(100, 100, 100);
+    const sf::Color LightGray(150, 150, 150);
+    const sf::Color Silver(200, 200, 200);
+};
+
 typedef std::map<std::string, std::shared_ptr<Scene>> SceneMap;
 
 class GameEngine

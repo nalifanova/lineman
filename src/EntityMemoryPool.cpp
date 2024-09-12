@@ -9,7 +9,7 @@ size_t EntityMemoryPool::addEntity(const size_t& tag)
 {
     const size_t index = getNextEntityIndex();
     m_tags[index] = tag;
-    m_actives[tag] = true;
+    m_actives[index] = true;
 
     std::get<std::vector<CAnimation>>(m_pool)[index].active = false;
     std::get<std::vector<CBoundingBox>>(m_pool)[index].active = false;
@@ -54,7 +54,7 @@ EntityMemoryPool::EntityMemoryPool(size_t maxEntities):
         m_tags.push_back(0);
         m_actives.push_back(false);
     }
-    auto m_pool = createComponentPool<
+    m_pool = createComponentPool<
         CAnimation,
         CBoundingBox,
         CDamage,
@@ -74,7 +74,7 @@ size_t EntityMemoryPool::getNextEntityIndex()
 {
     for (size_t i = 0; i < m_actives.size(); i++)
     {
-        if (!m_actives[i]) { return i; }
+        if (m_actives[i] == false) { return i; }
     }
     return kMaxEntities;
 }

@@ -94,6 +94,7 @@ public:
     bool down = false;
     bool left = false;
     bool right = false;
+    bool interact = false;
     bool attack = false;
 };
 

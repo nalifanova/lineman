@@ -22,8 +22,8 @@ void SceneMenuControls::sRender()
     m_game->window().draw(m_menuText);
     for (int i = 0; i < m_menuStrings.size(); i++)
     {
-        if (i == m_menuStrings.size() - 1) { m_menuItems[i].setFillColor(sf::Color(150, 150, 150)); }
-        else { m_menuItems[i].setFillColor(sf::Color(200, 200, 200)); }
+        if (i == m_menuStrings.size() - 1) { m_menuItems[i].setFillColor(sf::Color(game::LightGray)); }
+        else { m_menuItems[i].setFillColor(sf::Color(game::Silver)); }
 
         m_game->window().draw(m_menuItems[i]);
     }
@@ -73,7 +73,7 @@ void SceneMenuControls::controls()
     m_menuText.setString(m_title);
     m_menuText.setFont(m_game->assets().getFont("Tech"));
     m_menuText.setCharacterSize(titleSize);
-    m_menuText.setFillColor(sf::Color(100, 100, 100));
+    m_menuText.setFillColor(sf::Color(game::Gray));
     m_menuText.setOrigin(
         m_menuText.getLocalBounds().width / 2.0f,
         m_menuText.getLocalBounds().height / 2.0f
