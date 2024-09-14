@@ -15,8 +15,10 @@ GameEngine::GameEngine(const std::string& path)
 
 void GameEngine::changeScene(const std::string& sceneName, std::shared_ptr<Scene> scene, bool endCurrentScene)
 {
-    m_currentScene = sceneName;
+    if (endCurrentScene) { m_sceneMap.erase(m_sceneMap.find(m_currentScene)); }
+
     m_sceneMap[sceneName] = std::move(scene);
+    m_currentScene = sceneName;
 }
 
 void GameEngine::run()
@@ -80,8 +82,10 @@ void GameEngine::init(const std::string& path)
 
 void GameEngine::update()
 {
+    if (!isRunning() || m_sceneMap.empty()) { return; }
+
     currentScene()->update();
-    currentScene()->simulate(m_simulationSpeed);
+    // currentScene()->simulate(m_simulationSpeed);
 }
 
 void GameEngine::sUserInput()
@@ -175,4 +179,14 @@ void GameEngine::sUserInput()
 std::shared_ptr<Scene> GameEngine::currentScene()
 {
     return m_sceneMap[m_currentScene];
+}
+
+std::shared_ptr<Scene> GameEngine::getScene(const std::string& sceneName)
+{
+    if (m_sceneMap.find(sceneName) == m_sceneMap.end())
+    {
+        std::cerr << "Warning: Scene does not exists `" << sceneName << "` \n";
+        return nullptr;
+    }
+    return m_sceneMap[sceneName];
 }

@@ -75,6 +75,8 @@ add_executable(${PROJECT_NAME}
     src/ScenePlay.cpp
     src/SceneMenuControls.cpp
     src/Vec2.cpp
+    include/GUI.hpp
+    src/GUI.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC ImGui-SFML::ImGui-SFML)

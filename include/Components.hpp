@@ -139,7 +139,19 @@ public:
         state(std::move(s)) {}
 
     std::string state = "stand";
+    bool inAir = true;
     bool changed = false;
+};
+
+class CGravity: public Component
+{
+public:
+    CGravity() = default;
+
+    explicit CGravity(const float g):
+        gravity(g) {};
+
+    float gravity = 0;
 };
 
 class CFollowPlayer: public Component

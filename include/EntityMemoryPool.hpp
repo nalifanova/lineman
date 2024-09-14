@@ -5,7 +5,7 @@
 
 #include "Components.hpp"
 
-constexpr size_t kMaxEntities = 10000;
+constexpr size_t kMaxEntities = 10'000;
 
 typedef std::tuple<
     std::vector<CAnimation>,
@@ -13,6 +13,7 @@ typedef std::tuple<
     std::vector<CDamage>,
     std::vector<CDraggable>,
     std::vector<CFollowPlayer>,
+    std::vector<CGravity>,
     std::vector<CHealth>,
     std::vector<CInput>,
     std::vector<CInvincibility>,
@@ -55,6 +56,9 @@ public:
     {
         return std::make_tuple(std::vector<Components>(maxEntities)...);
     }
+
+    void resetEntityComponents(size_t index);
+    void deactivateEntityComponents(size_t index);
 
 private:
     explicit EntityMemoryPool(size_t maxEntities);
