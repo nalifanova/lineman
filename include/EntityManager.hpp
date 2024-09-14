@@ -1,9 +1,12 @@
 #ifndef ENTITY_MANAGER_H
 #define ENTITY_MANAGER_H
 
+#include <map>
 #include <vector>
 
 #include "Entity.hpp"
+
+typedef std::map<size_t, std::vector<Entity>> EntityMap;
 
 class EntityManager
 {
@@ -15,6 +18,7 @@ public:
 
     std::vector<Entity> getEntities();
     [[nodiscard]] std::vector<Entity> getEntities(const size_t& tag) const;
+    [[nodiscard]] EntityMap getEntityMap() const;
 
 private:
     std::vector<Entity> m_entities; // all entities

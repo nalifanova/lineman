@@ -3,19 +3,31 @@ Font Tech assets/fonts/tech.ttf
 Texture TexLandLine assets/images/tiles/tile_land_line.png
 Texture TexLandLineLeft assets/images/tiles/tile_land_line_left.png
 Texture TexLandLineRight assets/images/tiles/tile_land_line_right.png
+Texture TexSideRight assets/images/tiles/tile_side_right.png
+Texture TexSideLeft assets/images/tiles/tile_side_left.png
+Texture TexTopRight assets/images/tiles/tile_top_right.png
+Texture TexTopLeft assets/images/tiles/tile_top_left.png
 Texture TexLandSaw assets/images/tiles/tile_land_saw.png
 Texture TexLandSaws assets/images/tiles/tile_land_saws.png
 Texture TexAirCube assets/images/tiles/tile_air_cube.png
 
-Texture TexManStandIdle assets/images/lineman/man_stand_idle.png
+Texture TexManStand assets/images/lineman/man_stand.png
 Texture TexManAir assets/images/lineman/man_air.png
+Texture TexManWalk assets/images/lineman/man_walk.png
 
 Animation TileLandLine TexLandLine 1 0
-Animation TileLandSaw TexLandSaw 1 0
-Animation TileLandSaws TexLandSaws 4 16
 Animation TileLandLineLeft TexLandLineLeft 1 0
 Animation TileLandLineRight TexLandLineRight 1 0
+Animation TileSideLeft TexSideLeft 1 1
+Animation TileSideRight TexSideRight 1 1
+Animation TileTopLeft TexTopLeft 1 1
+Animation TileTopRight TexTopRight 1 1
+
 Animation TileAirCube TexAirCube 1 0
 
-Animation standIdle TexManStandIdle 4 50
+Animation TileLandSaw TexLandSaw 1 0
+Animation TileLandSaws TexLandSaws 4 16
+
+Animation stand TexManStand 4 50
 Animation air TexManAir 4 50
+Animation walk TexManWalk 4 16

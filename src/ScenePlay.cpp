@@ -91,7 +91,8 @@ void ScenePlay::loadLevel(const std::string& fileName)
             {
                 tile.add<CDamage>(4); // saw takes 4 HP
             }
-            std::cout << "DEBUG: Tile is onboarded: " << name << "\n";
+            // std::cout << "DEBUG: Tile is onboarded: " << name << "\n";
+            token = "None";
         }
         else if (token == "NPC")
         {
@@ -125,22 +126,27 @@ void ScenePlay::loadLevel(const std::string& fileName)
                 }
                 npc.add<CPatrol>(patrolNodes, speed);
             }
+            token = "None";
         }
         else if (token == "Player")
         {
+            // e.g. Player 200 100 60 64 4 10 5 20
             fin >> m_playerConfig.x >> m_playerConfig.y >> m_playerConfig.cX >> m_playerConfig.cY
-                >> m_playerConfig.speed >> m_playerConfig.health;
+                >> m_playerConfig.speed >> m_playerConfig.health >> m_playerConfig.gravity
+                >> m_playerConfig.jump;
+            spawnPlayer(true);
+            token = "None";
         }
     }
-    spawnPlayer();
 }
 
-Entity ScenePlay::player() const
+Entity ScenePlay::getPlayer() const
 {
     for (auto entity: m_entityManager.getEntities(TagName::ePlayer))
     {
         return entity;
     }
+    // std::cout << "DEBUG: ghost player!!\n";
     return Entity(kMaxEntities);
 }
 
@@ -148,12 +154,16 @@ void ScenePlay::onEnd()
 {
     m_zoom = false;
     sCamera();
-    m_game->changeScene("Menu", std::make_shared<SceneMenu>(m_game));
+    for (auto entity: m_entityManager.getEntities())
+    {
+        entity.destroy();
+    }
+    m_game->changeScene("MENU", m_game->getScene("MENU"), true);
 }
 
 void ScenePlay::sDoAction(const Action& action)
 {
-    auto& input = player().get<CInput>();
+    auto& input = getPlayer().get<CInput>();
 
     // Only the setting of the player's input component variables should be set here
     if (action.name() == "MOUSE_MOVE") { m_mousePos = action.pos(); }
@@ -195,8 +205,8 @@ void ScenePlay::sRender()
     // draw all Entity collision bounding boxes with a rectangle shape
     drawCollisions();
     // draw the grid so that can easily debug
-    Entity mPlayer = player();
-    m_grid->drawGrid(m_drawGrid, mPlayer);
+    Entity player = getPlayer();
+    m_grid->drawGrid(m_drawGrid, player);
 }
 
 void ScenePlay::sDrag()
@@ -206,14 +216,13 @@ void ScenePlay::sDrag()
 
 void ScenePlay::sMovement()
 {
-    auto mPlayer = player();
-    if (!mPlayer.isActive()) return;
+    auto player = getPlayer();
+    if (!player.isActive()) { return; }
+    auto& input = player.get<CInput>();
+    auto& state = player.get<CState>();
+    auto& transf = player.get<CTransform>();
 
-    const auto& input = mPlayer.get<CInput>();
-    auto& state = mPlayer.get<CState>();
-    auto& transf = mPlayer.get<CTransform>();
-
-    Vec2 playerVelocity(0, 0);
+    Vec2 playerVelocity(transf.velocity.x, 0);
     Vec2 facing = transf.facing;
     bool isMoving = true;
 
@@ -221,13 +230,14 @@ void ScenePlay::sMovement()
         (input.down && input.attack) || (input.left && input.attack) || (input.right && input.attack)
     )
     {
-        mPlayer.get<CAnimation>().paused = true;
+        player.get<CAnimation>().paused = true;
         return; // can't hold keys in opposite directions
     }
 
-    if (input.up)
+    if (input.up && !state.inAir)
     {
-        playerVelocity.y = -m_playerConfig.speed;
+        playerVelocity.y = -m_playerConfig.jump * 10;
+        state.inAir = true;
         facing = Vec2(0.0, 1.0f);
     }
     else if (input.down)
@@ -276,32 +286,41 @@ void ScenePlay::sMovement()
             // might consume something
         }
     }
-    else if (isMoving)
+    if (isMoving)
     {
-        if (state.state != "move")
+        if (state.inAir)
         {
-            state.state = "move";
+            state.state = "air";
+            state.changed = true;
+        }
+        else if (state.state != "walk")
+        {
+            state.state = "walk";
             state.changed = true;
         }
     }
     else
     {
-        if (state.state != "stand")
+        if (!state.inAir && state.state != "stand")
         {
             state.state = "stand";
             state.changed = true;
         }
     }
 
-    mPlayer.get<CTransform>().velocity = playerVelocity;
+    transf.velocity = playerVelocity;
 
-    for (auto& el: m_entityManager.getEntities())
+    // move entities
+    for (auto entity: m_entityManager.getEntities())
     {
-        auto& t = el.get<CTransform>();
+        auto& t = entity.get<CTransform>();
+        if (entity.has<CGravity>())
+        {
+            t.velocity.y += entity.get<CGravity>().gravity;
+            if (t.velocity.y > m_playerConfig.gravity) { t.velocity.y = m_playerConfig.gravity; }
+        }
         t.prevPos = t.pos;
-        if (t.velocity.x > m_playerConfig.speed) { t.velocity.x = m_playerConfig.speed; }
-        if (t.velocity.y > m_playerConfig.speed) { t.velocity.y = m_playerConfig.speed; }
-        t.pos += t.velocity;
+        t.pos += t.velocity * 1.3f; // delta time
     }
 }
 
@@ -312,6 +331,12 @@ void ScenePlay::sStatus()
     for (auto& entity: m_entityManager.getEntities())
     {
         if (entity.tagId() == eTile) { continue; }
+
+        if (entity.has<CLifespan>())
+        {
+            auto& life = entity.get<CLifespan>();
+            if (m_currentFrame - life.frameCreated > life.lifespan) { destroyEntity(entity); }
+        }
 
         if (entity.has<CInvincibility>())
         {
@@ -324,14 +349,15 @@ void ScenePlay::sStatus()
 
 void ScenePlay::sAnimation()
 {
-    // Implement destruction of entities with non-repeating finished animations ?
-    auto mPlayer = player();
-    auto& state = mPlayer.get<CState>();
+    auto player = getPlayer();
+    if (!player.isActive()) { return; }
+
+    auto& state = player.get<CState>();
 
     if (state.changed)
     {
-        std::string animName = state.state; // prefix like LinkStand
-        // stateAnimation(animName, mPlayer);
+        std::string animName = state.state;
+        stateAnimation(animName, player);
         state.changed = false;
     }
 
@@ -341,14 +367,24 @@ void ScenePlay::sAnimation()
         if (!entity.has<CAnimation>()) { continue; }
 
         auto& anim = entity.get<CAnimation>();
-        if (anim.animation.hasEnded() && !anim.repeat) { entity.destroy(); }
+        if (anim.animation.hasEnded() && !anim.repeat) { destroyEntity(entity); }
         if (!anim.paused) { anim.animation.update(); }
     }
 }
 
-void ScenePlay::sCamera()
+void ScenePlay::sCamera() const
 {
+    // set the viewport of the window to be centered on the player if it's fat enough right
+    auto& pPos = getPlayer().get<CTransform>().pos;
+    float windowCenterX = std::max(
+        static_cast<float>(m_game->window().getSize().x) / 2.0f,
+        pPos.x
+        );
     sf::View view = m_game->window().getView();
+    view.setCenter(
+        windowCenterX,
+        static_cast<float>(m_game->window().getSize().y) - view.getCenter().y
+        );
     m_game->window().setView(view);
 }
 
@@ -356,32 +392,41 @@ void ScenePlay::sCollision()
 {
     entityTileCollision();
     // playerNpcCollision();
+
+    entityGroundCollision();
 }
 
-void ScenePlay::sGUI() {}
-
-void ScenePlay::spawnPlayer()
+void ScenePlay::sGUI()
 {
-    m_playerConfig.x = 200.0f;
-    m_playerConfig.y = 100.0f;
-    m_playerConfig.cX = 64.0f;
-    m_playerConfig.cY = 64.0f;
-    m_playerConfig.health = 10;
-    m_playerConfig.speed = 5;
+    m_gui.emplace(m_game->assets(), m_entityManager);
+    m_gui->addCallBack([this] { spawnPlayer(); });
+    m_gui->showDebugWindow(m_drawGrid, m_drawTextures, m_drawCollision, m_zoom);
+}
 
+void ScenePlay::spawnPlayer(bool init)
+{
     auto player = m_entityManager.addEntity(TagName::ePlayer);
     player.add<CTransform>(Vec2(m_playerConfig.x, m_playerConfig.y));
-    player.get<CTransform>().facing = Vec2(0.0, -1.0f); // down
-
-    player.add<CAnimation>(m_game->assets().getAnimation("standIdle"), true);
+    player.add<CAnimation>(m_game->assets().getAnimation("air"), true);
     player.add<CBoundingBox>(Vec2(m_playerConfig.cX, m_playerConfig.cY), true, false);
     player.add<CHealth>(m_playerConfig.health, m_playerConfig.health);
-    player.add<CState>("standIdle");
+    player.add<CGravity>(m_playerConfig.gravity);
+    player.add<CInput>();
+    player.add<CState>("air");
+    if (init) { std::cout << "A player is born with id[" << player.id() << "]\n"; }
+    else { std::cout << "A player is respawned, id[" << player.id() << "]\n"; }
 }
 
 void ScenePlay::spawnEntity(const size_t tag)
 {
     if (tag == ePlayer) { spawnPlayer(); }
+}
+
+void ScenePlay::destroyEntity(const Entity entity)
+{
+    std::cout << "DEBUG: Remove " << entity.tag() << " with id[" << entity.id() << "]\n";
+    entity.destroy();
+    spawnEntity(entity.tagId());
 }
 
 // helpers
@@ -500,7 +545,7 @@ void ScenePlay::drawCollisions()
                     )
                     {
                         m_grid->drawLine(
-                            player().get<CTransform>().pos,
+                            getPlayer().get<CTransform>().pos,
                             entity.get<CTransform>().pos
                             );
                     }
@@ -541,7 +586,22 @@ void ScenePlay::collisionEntities(Entity& entity, Entity& tile)
             auto& tilePos = tile.get<CTransform>().pos;
 
             // top/bottom collision
-            if (prevOverlap.x > 0.0f) { entityPos.y += entityPos.y < tilePos.y ? -overlap.y : overlap.y; }
+            if (prevOverlap.x > 0.0f)
+            {
+                if (entityPos.y < tilePos.y) // down
+                {
+                    entityPos.y -= overlap.y;
+                    if (entity.has<CState>()) { entity.get<CState>().inAir = false; }
+                }
+                else // up
+                {
+                    entityPos.y += overlap.y;
+                    // TODO: logic of interaction with somwthing
+                }
+
+                // stop moving
+                entity.get<CTransform>().velocity.y = 0.0f;
+            }
 
             // side collision
             if (prevOverlap.y > 0.0f) { entityPos.x += entityPos.x < tilePos.x ? -overlap.x : overlap.x; }
@@ -551,17 +611,12 @@ void ScenePlay::collisionEntities(Entity& entity, Entity& tile)
         if (tile.has<CDamage>())
         {
             entity.get<CHealth>().current -= tile.get<CDamage>().damage;
-            // entity.get<CTransform>().velocity.x -= 1;
             entity.add<CInvincibility>(kInvincibility);
-            // Debug msg
-            std::cout << "Damage from " << tile.get<CAnimation>().animation.getName() << " is "
-                << tile.get<CDamage>().damage << "\n";
 
             if (entity.get<CHealth>().current <= 0)
             {
-                entity.destroy();
+                destroyEntity(entity);
                 // m_game->playSound("died");
-                spawnEntity(entity.tagId());
             }
             else
             {
@@ -573,14 +628,41 @@ void ScenePlay::collisionEntities(Entity& entity, Entity& tile)
 
 void ScenePlay::entityTileCollision()
 {
-    auto mPlayer = player();
+    auto player = getPlayer();
     for (auto& tile: m_entityManager.getEntities(TagName::eTile))
     {
-        collisionEntities(mPlayer, tile);
+        collisionEntities(player, tile);
 
         for (auto& npc: m_entityManager.getEntities(TagName::eNpc))
         {
             collisionEntities(npc, tile);
         }
     }
+}
+
+void ScenePlay::entityGroundCollision()
+{
+    for (auto entity: m_entityManager.getEntities())
+    {
+        if (entity.tagId() == eTile) { continue; }
+
+        if (entity.get<CTransform>().pos.y > height() - entity.get<CBoundingBox>().halfSize.y)
+        {
+            destroyEntity(entity);
+        }
+    }
+}
+
+void ScenePlay::stateAnimation(std::string& animName, Entity& entity)
+{
+    facingDirection(entity.get<CTransform>());
+    entity.add<CAnimation>(m_game->assets().getAnimation(animName), true);
+}
+
+void ScenePlay::facingDirection(CTransform& transf)
+{
+    if (transf.facing.y == 1.0f) { transf.scale.x = 1.0f; }
+    else if (transf.facing.y == -1.0f) { transf.scale.x = 1.0f; }
+    else // flipping to left if needed
+        if (transf.facing.x != 0.0f) { transf.scale.x = transf.facing.x; }
 }
