@@ -49,11 +49,13 @@ add_executable(${PROJECT_NAME}
     include/Animation.hpp
     include/Assets.hpp
     include/Components.hpp
+    include/Data.hpp
     include/Entity.hpp
     include/EntityManager.hpp
     include/EntityMemoryPool.hpp
     include/GameEngine.hpp
     include/Grid.hpp
+    include/GUI.hpp
     include/Physics.hpp
     include/Scene.hpp
     include/SceneMenu.hpp
@@ -69,14 +71,13 @@ add_executable(${PROJECT_NAME}
     src/EntityMemoryPool.cpp
     src/GameEngine.cpp
     src/Grid.cpp
+    src/GUI.cpp
     src/Physics.cpp
     src/Scene.cpp
     src/SceneMenu.cpp
     src/ScenePlay.cpp
     src/SceneMenuControls.cpp
     src/Vec2.cpp
-    include/GUI.hpp
-    src/GUI.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC ImGui-SFML::ImGui-SFML)
@@ -100,12 +101,18 @@ file(
 )
 
 file(GLOB img_tiles ${CMAKE_SOURCE_DIR}/assets/images/tiles/*.png)
+file(GLOB img_dec ${CMAKE_SOURCE_DIR}/assets/images/decoration/*.png)
+file(GLOB img_cons ${CMAKE_SOURCE_DIR}/assets/images/consumables/*.png)
+file(GLOB img_panel ${CMAKE_SOURCE_DIR}/assets/images/panel/*.png)
 file(GLOB img_man ${CMAKE_SOURCE_DIR}/assets/images/lineman/*.png)
 #file(GLOB sounds ${CMAKE_SOURCE_DIR}/assets/sounds/*.*)
 file(GLOB texts ${CMAKE_SOURCE_DIR}/config/*.txt)
 
 file(COPY ${fonts} DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/fonts)
 file(COPY ${img_tiles} DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/images/tiles)
+file(COPY ${img_dec} DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/images/decoration)
+file(COPY ${img_cons} DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/images/consumables)
+file(COPY ${img_panel} DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/images/panel)
 file(COPY ${img_man} DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/images/lineman)
 #file(COPY ${sounds} DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/sounds)
 file(COPY ${texts} DESTINATION ${CMAKE_BINARY_DIR}/bin/config)

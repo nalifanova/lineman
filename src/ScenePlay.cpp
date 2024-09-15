@@ -7,6 +7,7 @@
 #include "imgui-SFML.h"
 
 #include "Components.hpp"
+#include "Data.hpp"
 #include "GameEngine.hpp"
 #include "Physics.hpp"
 #include "SceneMenu.hpp"
@@ -94,6 +95,41 @@ void ScenePlay::loadLevel(const std::string& fileName)
             // std::cout << "DEBUG: Tile is onboarded: " << name << "\n";
             token = "None";
         }
+        else if (token == "Dec")
+        {
+            int rx, ry, tx, ty;
+            fin >> name >> rx >> ry >> tx >> ty;
+            auto dec = m_entityManager.addEntity(TagName::eDecoration);
+            dec.add<CAnimation>(m_game->assets().getAnimation(name), true);
+            dec.add<CTransform>(m_grid->getPosition(rx, ry, tx, ty));
+            dec.add<CBoundingBox>(dec.get<CAnimation>().animation.getSize());
+            dec.add<CDraggable>();
+            token = "None";
+        }
+        else if (token == "Cons")
+        {
+            int rx, ry, tx, ty, health;
+            fin >> name >> rx >> ry >> tx >> ty >> health;
+            std::cout << "Const " << rx << ", " << ry << ", " << tx << ", " << ty << ", " << health << "\n";
+            auto cons = m_entityManager.addEntity(TagName::eConsumable);
+            cons.add<CAnimation>(m_game->assets().getAnimation(name), true);
+            cons.add<CTransform>(m_grid->getPosition(rx, ry, tx, ty));
+            cons.get<CTransform>().pos.y += 16;
+            cons.add<CBoundingBox>(cons.get<CAnimation>().animation.getSize());
+            cons.add<CDraggable>();
+            cons.add<CHealth>(health, health);
+            token = "None";
+        }
+        else if (token == "Panel")
+        {
+            int rx, ry, tx, ty;
+            fin >> name >> rx >> ry >> tx >> ty;
+            auto cons = m_entityManager.addEntity(TagName::ePanel);
+            cons.add<CAnimation>(m_game->assets().getAnimation(name), true);
+            cons.add<CTransform>(m_grid->getPosition(rx, ry, tx, ty));
+            cons.add<CBoundingBox>(cons.get<CAnimation>().animation.getSize());
+            token = "None";
+        }
         else if (token == "NPC")
         {
             std::string aiType;
@@ -146,7 +182,6 @@ Entity ScenePlay::getPlayer() const
     {
         return entity;
     }
-    // std::cout << "DEBUG: ghost player!!\n";
     return Entity(kMaxEntities);
 }
 
@@ -199,6 +234,10 @@ void ScenePlay::sDoAction(const Action& action)
 void ScenePlay::sRender()
 {
     m_game->window().clear(sf::Color(sf::Color::Black));
+    // background
+    auto tex = m_game->assets().getTexture("TexDecBgrnd");
+    setRoomBackground(tex);
+    setBottomPanel();
 
     // draw all textures
     drawTextures();
@@ -207,6 +246,8 @@ void ScenePlay::sRender()
     // draw the grid so that can easily debug
     Entity player = getPlayer();
     m_grid->drawGrid(m_drawGrid, player);
+
+    m_game->window().draw(m_bottomPanel);
 }
 
 void ScenePlay::sDrag()
@@ -372,9 +413,9 @@ void ScenePlay::sAnimation()
     }
 }
 
-void ScenePlay::sCamera() const
+void ScenePlay::sCamera()
 {
-    // set the viewport of the window to be centered on the player if it's fat enough right
+    // set the viewport of the window to be centered on the player if it's far enough right
     auto& pPos = getPlayer().get<CTransform>().pos;
     float windowCenterX = std::max(
         static_cast<float>(m_game->window().getSize().x) / 2.0f,
@@ -385,6 +426,23 @@ void ScenePlay::sCamera() const
         windowCenterX,
         static_cast<float>(m_game->window().getSize().y) - view.getCenter().y
         );
+
+    if (m_zoom)
+    {
+        if (!m_zoomed)
+        {
+            view.zoom(2.0f);
+            m_zoomed = true;
+        }
+    }
+    else
+    {
+        if (m_zoomed)
+        {
+            view.setSize(game::kWinWidth, game::kWinHeight);
+            m_zoomed = false;
+        }
+    }
     m_game->window().setView(view);
 }
 
@@ -392,7 +450,7 @@ void ScenePlay::sCollision()
 {
     entityTileCollision();
     // playerNpcCollision();
-
+    entityItemCollision();
     entityGroundCollision();
 }
 
@@ -429,6 +487,37 @@ void ScenePlay::destroyEntity(const Entity entity)
     spawnEntity(entity.tagId());
 }
 
+void ScenePlay::moveEntity(Entity& entity)
+{
+    if (entity.tagId() != eConsumable) { return; }
+
+    // get consumable name and convert to panel name
+    auto name = entity.get<CAnimation>().animation.getName();
+    size_t pos = name.find(entity.tag());
+    if (pos != std::string::npos)
+    {
+        name.replace(pos, entity.tag().length(), tags[ePanel]);
+    }
+    entity.destroy();
+
+    for (auto item: m_entityManager.getEntities(ePanel))
+    {
+        if (item.get<CAnimation>().animation.getName() == name)
+        {
+            item.get<CCountable>().amount += 1;
+        }
+        else
+        {
+            auto panelEntity = m_entityManager.addEntity(ePanel);
+            panelEntity.add<CTransform>();
+            auto& anim = m_game->assets().getAnimation(name);
+            panelEntity.add<CAnimation>(anim, true);
+            panelEntity.add<CBoundingBox>(Vec2(anim.getSize().x, anim.getSize().y), true, false);
+            panelEntity.add<CCountable>(1);
+        }
+    }
+}
+
 // helpers
 void ScenePlay::drawTextures()
 {
@@ -439,7 +528,7 @@ void ScenePlay::drawTextures()
     if (m_drawTextures)
     {
         // Note: last rendered is on top of previous rendered
-        std::vector<TagName> tags = {TagName::eTile, TagName::eNpc, TagName::ePlayer};
+        std::vector<TagName> tags = {TagName::eTile, eDecoration, eConsumable, TagName::eNpc, TagName::ePlayer};
         for (const auto& tag: tags)
         {
             for (auto& entity: m_entityManager.getEntities(tag))
@@ -447,6 +536,7 @@ void ScenePlay::drawTextures()
                 auto& transform = entity.get<CTransform>();
                 sf::Color c = sf::Color::White;
                 if (entity.has<CInvincibility>()) { c = sf::Color(255, 255, 255, 128); }
+
                 if (entity.has<CAnimation>())
                 {
                     auto& animation = entity.get<CAnimation>().animation;
@@ -461,7 +551,7 @@ void ScenePlay::drawTextures()
                     m_game->window().draw(animation.getSprite());
                 }
 
-                if (entity.has<CHealth>())
+                if (entity.tagId() != eConsumable && entity.has<CHealth>())
                 {
                     auto& h = entity.get<CHealth>();
                     Vec2 size(64, 6);
@@ -653,6 +743,22 @@ void ScenePlay::entityGroundCollision()
     }
 }
 
+void ScenePlay::playerNpcCollision() {}
+
+void ScenePlay::entityItemCollision()
+{
+    auto player = getPlayer();
+    for (auto& consumable: m_entityManager.getEntities(TagName::eConsumable))
+    {
+        const auto overlap = Physics::getOverlap(player, consumable);
+        if (overlap.x > 0.0f && overlap.y > 0.0f)
+        {
+            moveEntity(consumable);
+            //m_game->playSound("pickupInk");
+        }
+    }
+}
+
 void ScenePlay::stateAnimation(std::string& animName, Entity& entity)
 {
     facingDirection(entity.get<CTransform>());
@@ -665,4 +771,71 @@ void ScenePlay::facingDirection(CTransform& transf)
     else if (transf.facing.y == -1.0f) { transf.scale.x = 1.0f; }
     else // flipping to left if needed
         if (transf.facing.x != 0.0f) { transf.scale.x = transf.facing.x; }
+}
+
+void ScenePlay::setRoomBackground(sf::Texture& tex)
+{
+    auto points = game::roomsPoints;
+    m_background.setPointCount(points.size());
+    m_background.setOutlineColor(sf::Color(40, 40, 40));
+    m_background.setOutlineThickness(1.0f);
+    for (size_t i = 0; i < points.size(); i++)
+    {
+        m_background.setPoint(i, sf::Vector2f(points[i].x, points[i].y));
+    }
+    tex.setRepeated(true);
+    m_background.setTexture(&tex);
+    m_background.setOrigin(static_cast<float>(tex.getSize().x) / 2.0f, static_cast<float>(tex.getSize().y) / 2.0f);
+    m_background.setTextureRect(sf::IntRect(
+        0, 0, static_cast<int>(width() * 4.0f), static_cast<int>(height() * 1.0f)
+        ));
+    m_game->window().draw(m_background);
+}
+
+void ScenePlay::setBottomPanel()
+{
+    sf::View view = m_game->window().getView();
+    m_bottomPanel.setSize(sf::Vector2f(game::kGridSize * 6, game::kGridSize * 1.5f));
+    m_bottomPanel.setFillColor(sf::Color::Transparent);
+    m_bottomPanel.setOutlineColor(sf::Color(game::Gray));
+    m_bottomPanel.setOutlineThickness(1);
+    m_bottomPanel.setPosition(view.getCenter().x - game::kGridSize * 3, height() - game::kGridSize * 2.0f);
+
+    sf::Text title;
+    unsigned int charSize = 16;
+    title.setFont(m_game->assets().getFont("Tech"));
+    title.setCharacterSize(charSize);
+    title.setFillColor(sf::Color(game::Gray));
+
+    auto winPos = m_bottomPanel.getPosition(); // 7.10
+    size_t i = 0;
+    for (auto& entity: m_entityManager.getEntities(ePanel))
+    {
+        auto& transform = entity.get<CTransform>();
+        if (entity.has<CAnimation>())
+        {
+            auto iconColor = game::Gray;
+            auto& animation = entity.get<CAnimation>().animation;
+            auto name = animation.getName();
+            name.replace(name.find(entity.tag()), 5, "");
+
+            animation.getSprite().setRotation(transform.angle);
+            animation.getSprite().setPosition(
+                winPos.x + game::kGridSize / 2.0f + static_cast<float>(i) * game::kGridSize + 2.0f,
+                winPos.y + game::kGridSize / 2.0f
+                );
+            title.setPosition(
+                animation.getSprite().getPosition().x - 30,
+                animation.getSprite().getPosition().y - game::kGridSize / 2.0f
+                );
+            title.setString(name + " " + std::to_string(entity.get<CCountable>().amount));
+            animation.getSprite().setScale(transform.scale.x, transform.scale.y);
+            if (entity.get<CCountable>().amount > 0) { iconColor = game::Silver; }
+            animation.getSprite().setColor(iconColor);
+            m_game->window().draw(animation.getSprite());
+            m_game->window().draw(title);
+            i++;
+        }
+    }
+    m_game->window().draw(m_bottomPanel);
 }

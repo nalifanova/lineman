@@ -1,5 +1,6 @@
 Font Tech assets/fonts/tech.ttf
 
+Texture TexCeilLine assets/images/tiles/tile_ceil_line.png
 Texture TexLandLine assets/images/tiles/tile_land_line.png
 Texture TexLandLineLeft assets/images/tiles/tile_land_line_left.png
 Texture TexLandLineRight assets/images/tiles/tile_land_line_right.png
@@ -15,6 +16,11 @@ Texture TexManStand assets/images/lineman/man_stand.png
 Texture TexManAir assets/images/lineman/man_air.png
 Texture TexManWalk assets/images/lineman/man_walk.png
 
+Texture TexDecBgrnd assets/images/decoration/dec_background.png
+Texture TexConsInk assets/images/consumables/cons_ink.png
+Texture TexPanelInk assets/images/panel/panel_ink.png
+
+Animation TileCeilLine TexCeilLine 1 1
 Animation TileLandLine TexLandLine 1 0
 Animation TileLandLineLeft TexLandLineLeft 1 0
 Animation TileLandLineRight TexLandLineRight 1 0
@@ -31,3 +37,6 @@ Animation TileLandSaws TexLandSaws 4 16
 Animation stand TexManStand 4 50
 Animation air TexManAir 4 50
 Animation walk TexManWalk 4 16
+
+Animation ConsInk TexConsInk   2 16
+Animation PanelInk TexPanelInk 1 0

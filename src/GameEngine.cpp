@@ -69,7 +69,7 @@ void GameEngine::init(const std::string& path)
 {
     m_assets.loadFromFile(path);
 
-    m_window.create(sf::VideoMode(1280, 768), "Line man");
+    m_window.create(sf::VideoMode(game::kWinWidth, game::kWinHeight), "Line man");
     m_window.setFramerateLimit(60);
 
     if (!ImGui::SFML::Init(m_window))
