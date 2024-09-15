@@ -51,6 +51,7 @@ EntityMemoryPool::EntityMemoryPool(size_t maxEntities):
     m_pool = createComponentPool<
         CAnimation,
         CBoundingBox,
+        CCountable,
         CDamage,
         CDraggable,
         CFollowPlayer,
@@ -81,6 +82,7 @@ void EntityMemoryPool::resetEntityComponents(const size_t index)
 {
     std::get<std::vector<CAnimation>>(m_pool)[index] = CAnimation();
     std::get<std::vector<CBoundingBox>>(m_pool)[index] = CBoundingBox();
+    std::get<std::vector<CCountable>>(m_pool)[index] = CCountable();
     std::get<std::vector<CDamage>>(m_pool)[index] = CDamage();
     std::get<std::vector<CDraggable>>(m_pool)[index] = CDraggable();
     std::get<std::vector<CFollowPlayer>>(m_pool)[index] = CFollowPlayer();
@@ -98,6 +100,7 @@ void EntityMemoryPool::deactivateEntityComponents(const size_t index)
 {
     std::get<std::vector<CAnimation>>(m_pool)[index].active = false;
     std::get<std::vector<CBoundingBox>>(m_pool)[index].active = false;
+    std::get<std::vector<CCountable>>(m_pool)[index].active = false;
     std::get<std::vector<CDamage>>(m_pool)[index].active = false;
     std::get<std::vector<CDraggable>>(m_pool)[index].active = false;
     std::get<std::vector<CFollowPlayer>>(m_pool)[index].active = false;

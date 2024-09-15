@@ -10,6 +10,7 @@ constexpr size_t kMaxEntities = 10'000;
 typedef std::tuple<
     std::vector<CAnimation>,
     std::vector<CBoundingBox>,
+    std::vector<CCountable>,
     std::vector<CDamage>,
     std::vector<CDraggable>,
     std::vector<CFollowPlayer>,

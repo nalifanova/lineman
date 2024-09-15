@@ -14,6 +14,17 @@ public:
     bool active = false;
 };
 
+class CCountable: public Component
+{
+public:
+    CCountable() = default;
+    explicit CCountable(const int amount) :
+        amount(amount) {}
+
+    int amount = 0;
+};
+
+
 class CDraggable: public Component
 {
 public:
