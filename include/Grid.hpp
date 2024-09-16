@@ -3,6 +3,7 @@
 
 #include "SFML/Graphics.hpp"
 
+#include "Data.hpp"
 #include "Entity.hpp"
 #include "Vec2.hpp"
 
@@ -30,7 +31,7 @@ public:
 
 private:
     sf::RenderWindow& m_window;
-    const Vec2 m_gridSize = {64, 64};
+    const Vec2 m_gridSize = {game::kGridSize, game::kGridSize};
     sf::Text m_gridText;
 };
 
