@@ -43,9 +43,10 @@ void ScenePlay::init(const std::string& levelPath)
 {
     m_grid.emplace(m_game->window()); // initialize m_grid
     loadLevel(levelPath);
+    auto& font = m_game->assets().getFont("Tech");
 
     m_grid->text().setCharacterSize(12);
-    m_grid->text().setFont(m_game->assets().getFont("Tech"));
+    m_grid->text().setFont(font);
 
     registerAction(sf::Keyboard::Escape, "QUIT");
     registerAction(sf::Keyboard::P, "PAUSE");
@@ -59,6 +60,13 @@ void ScenePlay::init(const std::string& levelPath)
     registerAction(sf::Keyboard::A, "LEFT");
     registerAction(sf::Keyboard::D, "RIGHT");
     registerAction(sf::Keyboard::E, "INTERACT");
+
+    registerAction(sf::Keyboard::Num1, "KEY1");
+    registerAction(sf::Keyboard::Num2, "KEY2");
+    registerAction(sf::Keyboard::Num3, "KEY3");
+
+    createPanelEntities();
+    m_pGui.emplace(m_game->window(), m_entityManager, font);
 }
 
 void ScenePlay::loadLevel(const std::string& fileName)
@@ -110,7 +118,6 @@ void ScenePlay::loadLevel(const std::string& fileName)
         {
             int rx, ry, tx, ty, health;
             fin >> name >> rx >> ry >> tx >> ty >> health;
-            std::cout << "Const " << rx << ", " << ry << ", " << tx << ", " << ty << ", " << health << "\n";
             auto cons = m_entityManager.addEntity(TagName::eConsumable);
             cons.add<CAnimation>(m_game->assets().getAnimation(name), true);
             cons.add<CTransform>(m_grid->getPosition(rx, ry, tx, ty));
@@ -188,7 +195,7 @@ Entity ScenePlay::getPlayer() const
 void ScenePlay::onEnd()
 {
     m_zoom = false;
-    sCamera();
+    sCamera(true);
     for (auto entity: m_entityManager.getEntities())
     {
         entity.destroy();
@@ -216,9 +223,10 @@ void ScenePlay::sDoAction(const Action& action)
         else if (action.name() == "DOWN") { input.down = true; }
         else if (action.name() == "LEFT") { input.left = true; }
         else if (action.name() == "RIGHT") { input.right = true; }
-        else
-            if (action.name() == "INTERACT") { input.interact = true; }
-
+        else if (action.name() == "INTERACT") { input.interact = true; }
+        else if (action.name() == "KEY1") { input.key1 = true; }
+        else if (action.name() == "KEY2") { input.key2 = true; }
+        else if (action.name() == "KEY3") { input.key3 = true; }
     }
     else if (action.type() == "END")
     {
@@ -226,8 +234,10 @@ void ScenePlay::sDoAction(const Action& action)
         else if (action.name() == "DOWN") { input.down = false; }
         else if (action.name() == "LEFT") { input.left = false; }
         else if (action.name() == "RIGHT") { input.right = false; }
-        else
-            if (action.name() == "INTERACT") { input.interact = false; }
+        else if (action.name() == "INTERACT") { input.interact = false; }
+        else if (action.name() == "KEY1") { input.key1 = false; }
+        else if (action.name() == "KEY2") { input.key2 = false; }
+        else if (action.name() == "KEY3") { input.key3 = false; }
     }
 }
 
@@ -237,7 +247,7 @@ void ScenePlay::sRender()
     // background
     auto tex = m_game->assets().getTexture("TexDecBgrnd");
     setRoomBackground(tex);
-    setBottomPanel();
+    m_pGui->setBottomPanel();
 
     // draw all textures
     drawTextures();
@@ -247,12 +257,71 @@ void ScenePlay::sRender()
     Entity player = getPlayer();
     m_grid->drawGrid(m_drawGrid, player);
 
-    m_game->window().draw(m_bottomPanel);
+    // m_game->window().draw(m_bottomPanel);
 }
 
 void ScenePlay::sDrag()
 {
     //
+}
+
+void ScenePlay::doPanelAction(CInput& input, Entity& entity)
+{
+    auto& ink = m_entityPanel[0];
+    auto& shield = m_entityPanel[1];
+    auto& boom = m_entityPanel[2];
+
+    if (input.interact)
+    {
+        if (auto& c = shield.get<CConsumable>();
+            (input.key2 && ink.get<CConsumable>().amount >= game::maxToChange)
+            && (m_currentFrame - c.frameCreated > c.cooldown))
+        {
+            ink.get<CConsumable>().amount -= game::maxToChange;
+            c.amount += 1;
+            c.frameCreated = m_currentFrame;
+        }
+        else if (auto& c = boom.get<CConsumable>();
+            (input.key3 && ink.get<CConsumable>().amount >= game::maxToChange)
+            && (m_currentFrame - c.frameCreated > c.cooldown))
+        {
+            //ink.get<CConsumable>().amount -= game::maxToChange;
+            c.amount += 1;
+            c.frameCreated = m_currentFrame;
+        }
+    }
+    else if (input.key1)
+    {
+        auto& c = ink.get<CConsumable>();
+        auto& h = entity.get<CHealth>();
+        if (c.amount > 0 && m_currentFrame - c.frameCreated > c.cooldown)
+        {
+            c.frameCreated = m_currentFrame;
+            c.amount--;
+            h.current = (h.current + h.max / 2 < h.max) ? h.max / 2 : h.max;
+        }
+    }
+    else if (input.key2)
+    {
+        auto& c = shield.get<CConsumable>();
+        if (c.amount > 0 && m_currentFrame - c.frameCreated > c.cooldown)
+        {
+            c.frameCreated = m_currentFrame;
+            c.amount--;
+            entity.add<CBuff>(true, false, c.frameCreated, c.cooldown); // shield
+        }
+    }
+    else if (input.key3)
+    {
+        auto& c = boom.get<CConsumable>();
+        if (c.amount > 0 && m_currentFrame - c.frameCreated > c.cooldown)
+        {
+            c.frameCreated = m_currentFrame;
+            c.amount--;
+            // spawnSpecialWeapon(entity);
+            std::cout << "We clicked key3 \n";
+        }
+    }
 }
 
 void ScenePlay::sMovement()
@@ -262,6 +331,8 @@ void ScenePlay::sMovement()
     auto& input = player.get<CInput>();
     auto& state = player.get<CState>();
     auto& transf = player.get<CTransform>();
+
+    doPanelAction(input, player);
 
     Vec2 playerVelocity(transf.velocity.x, 0);
     Vec2 facing = transf.facing;
@@ -331,20 +402,20 @@ void ScenePlay::sMovement()
     {
         if (state.inAir)
         {
-            state.state = "air";
+            state.state = "Air";
             state.changed = true;
         }
-        else if (state.state != "walk")
+        else if (state.state != "Walk")
         {
-            state.state = "walk";
+            state.state = "Walk";
             state.changed = true;
         }
     }
     else
     {
-        if (!state.inAir && state.state != "stand")
+        if (!state.inAir && state.state != "Stand")
         {
-            state.state = "stand";
+            state.state = "Stand";
             state.changed = true;
         }
     }
@@ -385,6 +456,12 @@ void ScenePlay::sStatus()
             invincibility.iframes -= 1;
             if (invincibility.iframes < 0) { entity.remove<CInvincibility>(); }
         }
+
+        if (entity.has<CBuff>())
+        {
+            auto& buff = entity.get<CBuff>();
+            if (m_currentFrame - buff.frameCreated > buff.cooldown) { entity.remove<CBuff>(); }
+        }
     }
 }
 
@@ -413,7 +490,7 @@ void ScenePlay::sAnimation()
     }
 }
 
-void ScenePlay::sCamera()
+void ScenePlay::sCamera(bool reset)
 {
     // set the viewport of the window to be centered on the player if it's far enough right
     auto& pPos = getPlayer().get<CTransform>().pos;
@@ -443,6 +520,11 @@ void ScenePlay::sCamera()
             m_zoomed = false;
         }
     }
+
+    if (reset)
+    {
+        view = m_game->window().getDefaultView();
+    }
     m_game->window().setView(view);
 }
 
@@ -465,12 +547,12 @@ void ScenePlay::spawnPlayer(bool init)
 {
     auto player = m_entityManager.addEntity(TagName::ePlayer);
     player.add<CTransform>(Vec2(m_playerConfig.x, m_playerConfig.y));
-    player.add<CAnimation>(m_game->assets().getAnimation("air"), true);
+    player.add<CAnimation>(m_game->assets().getAnimation("Air"), true);
     player.add<CBoundingBox>(Vec2(m_playerConfig.cX, m_playerConfig.cY), true, false);
     player.add<CHealth>(m_playerConfig.health, m_playerConfig.health);
     player.add<CGravity>(m_playerConfig.gravity);
     player.add<CInput>();
-    player.add<CState>("air");
+    player.add<CState>("Air");
     if (init) { std::cout << "A player is born with id[" << player.id() << "]\n"; }
     else { std::cout << "A player is respawned, id[" << player.id() << "]\n"; }
 }
@@ -504,17 +586,26 @@ void ScenePlay::moveEntity(Entity& entity)
     {
         if (item.get<CAnimation>().animation.getName() == name)
         {
-            item.get<CCountable>().amount += 1;
+            item.get<CConsumable>().amount += 1;
+            break;
         }
-        else
-        {
-            auto panelEntity = m_entityManager.addEntity(ePanel);
-            panelEntity.add<CTransform>();
-            auto& anim = m_game->assets().getAnimation(name);
-            panelEntity.add<CAnimation>(anim, true);
-            panelEntity.add<CBoundingBox>(Vec2(anim.getSize().x, anim.getSize().y), true, false);
-            panelEntity.add<CCountable>(1);
-        }
+    }
+}
+
+void ScenePlay::createPanelEntities()
+{
+    std::vector<std::string> panelEntitiesNames {"PanelInk", "PanelShield", "PanelBoom"};
+    m_entityPanel.reserve(panelEntitiesNames.size());
+
+    for (const auto& name: panelEntitiesNames)
+    {
+        auto panelEntity = m_entityManager.addEntity(ePanel);
+        panelEntity.add<CTransform>();
+        auto& anim = m_game->assets().getAnimation(name);
+        panelEntity.add<CAnimation>(anim, true);
+        panelEntity.add<CBoundingBox>(Vec2(anim.getSize().x, anim.getSize().y), true, false);
+        panelEntity.add<CConsumable>(game::coolDown * 60); // cooldown is the same for all items 5 sec
+        m_entityPanel.push_back(panelEntity);
     }
 }
 
@@ -536,6 +627,16 @@ void ScenePlay::drawTextures()
                 auto& transform = entity.get<CTransform>();
                 sf::Color c = sf::Color::White;
                 if (entity.has<CInvincibility>()) { c = sf::Color(255, 255, 255, 128); }
+
+                if (entity.has<CBuff>())
+                {
+                    sf::CircleShape circle(70);
+                    circle.setOutlineColor(sf::Color(game::Gray));
+                    circle.setOutlineThickness(1);
+                    circle.setFillColor(sf::Color::Transparent);
+                    circle.setPosition(transform.pos.x - 70, transform.pos.y - 70);
+                    m_game->window().draw(circle);
+                }
 
                 if (entity.has<CAnimation>())
                 {
@@ -698,6 +799,7 @@ void ScenePlay::collisionEntities(Entity& entity, Entity& tile)
         }
 
         if (entity.has<CInvincibility>()) { return; }
+        if (entity.has<CBuff>() && entity.get<CBuff>().shield) { return; }
         if (tile.has<CDamage>())
         {
             entity.get<CHealth>().current -= tile.get<CDamage>().damage;
@@ -792,50 +894,7 @@ void ScenePlay::setRoomBackground(sf::Texture& tex)
     m_game->window().draw(m_background);
 }
 
-void ScenePlay::setBottomPanel()
+void ScenePlay::spawnSpecialWeapon(Entity& entity)
 {
-    sf::View view = m_game->window().getView();
-    m_bottomPanel.setSize(sf::Vector2f(game::kGridSize * 6, game::kGridSize * 1.5f));
-    m_bottomPanel.setFillColor(sf::Color::Transparent);
-    m_bottomPanel.setOutlineColor(sf::Color(game::Gray));
-    m_bottomPanel.setOutlineThickness(1);
-    m_bottomPanel.setPosition(view.getCenter().x - game::kGridSize * 3, height() - game::kGridSize * 2.0f);
 
-    sf::Text title;
-    unsigned int charSize = 16;
-    title.setFont(m_game->assets().getFont("Tech"));
-    title.setCharacterSize(charSize);
-    title.setFillColor(sf::Color(game::Gray));
-
-    auto winPos = m_bottomPanel.getPosition(); // 7.10
-    size_t i = 0;
-    for (auto& entity: m_entityManager.getEntities(ePanel))
-    {
-        auto& transform = entity.get<CTransform>();
-        if (entity.has<CAnimation>())
-        {
-            auto iconColor = game::Gray;
-            auto& animation = entity.get<CAnimation>().animation;
-            auto name = animation.getName();
-            name.replace(name.find(entity.tag()), 5, "");
-
-            animation.getSprite().setRotation(transform.angle);
-            animation.getSprite().setPosition(
-                winPos.x + game::kGridSize / 2.0f + static_cast<float>(i) * game::kGridSize + 2.0f,
-                winPos.y + game::kGridSize / 2.0f
-                );
-            title.setPosition(
-                animation.getSprite().getPosition().x - 30,
-                animation.getSprite().getPosition().y - game::kGridSize / 2.0f
-                );
-            title.setString(name + " " + std::to_string(entity.get<CCountable>().amount));
-            animation.getSprite().setScale(transform.scale.x, transform.scale.y);
-            if (entity.get<CCountable>().amount > 0) { iconColor = game::Silver; }
-            animation.getSprite().setColor(iconColor);
-            m_game->window().draw(animation.getSprite());
-            m_game->window().draw(title);
-            i++;
-        }
-    }
-    m_game->window().draw(m_bottomPanel);
 }

@@ -4,7 +4,8 @@
 #include "SFML/Graphics.hpp"
 
 #include "Grid.hpp"
-#include "GUI.hpp"
+#include "DebugGui.hpp"
+#include "PlayerGui.hpp"
 #include "Scene.hpp"
 
 class ScenePlay final: public Scene
@@ -34,14 +35,16 @@ protected:
     void sAI();
     void sStatus();
     void sAnimation();
-    void sCamera();
+    void sCamera(bool reset = false);
     void sCollision();
     void sGUI();
 
+    void doPanelAction(CInput& input, Entity& entity);
     void spawnPlayer(bool init = false);
     void spawnEntity(size_t tag);
     void destroyEntity(Entity entity);
     void moveEntity(Entity& entity);
+    void createPanelEntities();
 
     // help functions
     void drawTextures();
@@ -60,16 +63,18 @@ protected:
     // bool isPositionOccupied(const sf::Vector2f& position);
     //
     void setRoomBackground(sf::Texture& tex);
-    void setBottomPanel();
+    void spawnSpecialWeapon(Entity& entity);
 
     PlayerConfig m_playerConfig{};
     std::optional<Grid> m_grid;
-    std::optional<GUI> m_gui;
+    std::optional<DebugGui> m_gui;
+    std::optional<PlayerGui> m_pGui;
     Vec2 m_mousePos;
 
     std::string m_levelPath;
     sf::ConvexShape m_background;
-    sf::RectangleShape m_bottomPanel;
+    std::vector<Entity> m_entityPanel;
+
     bool m_drawCollision = false;
     bool m_drawGrid = false;
     bool m_drawTextures = true;

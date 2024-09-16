@@ -1,19 +1,17 @@
-#ifndef GUI_HPP
-#define GUI_HPP
+#ifndef DEBUG_GUI_HPP
+#define DEBUG_GUI_HPP
 
 #include <functional>
-
-#include "SFML/Graphics.hpp"
 
 #include "Assets.hpp"
 #include "Entity.hpp"
 #include "EntityManager.hpp"
 
-class GUI
+class DebugGui
 {
 public:
-    explicit GUI(Assets& assets, EntityManager& entityManager);
-    ~GUI() = default;
+    explicit DebugGui(Assets& assets, EntityManager& entityManager);
+    ~DebugGui() = default;
 
     void guiShowTable(const std::vector<Entity>& entities, bool showHeader = true);
     void showDebugWindow(bool& m_drawGrid, bool& m_drawTextures, bool& m_drawCollision, bool& m_zoom);
@@ -26,4 +24,4 @@ private:
 };
 
 
-#endif //GUI_HPP
+#endif //DEBUG_GUI_HPP

@@ -50,13 +50,14 @@ add_executable(${PROJECT_NAME}
     include/Assets.hpp
     include/Components.hpp
     include/Data.hpp
+    include/DebugGui.hpp
     include/Entity.hpp
     include/EntityManager.hpp
     include/EntityMemoryPool.hpp
     include/GameEngine.hpp
     include/Grid.hpp
-    include/GUI.hpp
     include/Physics.hpp
+    include/PlayerGui.hpp
     include/Scene.hpp
     include/SceneMenu.hpp
     include/SceneMenuControls.hpp
@@ -66,13 +67,14 @@ add_executable(${PROJECT_NAME}
     src/Action.cpp
     src/Animation.cpp
     src/Assets.cpp
+    src/DebugGui.cpp
     src/Entity.cpp
     src/EntityManager.cpp
     src/EntityMemoryPool.cpp
     src/GameEngine.cpp
     src/Grid.cpp
-    src/GUI.cpp
     src/Physics.cpp
+    src/PlayerGui.cpp
     src/Scene.cpp
     src/SceneMenu.cpp
     src/ScenePlay.cpp

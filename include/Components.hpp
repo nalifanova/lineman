@@ -14,16 +14,17 @@ public:
     bool active = false;
 };
 
-class CCountable: public Component
+class CConsumable: public Component
 {
 public:
-    CCountable() = default;
-    explicit CCountable(const int amount) :
-        amount(amount) {}
+    CConsumable() = default;
+    explicit CConsumable(const u_int16_t cooldown) :
+        cooldown(cooldown) {}
 
-    int amount = 0;
+    u_int16_t amount = 0;
+    size_t frameCreated = 0;
+    u_int16_t cooldown = 0;
 };
-
 
 class CDraggable: public Component
 {
@@ -98,6 +99,23 @@ public:
     int current = 1;
 };
 
+class CBuff: public Component
+{
+public:
+    CBuff() = default;
+
+    CBuff(bool shield, bool speed):
+        shield(shield), speed(speed) {}
+
+    CBuff(bool shield, bool speed, size_t frameCreated, u_int16_t cooldown):
+        shield(shield), speed(speed), frameCreated(frameCreated), cooldown(cooldown) {}
+
+    bool shield = false;
+    bool speed = false;
+    size_t frameCreated = 0;
+    u_int16_t cooldown = 0;
+};
+
 class CInput: public Component
 {
 public:
@@ -109,6 +127,9 @@ public:
     bool right = false;
     bool interact = false;
     bool attack = false;
+    bool key1 = false;
+    bool key2 = false;
+    bool key3 = false;
 };
 
 class CBoundingBox: public Component

@@ -101,7 +101,7 @@ void SceneMenu::sDoAction(const Action& action)
 
 void SceneMenu::createMenu()
 {
-    m_title = "Line Man";
+    m_title = "Ink Man";
     int titleSize = 60;
 
     m_menuText.setString(m_title);

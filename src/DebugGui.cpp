@@ -1,16 +1,14 @@
-#include "GUI.hpp"
+#include "DebugGui.hpp"
 
 #include <imgui.h>
 #include <imgui-SFML.h>
 
-#include <utility>
-
 #include "Tags.hpp"
 
-GUI::GUI(Assets& assets, EntityManager& entityManager):
+DebugGui::DebugGui(Assets& assets, EntityManager& entityManager):
     m_assets(assets), m_entityManager(entityManager) {};
 
-void GUI::showDebugWindow(bool& m_drawGrid, bool& m_drawTextures, bool& m_drawCollision, bool& m_zoom)
+void DebugGui::showDebugWindow(bool& m_drawGrid, bool& m_drawTextures, bool& m_drawCollision, bool& m_zoom)
 {
     ImGui::Begin("Scene Properties");
 
@@ -75,7 +73,7 @@ void GUI::showDebugWindow(bool& m_drawGrid, bool& m_drawTextures, bool& m_drawCo
     ImGui::End();
 }
 
-void GUI::guiShowTable(const std::vector<Entity>& entities, bool showHeader)
+void DebugGui::guiShowTable(const std::vector<Entity>& entities, bool showHeader)
 {
     if (ImGui::BeginTable("Table", 7))
     {
@@ -128,7 +126,7 @@ void GUI::guiShowTable(const std::vector<Entity>& entities, bool showHeader)
     }
 }
 
-void GUI::addCallBack(std::function<void()> callback)
+void DebugGui::addCallBack(std::function<void()> callback)
 {
     m_callback = std::move(callback);
 }
