@@ -80,6 +80,8 @@ add_executable(${PROJECT_NAME}
     src/ScenePlay.cpp
     src/SceneMenuControls.cpp
     src/Vec2.cpp
+    # Tests
+    tests/test_panel_icon.hpp
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC ImGui-SFML::ImGui-SFML)

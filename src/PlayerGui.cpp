@@ -47,6 +47,7 @@ void PlayerGui::setPanelIcons(const sf::Vector2f& winPos)
 
         // Bars to upgrade
         barsUpgrade(entity);
+        // showCoolDownProgress(entity);
 
         m_window.draw(animation.getSprite());
         delta++;
@@ -118,4 +119,31 @@ void PlayerGui::barsUpgrade(Entity& entity)
             );
         m_window.draw(tick);
     }
+}
+
+void PlayerGui::showCoolDownProgress(Entity& entity)
+{
+    // TODO: finish it
+    auto& c = entity.get<CConsumable>();
+    if (!c.frameCreated) { return; }
+
+    sf::RectangleShape grayOverlay(sf::Vector2f(56, 56));
+    auto pos = entity.get<CAnimation>().animation.getSprite().getPosition();
+    grayOverlay.setFillColor(sf::Color(128, 128, 128, 100));
+    grayOverlay.setPosition(pos.x - 28, pos.y - 28);
+
+    float elapsedTime = m_clock.getElapsedTime().asSeconds();
+    if (elapsedTime <= c.cooldown / 60)
+    {
+        float uncoverPercentage = elapsedTime / static_cast<float>(c.cooldown / 60);
+        float newHeight = 56 * (1.0f - uncoverPercentage);
+        grayOverlay.setSize(sf::Vector2f(56, newHeight));
+        grayOverlay.setPosition(pos.x - 28, pos.y - 28 + (56 - newHeight));
+    }
+    else
+    {
+        grayOverlay.setFillColor(sf::Color(128, 128, 128, 0));
+    }
+
+    m_window.draw(grayOverlay);
 }

@@ -15,12 +15,14 @@ public:
     void setPanelIcons(const sf::Vector2f& winPos);
     void setPanelIconTitles() const;
     void barsUpgrade(Entity& entity);
+    void showCoolDownProgress(Entity& entity);
 
 private:
     sf::RectangleShape m_bottomPanel;
     sf::RenderWindow& m_window;
     EntityManager& m_entityManager;
     sf::Font m_font;
+    sf::Clock m_clock;
 };
 
 #endif //PLAYERGUI_HPP
