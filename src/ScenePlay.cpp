@@ -295,7 +295,7 @@ void ScenePlay::doPanelAction(CInput& input, Entity& entity)
     {
         auto& c = ink.get<CConsumable>();
         auto& h = entity.get<CHealth>();
-        if (c.amount > 0 && m_currentFrame - c.frameCreated > c.cooldown)
+        if (c.amount > 0 && m_currentFrame - c.frameCreated >= c.cooldown)
         {
             c.frameCreated = m_currentFrame;
             c.amount--;
@@ -305,7 +305,7 @@ void ScenePlay::doPanelAction(CInput& input, Entity& entity)
     else if (input.key2)
     {
         auto& c = shield.get<CConsumable>();
-        if (c.amount > 0 && m_currentFrame - c.frameCreated > c.cooldown)
+        if (c.amount > 0 && m_currentFrame - c.frameCreated >= c.cooldown)
         {
             c.frameCreated = m_currentFrame;
             c.amount--;
@@ -316,7 +316,7 @@ void ScenePlay::doPanelAction(CInput& input, Entity& entity)
     {
         auto& c = boom.get<CConsumable>();
         const bool hard = c.amount >= game::maxAmountToChange;
-        if (c.amount > 0 && m_currentFrame - c.frameCreated > c.cooldown)
+        if (c.amount > 0 && m_currentFrame - c.frameCreated >= c.cooldown)
         {
             c.frameCreated = m_currentFrame;
             c.amount--;
@@ -625,6 +625,9 @@ void ScenePlay::moveEntity(Entity& entity)
 void ScenePlay::createPanelEntities()
 {
     std::vector<std::string> panelEntitiesNames{"PanelInk", "PanelShield", "PanelBoom"};
+    std::map<std::string, u_int16_t> cooldown{
+        {"PanelInk", 0.3 * 60}, {"PanelShield", 5 * 60}, {"PanelBoom", 2 * 60}
+    };
     m_entityPanel.reserve(panelEntitiesNames.size());
 
     for (const auto& name: panelEntitiesNames)
@@ -634,7 +637,7 @@ void ScenePlay::createPanelEntities()
         auto& anim = m_game->assets().getAnimation(name);
         panelEntity.add<CAnimation>(anim, true);
         panelEntity.add<CBoundingBox>(Vec2(anim.getSize().x, anim.getSize().y), true, false);
-        panelEntity.add<CConsumable>(game::coolDown * 60); // cooldown is the same for all items 5 sec
+        panelEntity.add<CConsumable>(cooldown[name]);
         m_entityPanel.push_back(panelEntity);
     }
 }
@@ -960,6 +963,6 @@ void ScenePlay::spawnSpecialWeapon(Entity& entity, const bool& hard)
 
         boom.add<CAnimation>(m_game->assets().getAnimation("WeaponInk"), true);
         boom.add<CTransform>(pos, velocity, scale, angle - 90);
-        boom.add<CLifespan>(30, m_currentFrame);
+        boom.add<CLifespan>(45, m_currentFrame);
     }
 }
