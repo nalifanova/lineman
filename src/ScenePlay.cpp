@@ -586,6 +586,15 @@ void ScenePlay::destroyEntity(Entity& entity)
 {
     // std::cout << "DEBUG: Remove " << entity.tag() << " with id[" << entity.id() << "]\n";
     const auto pos = entity.get<CTransform>().pos;
+
+    if (entity.tagId() == ePlayer)
+    {
+        auto dead = m_entityManager.addEntity(eDecoration);
+        dead.add<CAnimation>(m_game->assets().getAnimation("Dead"), true);
+        dead.get<CAnimation>().animation.getSprite().setColor(game::LightGray);
+        dead.add<CTransform>(pos);
+        dead.add<CLifespan>(entity.get<CHealth>().max * 60, m_currentFrame);
+    }
     entity.destroy();
     spawnEntity(entity.tagId(), pos);
 }
@@ -669,7 +678,6 @@ void ScenePlay::drawTextures()
                     animation.getSprite().setScale(
                         transform.scale.x, transform.scale.y
                         );
-                    // animation.getSprite().setColor(c); TODO: do we need it?
                     m_game->window().draw(animation.getSprite());
                 }
 
