@@ -16,6 +16,11 @@ class ScenePlay final: public Scene
         std::string weapon;
     };
 
+    struct ConsumableConfig
+    {
+        float health, gravity;
+    };
+
 public:
     ScenePlay(GameEngine* gameEngine, std::string levelPath);
 
@@ -41,8 +46,9 @@ protected:
 
     void doPanelAction(CInput& input, Entity& entity);
     void spawnPlayer(bool init = false);
-    void spawnEntity(size_t tag);
-    void destroyEntity(Entity entity);
+    void spawnEntity(size_t tag, Vec2 pos);
+    void spawnInk(Vec2 pos);
+    void destroyEntity(Entity& entity);
     void moveEntity(Entity& entity);
     void createPanelEntities();
 
@@ -52,6 +58,7 @@ protected:
 
     void collisionEntities(Entity& entity, Entity& tile);
     void entityTileCollision();
+    void weaponTileCollision();
     void playerNpcCollision();
     void entityItemCollision();
     // void teleportCollision();
@@ -63,9 +70,10 @@ protected:
     // bool isPositionOccupied(const sf::Vector2f& position);
     //
     void setRoomBackground(sf::Texture& tex);
-    void spawnSpecialWeapon(Entity& entity);
+    void spawnSpecialWeapon(Entity& entity, const bool& hard);
 
     PlayerConfig m_playerConfig{};
+    ConsumableConfig m_consConfig{};
     std::optional<Grid> m_grid;
     std::optional<DebugGui> m_gui;
     std::optional<PlayerGui> m_pGui;

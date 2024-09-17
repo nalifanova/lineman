@@ -18,6 +18,7 @@ Texture TexManWalk assets/images/lineman/man_walk.png
 
 Texture TexDecBgrnd assets/images/decoration/dec_background.png
 Texture TexConsInk assets/images/consumables/cons_ink.png
+Texture TexFlyingInk assets/images/weapon/flying_ink.png
 Texture TexPanelInk assets/images/panel/panel_ink.png
 Texture TexPanelShield assets/images/panel/panel_shield.png
 Texture TexPanelBoom assets/images/panel/panel_boom.png
@@ -41,6 +42,7 @@ Animation Air TexManAir 4 50
 Animation Walk TexManWalk 4 16
 
 Animation ConsInk TexConsInk   2 16
+Animation WeaponInk TexFlyingInk   2 16
 Animation PanelInk TexPanelInk 1 0
 Animation PanelShield TexPanelShield 1 0
 Animation PanelBoom TexPanelBoom 1 0
