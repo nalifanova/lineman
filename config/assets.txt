@@ -15,6 +15,7 @@ Texture TexAirCube assets/images/tiles/tile_air_cube.png
 Texture TexManStand assets/images/lineman/man_stand.png
 Texture TexManAir assets/images/lineman/man_air.png
 Texture TexManWalk assets/images/lineman/man_walk.png
+Texture TexManDead assets/images/lineman/man_dead.png
 
 Texture TexDecBgrnd assets/images/decoration/dec_background.png
 Texture TexConsInk assets/images/consumables/cons_ink.png
@@ -40,6 +41,7 @@ Animation TileLandSaws TexLandSaws 4 16
 Animation Stand TexManStand 4 50
 Animation Air TexManAir 4 50
 Animation Walk TexManWalk 4 16
+Animation Dead TexManDead 1 0
 
 Animation ConsInk TexConsInk   2 16
 Animation WeaponInk TexFlyingInk   2 16
