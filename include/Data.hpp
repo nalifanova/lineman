@@ -10,7 +10,7 @@ namespace game {
         {4 * w, h}, {3 * w, h}, {2 * w, h}, {w, h},
         {0, h}, {0, 0}
     };
-    inline u_int16_t maxToChange = 5;
+    inline u_int16_t maxAmountToChange = 5;
     inline u_int16_t coolDown = 5;
 }
 

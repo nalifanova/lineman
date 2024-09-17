@@ -103,18 +103,18 @@ void PlayerGui::barsUpgrade(Entity& entity)
     rect.setOutlineThickness(1);
     m_window.draw(rect);
 
-    float ratio = static_cast<float>(item.amount) / static_cast<float>(game::maxToChange);
-    size.x *= ratio;
+    float ratio = static_cast<float>(item.amount) / static_cast<float>(game::maxAmountToChange);
+    size.x *= ratio <= 1.0f ? ratio : 1.0f; // limitation to max amount
     rect.setSize({size.x, size.y});
-    if (item.amount >= game::maxToChange) { color = game::LightGray; }
+    if (item.amount >= game::maxAmountToChange) { color = game::LightGray; }
     rect.setFillColor(sf::Color(color));
     rect.setOutlineThickness(0);
     m_window.draw(rect);
 
-    for (int i = 0; i < game::maxToChange; i++)
+    for (int i = 0; i < game::maxAmountToChange; i++)
     {
         tick.setPosition(
-            rect.getPosition() + sf::Vector2f(i * game::kGridSize * 1.0 / game::maxToChange, 64)
+            rect.getPosition() + sf::Vector2f(i * game::kGridSize * 1.0 / game::maxAmountToChange, 64)
             );
         m_window.draw(tick);
     }

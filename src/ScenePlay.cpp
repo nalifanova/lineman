@@ -116,15 +116,16 @@ void ScenePlay::loadLevel(const std::string& fileName)
         }
         else if (token == "Cons")
         {
-            int rx, ry, tx, ty, health;
-            fin >> name >> rx >> ry >> tx >> ty >> health;
+            int rx, ry, tx, ty;
+            fin >> name >> rx >> ry >> tx >> ty >> m_consConfig.health >> m_consConfig.gravity;
             auto cons = m_entityManager.addEntity(TagName::eConsumable);
             cons.add<CAnimation>(m_game->assets().getAnimation(name), true);
             cons.add<CTransform>(m_grid->getPosition(rx, ry, tx, ty));
             cons.get<CTransform>().pos.y += 16;
             cons.add<CBoundingBox>(cons.get<CAnimation>().animation.getSize());
             cons.add<CDraggable>();
-            cons.add<CHealth>(health, health);
+            cons.add<CGravity>(m_consConfig.gravity);
+            cons.add<CHealth>(m_consConfig.health, m_consConfig.health);
             token = "None";
         }
         else if (token == "Panel")
@@ -226,7 +227,8 @@ void ScenePlay::sDoAction(const Action& action)
         else if (action.name() == "INTERACT") { input.interact = true; }
         else if (action.name() == "KEY1") { input.key1 = true; }
         else if (action.name() == "KEY2") { input.key2 = true; }
-        else if (action.name() == "KEY3") { input.key3 = true; }
+        else
+            if (action.name() == "KEY3") { input.key3 = true; }
     }
     else if (action.type() == "END")
     {
@@ -237,7 +239,8 @@ void ScenePlay::sDoAction(const Action& action)
         else if (action.name() == "INTERACT") { input.interact = false; }
         else if (action.name() == "KEY1") { input.key1 = false; }
         else if (action.name() == "KEY2") { input.key2 = false; }
-        else if (action.name() == "KEY3") { input.key3 = false; }
+        else
+            if (action.name() == "KEY3") { input.key3 = false; }
     }
 }
 
@@ -256,8 +259,6 @@ void ScenePlay::sRender()
     // draw the grid so that can easily debug
     Entity player = getPlayer();
     m_grid->drawGrid(m_drawGrid, player);
-
-    // m_game->window().draw(m_bottomPanel);
 }
 
 void ScenePlay::sDrag()
@@ -274,18 +275,18 @@ void ScenePlay::doPanelAction(CInput& input, Entity& entity)
     if (input.interact)
     {
         if (auto& c = shield.get<CConsumable>();
-            (input.key2 && ink.get<CConsumable>().amount >= game::maxToChange)
+            (input.key2 && ink.get<CConsumable>().amount >= game::maxAmountToChange)
             && (m_currentFrame - c.frameCreated > c.cooldown))
         {
-            ink.get<CConsumable>().amount -= game::maxToChange;
+            ink.get<CConsumable>().amount -= game::maxAmountToChange;
             c.amount += 1;
             c.frameCreated = m_currentFrame;
         }
         else if (auto& c = boom.get<CConsumable>();
-            (input.key3 && ink.get<CConsumable>().amount >= game::maxToChange)
+            (input.key3 && ink.get<CConsumable>().amount >= game::maxAmountToChange)
             && (m_currentFrame - c.frameCreated > c.cooldown))
         {
-            //ink.get<CConsumable>().amount -= game::maxToChange;
+            ink.get<CConsumable>().amount -= game::maxAmountToChange;
             c.amount += 1;
             c.frameCreated = m_currentFrame;
         }
@@ -314,12 +315,12 @@ void ScenePlay::doPanelAction(CInput& input, Entity& entity)
     else if (input.key3)
     {
         auto& c = boom.get<CConsumable>();
+        const bool hard = c.amount >= game::maxAmountToChange;
         if (c.amount > 0 && m_currentFrame - c.frameCreated > c.cooldown)
         {
             c.frameCreated = m_currentFrame;
             c.amount--;
-            // spawnSpecialWeapon(entity);
-            std::cout << "We clicked key3 \n";
+            spawnSpecialWeapon(entity, hard);
         }
     }
 }
@@ -446,8 +447,14 @@ void ScenePlay::sStatus()
 
         if (entity.has<CLifespan>())
         {
-            auto& life = entity.get<CLifespan>();
-            if (m_currentFrame - life.frameCreated > life.lifespan) { destroyEntity(entity); }
+            const auto& life = entity.get<CLifespan>();
+            const auto remainingTime = m_currentFrame - life.frameCreated;
+            const auto color = entity.get<CAnimation>().animation.getSprite().getColor();
+            const auto alpha = 255 - 128 * remainingTime / life.lifespan;
+            entity.get<CAnimation>().animation.getSprite().setColor(
+                sf::Color(color.r, color.g, color.b, alpha)
+                );
+            if (remainingTime > life.lifespan) { destroyEntity(entity); }
         }
 
         if (entity.has<CInvincibility>())
@@ -531,6 +538,7 @@ void ScenePlay::sCamera(bool reset)
 void ScenePlay::sCollision()
 {
     entityTileCollision();
+    weaponTileCollision();
     // playerNpcCollision();
     entityItemCollision();
     entityGroundCollision();
@@ -557,16 +565,29 @@ void ScenePlay::spawnPlayer(bool init)
     else { std::cout << "A player is respawned, id[" << player.id() << "]\n"; }
 }
 
-void ScenePlay::spawnEntity(const size_t tag)
+void ScenePlay::spawnEntity(const size_t tag, Vec2 pos)
 {
     if (tag == ePlayer) { spawnPlayer(); }
+    if (tag == eTile) { spawnInk(pos); }
 }
 
-void ScenePlay::destroyEntity(const Entity entity)
+void ScenePlay::spawnInk(Vec2 pos)
 {
-    std::cout << "DEBUG: Remove " << entity.tag() << " with id[" << entity.id() << "]\n";
+    auto cons = m_entityManager.addEntity(eConsumable);
+    cons.add<CAnimation>(m_game->assets().getAnimation("ConsInk"), true);
+    cons.add<CTransform>(pos);
+    cons.add<CBoundingBox>(cons.get<CAnimation>().animation.getSize());
+    cons.add<CDraggable>();
+    cons.add<CGravity>(m_consConfig.gravity);
+    cons.add<CHealth>(m_consConfig.health, m_consConfig.health);
+}
+
+void ScenePlay::destroyEntity(Entity& entity)
+{
+    // std::cout << "DEBUG: Remove " << entity.tag() << " with id[" << entity.id() << "]\n";
+    const auto pos = entity.get<CTransform>().pos;
     entity.destroy();
-    spawnEntity(entity.tagId());
+    spawnEntity(entity.tagId(), pos);
 }
 
 void ScenePlay::moveEntity(Entity& entity)
@@ -594,7 +615,7 @@ void ScenePlay::moveEntity(Entity& entity)
 
 void ScenePlay::createPanelEntities()
 {
-    std::vector<std::string> panelEntitiesNames {"PanelInk", "PanelShield", "PanelBoom"};
+    std::vector<std::string> panelEntitiesNames{"PanelInk", "PanelShield", "PanelBoom"};
     m_entityPanel.reserve(panelEntitiesNames.size());
 
     for (const auto& name: panelEntitiesNames)
@@ -619,7 +640,7 @@ void ScenePlay::drawTextures()
     if (m_drawTextures)
     {
         // Note: last rendered is on top of previous rendered
-        std::vector<TagName> tags = {TagName::eTile, eDecoration, eConsumable, TagName::eNpc, TagName::ePlayer};
+        std::vector tags = {eTile, eDecoration, eConsumable, eNpc, ePlayer, eWeapon};
         for (const auto& tag: tags)
         {
             for (auto& entity: m_entityManager.getEntities(tag))
@@ -648,7 +669,7 @@ void ScenePlay::drawTextures()
                     animation.getSprite().setScale(
                         transform.scale.x, transform.scale.y
                         );
-                    animation.getSprite().setColor(c);
+                    // animation.getSprite().setColor(c); TODO: do we need it?
                     m_game->window().draw(animation.getSprite());
                 }
 
@@ -771,6 +792,11 @@ void ScenePlay::collisionEntities(Entity& entity, Entity& tile)
     {
         if (tile.get<CBoundingBox>().blockMove)
         {
+            if (entity.tagId() == eWeapon)
+            {
+                destroyEntity(tile);
+                return;
+            }
             // Overlap: defining a direction
             const auto prevOverlap = Physics::getPreviousOverlap(entity, tile);
             auto& entityPos = entity.get<CTransform>().pos;
@@ -821,13 +847,24 @@ void ScenePlay::collisionEntities(Entity& entity, Entity& tile)
 void ScenePlay::entityTileCollision()
 {
     auto player = getPlayer();
-    for (auto& tile: m_entityManager.getEntities(TagName::eTile))
+    for (auto& tile: m_entityManager.getEntities(eTile))
     {
         collisionEntities(player, tile);
 
-        for (auto& npc: m_entityManager.getEntities(TagName::eNpc))
+        for (auto& npc: m_entityManager.getEntities(eNpc))
         {
             collisionEntities(npc, tile);
+        }
+    }
+}
+
+void ScenePlay::weaponTileCollision()
+{
+    for (auto& weapon: m_entityManager.getEntities(eWeapon))
+    {
+        for (auto& tile: m_entityManager.getEntities(eTile))
+        {
+            collisionEntities(weapon, tile);
         }
     }
 }
@@ -857,6 +894,11 @@ void ScenePlay::entityItemCollision()
         {
             moveEntity(consumable);
             //m_game->playSound("pickupInk");
+        }
+
+        for (auto tile: m_entityManager.getEntities(eTile))
+        {
+            collisionEntities(consumable, tile);
         }
     }
 }
@@ -894,7 +936,22 @@ void ScenePlay::setRoomBackground(sf::Texture& tex)
     m_game->window().draw(m_background);
 }
 
-void ScenePlay::spawnSpecialWeapon(Entity& entity)
+void ScenePlay::spawnSpecialWeapon(Entity& entity, const bool& hard)
 {
+    const size_t vertices = hard ? 12 : 6;
+    for (size_t i = 0; i < vertices; i++)
+    {
+        auto boom = m_entityManager.addEntity(eWeapon);
+        const float angle = 360.0f / vertices * i;
+        const float radian = angle * 3.1415f / 180;
 
+        Vec2& pos = entity.get<CTransform>().pos;
+        Vec2 velocity(cos(radian), sin(radian));
+        Vec2 scale = {0.8f, 0.8f};
+        velocity *= 5; // speed
+
+        boom.add<CAnimation>(m_game->assets().getAnimation("WeaponInk"), true);
+        boom.add<CTransform>(pos, velocity, scale, angle - 90);
+        boom.add<CLifespan>(30, m_currentFrame);
+    }
 }

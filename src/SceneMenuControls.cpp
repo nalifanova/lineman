@@ -85,12 +85,19 @@ void SceneMenuControls::controls()
     m_menuStrings.emplace_back("[S] - Movement Down");
     m_menuStrings.emplace_back("[D] - Movement Right");
     m_menuStrings.emplace_back("---------------------");
+    m_menuStrings.emplace_back("[1] - Restore Health");
+    m_menuStrings.emplace_back("[2] - Activate Shield");
+    m_menuStrings.emplace_back("[3] - Make Boom");
+    m_menuStrings.emplace_back("---------------------");
     m_menuStrings.emplace_back("[E] - Interact");
+    m_menuStrings.emplace_back("[E + 2] - Transform Ink to Shield");
+    m_menuStrings.emplace_back("[E + 3] - Transform Ink to Boom");
+
     m_menuStrings.emplace_back("[P] - Pause");
     m_menuStrings.emplace_back("---------------------");
     m_menuStrings.emplace_back("ESC back to Menu");
 
-    int menuSize = 26;
+    int menuSize = 20;
     for (int i = 0; i < m_menuStrings.size(); i++)
     {
         sf::Text text(m_menuStrings[i], m_game->assets().getFont("Tech"), menuSize);

@@ -25,8 +25,8 @@ public:
     [[nodiscard]] const sf::Font& getFont(const std::string& fontName) const;
     sf::Sound& getSound(const std::string& soundName);
 
-    void addAnimation(const std::string& animName, const Animation& animation);
 private:
+    void addAnimation(const std::string& animName, const Animation& animation);
     void addTexture(const std::string& texName, const std::string& path); // bool s
     void addFont(const std::string& fontName, const std::string& path);
     void addSound(const std::string& fontName, const std::string& path);
