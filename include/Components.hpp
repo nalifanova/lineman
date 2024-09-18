@@ -173,6 +173,7 @@ public:
     std::string state = "stand";
     bool inAir = true;
     bool changed = false;
+    bool canJump = false;
 };
 
 class CGravity: public Component

@@ -18,9 +18,9 @@ checklist to mark your game's progress by putting an [x] inside the square brack
 * All assets should be gathered or created by the project group members
 
 ## Game Scenes
-- [ ] Main menu scene that implements the main menu / options functionality
+- [x] Main menu scene that implements the main menu / options functionality
 - [ ] Overworld map scene that allows for level selection / game progression (Super Mario World etc)
-- [ ] Main gameplay scene that implements the game physics of the main gameplay mode
+- [x] Main gameplay scene that implements the game physics of the main gameplay mode
 - [ ] Some sort of item inventory or in-game many scene that is used for a relevant function
 - [ ] Level editor scene that implements level editor functionality
 - [ ] A ‘game over’ scene with some sort of animation and game over / credits
@@ -30,14 +30,14 @@ Your game must contain all the following mechanics. You may copy / paste / edit 
 for use in your proposal. Your final project submission must contain this list which each 
 finished feature marked as completed.
 
-- [ ] Collisions
-  - [ ] Rectangular bounding box collisions between some entities 
-  - [ ] Some collision between player and level geometry (walls, tiles, etc)
+- [x] Collisions
+  - [x] Rectangular bounding box collisions between some entities 
+  - [x] Some collision between player and level geometry (walls, tiles, etc)
 - [ ] Movement
-  - [ ] Your game must contain at least 2 'movement abilitites' with a cooldown or resource cost
+  - [x] Your game must contain at least 2 'movement abilities' with a cooldown or resource cost
   - Our Game's Movement Abilities:
     - [ ] Example 1: Double Jump 
-    - [ ] Example 2: Dash (with invulnerability)
+    - [x] Example 2: Dash (with invulnerability)
     - [ ] Example 3: Wall Jump 
     - [ ] Example 4: Jetpack (with fuel)
 - [ ] Bullets / Weapons
@@ -47,20 +47,20 @@ finished feature marked as completed.
     - [ ] Example 2: Shotgun (several bullets fired in a spread)
     - [ ] Example 3: Sword (melee weapon)
   - [ ] Weapons must be swappable during gameplay via hotkey or ui element
-  - [ ] At least one weapon must consume ammo obtainable during gameplay
+  - [x] At least one weapon must consume ammo obtainable during gameplay
 - [ ] NPCs
   - [ ] At least 3 unique non-player characters in the game that act as enemies or allies
   - [ ] Must contain basic AI such as path-finding / shooting / patrolling / battling with the player
   - [ ] Each NPC has a unique weapon or method for interacting with the player
 - [ ] Hit Points / Damage
-  - [ ] Player / enemies in the game should have hit points (life) and take damage / die
-  - [ ] Invincibility frames must be implemented for all entities that take damage
+  - [x] Player / enemies in the game should have hit points (life) and take damage / die
+  - [x] Invincibility frames must be implemented for all entities that take damage
   - [ ] Enemy HP levels must be displayed to the user in some way
 - [ ] Objects / Inventory
-  - [ ] At least 3 different items should be obtainable during the game via interaction
-  - [ ] UI should display inventory of these items, allow for their use after obtaining
+  - [x] At least 3 different items should be obtainable during the game via interaction
+  - [x] UI should display inventory of these items, allow for their use after obtaining
   - Our Game's Items are:
-    - [ ] Example 1: Health Pack (used to regain hp)
+    - [x] Example 1: Health Pack (used to regain hp)
     - [ ] Example 2: Sprint Potion
     - [ ] Example 3: Teleport Scroll
 - [ ] Ray Casting / Visibility
@@ -68,12 +68,12 @@ finished feature marked as completed.
   - Our Game's Ray Casting Functionality are (one lighting, one visibility):
     - [ ] Example 1: Turret fires when player enters line of sight
     - [ ] Example 2: Player torch illuminates areas within line of sight
-- [ ] Gravity / Acceleration
-  - [ ] There must be some form of gravity / attractor in the game that applies acceleration to the player
+- [x] Gravity / Acceleration
+  - [x] There must be some form of gravity / attractor in the game that applies acceleration to the player
 - [ ] Camera / World View
   - [ ] Your game must use at least 2 different camera views in an interesting way
   - Our Game's Camera Views:
-    - [ ] Example 1: Standard main camera view of gameplay
+    - [x] Example 1: Standard main camera view of gameplay
     - [ ] Example 2: Mini-map of local area that shows player position
 - [ ] Pathfinding/Steering
   - [ ] Some entities in the game must exhibit non-trivial pathfinding and smooth steering behaviour
@@ -82,8 +82,8 @@ finished feature marked as completed.
     - [ ] Example 2: Path-finding algorithm used to guide NPC toward player
 - [ ] User Interface / HUD
   - [ ] Must have a user interface / HUD which displays information such as:
-    - [ ] Player health
-    - [ ] Weapons and Ammo
+    - [x] Player health
+    - [x] Weapons and Ammo
     - [ ] Game Progression
     - [ ] Status Effects / Timers
     - [ ] Other UI elements listed here
@@ -91,8 +91,8 @@ finished feature marked as completed.
   - [ ] Must have background music during gameplay / menu scenes
   - [ ] Must have sound effects that occur for events such as getting hit, item pickup, ui selection, etc
 - [ ] Assets
-  - [ ] You cannot use any assets that were given out in the course (levels / animations / music)
-  - [ ] You do not have to create assets from scratch, you can obtain them online
+  - [x] You cannot use any assets that were given out in the course (levels / animations / music)
+  - [x] You do not have to create assets from scratch, you can obtain them online
   - [ ] If you obtained assets online, please cite the sources of the assets
 
 ## Required Gameplay and Mechanics (Newly Implemented)

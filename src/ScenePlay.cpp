@@ -2,12 +2,12 @@
 
 #include <fstream>
 
-#include "imgui.h"
 #include <imgui_internal.h>
 #include "imgui-SFML.h"
 
 #include "Components.hpp"
 #include "Data.hpp"
+#include "DeltaTime.hpp"
 #include "GameEngine.hpp"
 #include "Physics.hpp"
 #include "SceneMenu.hpp"
@@ -329,6 +329,7 @@ void ScenePlay::sMovement()
 {
     auto player = getPlayer();
     if (!player.isActive()) { return; }
+
     auto& input = player.get<CInput>();
     auto& state = player.get<CState>();
     auto& transf = player.get<CTransform>();
@@ -347,15 +348,16 @@ void ScenePlay::sMovement()
         return; // can't hold keys in opposite directions
     }
 
-    if (input.up && !state.inAir)
+    if (input.up && !state.inAir && state.canJump)
     {
-        playerVelocity.y = -m_playerConfig.jump * 10;
+        playerVelocity.y = -m_playerConfig.jump * 10; // ~200
         state.inAir = true;
         facing = Vec2(0.0, 1.0f);
+        state.canJump = false;
     }
     else if (input.down)
     {
-        playerVelocity.y = m_playerConfig.speed;
+        playerVelocity.y += m_playerConfig.speed;
         facing = Vec2(0.0, -1.0f);
     }
     else if (input.right)
@@ -370,7 +372,7 @@ void ScenePlay::sMovement()
     }
     else
     {
-        playerVelocity = Vec2(0.0, 0.0f);;
+        playerVelocity = Vec2(0.0, 0.0f);
         isMoving = false;
     }
 
@@ -420,7 +422,6 @@ void ScenePlay::sMovement()
             state.changed = true;
         }
     }
-
     transf.velocity = playerVelocity;
 
     // move entities
@@ -429,11 +430,13 @@ void ScenePlay::sMovement()
         auto& t = entity.get<CTransform>();
         if (entity.has<CGravity>())
         {
-            t.velocity.y += entity.get<CGravity>().gravity;
+            t.velocity.y += entity.get<CGravity>().gravity * 0.5f;
+
             if (t.velocity.y > m_playerConfig.gravity) { t.velocity.y = m_playerConfig.gravity; }
         }
         t.prevPos = t.pos;
         t.pos += t.velocity * 1.3f; // delta time
+        // sCollision();
     }
 }
 
@@ -757,7 +760,7 @@ void ScenePlay::drawCollisions()
                 m_game->window().draw(rect);
 
                 // draw line between player and npc
-                if (entity.tag() == "NPC")
+                if (entity.tagId() == eNpc)
                 {
                     auto& ePos = entity.get<CTransform>().pos;
                     auto view = m_game->window().getView().getCenter();
@@ -829,10 +832,15 @@ void ScenePlay::collisionEntities(Entity& entity, Entity& tile)
 
                 // stop moving
                 entity.get<CTransform>().velocity.y = 0.0f;
+                entity.get<CState>().canJump = true;
             }
 
             // side collision
-            if (prevOverlap.y > 0.0f) { entityPos.x += entityPos.x < tilePos.x ? -overlap.x : overlap.x; }
+            if (prevOverlap.y > 0.0f)
+            {
+                entityPos.x += entityPos.x < tilePos.x ? -overlap.x : overlap.x;
+                entity.get<CTransform>().velocity.x = 0.0f;
+            }
         }
 
         if (entity.has<CInvincibility>()) { return; }
@@ -940,9 +948,11 @@ void ScenePlay::setRoomBackground(sf::Texture& tex)
     }
     tex.setRepeated(true);
     m_background.setTexture(&tex);
-    m_background.setOrigin(static_cast<float>(tex.getSize().x) / 2.0f, static_cast<float>(tex.getSize().y) / 2.0f);
+    m_background.setOrigin(static_cast<float>(tex.getSize().x) / 2.0f,
+        static_cast<float>(tex.getSize().y) / 2.0f);
     m_background.setTextureRect(sf::IntRect(
-        0, 0, static_cast<int>(width() * 4.0f), static_cast<int>(height() * 1.0f)
+        0, 0, static_cast<int>(width() * 4.0f),
+        static_cast<int>(height() * 1.0f)
         ));
     m_game->window().draw(m_background);
 }
