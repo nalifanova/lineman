@@ -51,6 +51,7 @@ add_executable(${PROJECT_NAME}
     include/Components.hpp
     include/Data.hpp
     include/DebugGui.hpp
+    include/DeltaTime.hpp
     include/Entity.hpp
     include/EntityManager.hpp
     include/EntityMemoryPool.hpp
@@ -68,6 +69,7 @@ add_executable(${PROJECT_NAME}
     src/Animation.cpp
     src/Assets.cpp
     src/DebugGui.cpp
+    src/DeltaTime.cpp
     src/Entity.cpp
     src/EntityManager.cpp
     src/EntityMemoryPool.cpp
@@ -82,6 +84,7 @@ add_executable(${PROJECT_NAME}
     src/Vec2.cpp
     # Tests
     tests/test_panel_icon.hpp
+    tests/test_jumping.hpp
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC ImGui-SFML::ImGui-SFML)

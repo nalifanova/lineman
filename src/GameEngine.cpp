@@ -6,6 +6,7 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
 
+#include "DeltaTime.hpp"
 #include "SceneMenu.hpp"
 
 GameEngine::GameEngine(const std::string& path)
@@ -26,7 +27,8 @@ void GameEngine::run()
     while (isRunning())
     {
         sUserInput();
-        ImGui::SFML::Update(m_window, m_deltaClock.restart());
+        DeltaTime::set(m_deltaClock.restart());
+        ImGui::SFML::Update(m_window, DeltaTime::get());
         update();
         ImGui::SFML::Render(m_window);
         m_window.display();
