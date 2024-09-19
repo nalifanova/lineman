@@ -1,6 +1,7 @@
 #include "GameEngine.hpp"
 
 #include <iostream>
+#include <fstream>
 #include <string>
 
 #include "imgui.h"
@@ -18,6 +19,8 @@ void GameEngine::changeScene(const std::string& sceneName, std::shared_ptr<Scene
 {
     if (endCurrentScene) { m_sceneMap.erase(m_sceneMap.find(m_currentScene)); }
 
+    if (!scene) { return; }
+
     m_sceneMap[sceneName] = std::move(scene);
     m_currentScene = sceneName;
 }
@@ -26,9 +29,10 @@ void GameEngine::run()
 {
     while (isRunning())
     {
+        sf::Time deltaTime = m_deltaClock.restart();
+        DeltaTime::set(deltaTime);
         sUserInput();
-        DeltaTime::set(m_deltaClock.restart());
-        ImGui::SFML::Update(m_window, DeltaTime::get());
+        ImGui::SFML::Update(m_window, deltaTime);
         update();
         ImGui::SFML::Render(m_window);
         m_window.display();
@@ -66,6 +70,32 @@ bool GameEngine::isRunning() const
     return m_running && m_window.isOpen();
 }
 
+void GameEngine::registerKey(const std::string& keyName, const uint16_t keyValue)
+{
+    m_supportedKeys[keyName] = keyValue;
+}
+
+SupportedKeys& GameEngine::getSupportedKeys()
+{
+    return m_supportedKeys;
+}
+
+void GameEngine::initKeys()
+{
+    std::ifstream fin("config/supported_keys.ini");
+    if (!fin)
+    {
+        std::cerr << "Could not load config/supported_keys.ini file!\n";
+        exit(-1);
+    }
+    uint16_t keyCode = 0;
+    std::string keyName = "None";
+    while (fin >> keyName >> keyCode)
+    {
+        registerKey(keyName, keyCode);
+    }
+}
+
 // protected
 void GameEngine::init(const std::string& path)
 {
@@ -79,6 +109,7 @@ void GameEngine::init(const std::string& path)
         std::cerr << "Failed ImGui initialization\n";
     }
 
+    initKeys();
     changeScene("MENU", std::make_shared<SceneMenu>(this));
 }
 

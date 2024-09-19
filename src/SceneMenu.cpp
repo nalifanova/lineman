@@ -25,7 +25,10 @@ void SceneMenu::sRender()
     // draw menu items
     for (int i = 0; i < m_menuStrings.size(); i++)
     {
-        if (i != m_selectedMenuIndex) { m_menuItems[i].setFillColor(sf::Color(game::Gray)); }
+        if (i != m_selectedMenuIndex)
+        {
+            m_menuItems[i].setFillColor(sf::Color(game::Gray));
+        }
         else
         {
             m_menuItems[i].setFillColor(sf::Color::White);
@@ -49,9 +52,10 @@ void SceneMenu::init()
     registerAction(sf::Keyboard::Up, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
     registerAction(sf::Keyboard::Down, "DOWN");
-    registerAction(sf::Keyboard::Enter, "PLAY");
-    registerAction(sf::Keyboard::Space, "PLAY");
+    registerAction(sf::Keyboard::Enter, "RUN");
+    registerAction(sf::Keyboard::Space, "RUN");
     registerAction(sf::Keyboard::M, "MUTE");
+    registerAction(sf::Keyboard::Q, "QUIT");
 
     // m_titleMusic = m_game->assets().getSound("TitleTheme");
     // m_titleMusic.play();
@@ -67,6 +71,7 @@ void SceneMenu::update()
 
 void SceneMenu::onEnd()
 {
+    m_game->changeScene("QUIT", nullptr, true);
     m_game->quit();
 }
 
@@ -83,9 +88,9 @@ void SceneMenu::sDoAction(const Action& action)
         {
             m_selectedMenuIndex = (m_selectedMenuIndex + 1) % m_menuStrings.size();
         }
-        else if (action.name() == "PLAY")
+        else if (action.name() == "RUN")
         {
-            playMenu();
+            runMenu();
         }
         else if (action.name() == "MUTE")
         {
@@ -135,7 +140,7 @@ void SceneMenu::createMenu()
     }
 }
 
-void SceneMenu::playMenu()
+void SceneMenu::runMenu()
 {
     if (m_selectedMenuItem == "Play")
     {
@@ -149,6 +154,9 @@ void SceneMenu::playMenu()
         m_game->changeScene("MENU_CONTROLS", std::make_shared<SceneMenuControls>(m_game));
     }
     else if (m_selectedMenuItem == "Option") { std::cout << "Option is chosen\n"; }
-    else
-        if (m_selectedMenuItem == "Quit") { onEnd(); }
+    else if (m_selectedMenuItem == "Quit")
+    {
+        std::cout << "Quit is chosen\n";
+        onEnd();
+    }
 }

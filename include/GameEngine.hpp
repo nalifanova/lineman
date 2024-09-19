@@ -20,6 +20,7 @@ namespace game
 };
 
 typedef std::map<std::string, std::shared_ptr<Scene>> SceneMap;
+typedef std::map<std::string, uint16_t> SupportedKeys;
 
 class GameEngine
 {
@@ -38,6 +39,10 @@ public:
     sf::RenderWindow& window();
     bool isRunning() const;
 
+    void registerKey(const std::string& keyName, uint16_t keyValue);
+    SupportedKeys& getSupportedKeys();
+    void initKeys();
+
 protected:
     void init(const std::string& path);
     void update();
@@ -51,6 +56,7 @@ protected:
     sf::RenderWindow m_window;
 
     std::string m_currentScene;
+    SupportedKeys m_supportedKeys;
     size_t m_simulationSpeed = 1;
     bool m_running = true;
 };

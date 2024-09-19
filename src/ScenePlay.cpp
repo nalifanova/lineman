@@ -39,6 +39,23 @@ void ScenePlay::update()
 }
 
 // protected
+void ScenePlay::initKeyBinds()
+{
+    auto& keys = m_game->getSupportedKeys();
+    std::ifstream fin("config/gamescene_keybinds.ini");
+    if (!fin)
+    {
+        std::cerr << "Could not load gamescene_keybinds.ini file!\n";
+        exit(-1);
+    }
+    std::string actionName = " ";
+    std::string keyName = " ";
+    while (fin >> actionName >> keyName)
+    {
+        registerAction(keys.at(keyName), actionName);
+    }
+}
+
 void ScenePlay::init(const std::string& levelPath)
 {
     m_grid.emplace(m_game->window()); // initialize m_grid
@@ -48,24 +65,9 @@ void ScenePlay::init(const std::string& levelPath)
     m_grid->text().setCharacterSize(12);
     m_grid->text().setFont(font);
 
-    registerAction(sf::Keyboard::Escape, "QUIT");
-    registerAction(sf::Keyboard::P, "PAUSE");
-    registerAction(sf::Keyboard::T, "TOGGLE_TEXTURE"); // toggle drawing (T)extures
-    registerAction(sf::Keyboard::C, "TOGGLE_COLLISION"); // toggle drawing (C)ollision Box
-    registerAction(sf::Keyboard::G, "TOGGLE_GRID"); // toggle drawing (G)rid
-    registerAction(sf::Keyboard::Z, "TOGGLE_ZOOM"); // toggle drawing (Z)oom
-
-    registerAction(sf::Keyboard::W, "UP");
-    registerAction(sf::Keyboard::S, "DOWN");
-    registerAction(sf::Keyboard::A, "LEFT");
-    registerAction(sf::Keyboard::D, "RIGHT");
-    registerAction(sf::Keyboard::E, "INTERACT");
-
-    registerAction(sf::Keyboard::Num1, "KEY1");
-    registerAction(sf::Keyboard::Num2, "KEY2");
-    registerAction(sf::Keyboard::Num3, "KEY3");
-
+    initKeyBinds();
     createPanelEntities();
+
     m_pGui.emplace(m_game->window(), m_entityManager, font);
 }
 
@@ -394,9 +396,9 @@ void ScenePlay::sMovement()
     }
     else if (input.interact)
     {
-        if (state.state != "interact") // prefix is set here, suffix in animation
+        if (state.state != "Interact") // prefix is set here, suffix in animation
         {
-            state.state = "interact";
+            state.state = "Interact";
             state.changed = true;
             // might consume something
         }
@@ -949,7 +951,7 @@ void ScenePlay::setRoomBackground(sf::Texture& tex)
     tex.setRepeated(true);
     m_background.setTexture(&tex);
     m_background.setOrigin(static_cast<float>(tex.getSize().x) / 2.0f,
-        static_cast<float>(tex.getSize().y) / 2.0f);
+                           static_cast<float>(tex.getSize().y) / 2.0f);
     m_background.setTextureRect(sf::IntRect(
         0, 0, static_cast<int>(width() * 4.0f),
         static_cast<int>(height() * 1.0f)
