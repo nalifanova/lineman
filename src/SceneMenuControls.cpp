@@ -51,7 +51,7 @@ void SceneMenuControls::update()
 
 void SceneMenuControls::onEnd()
 {
-    m_game->changeScene("MENU", std::make_shared<SceneMenu>(m_game));
+    m_game->changeScene("MENU", m_game->getScene("MENU"), true);
 }
 
 void SceneMenuControls::sDoAction(const Action& action)

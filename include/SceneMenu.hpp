@@ -21,7 +21,7 @@ protected:
     void onEnd() override;
     void sDoAction(const Action& action) override;
     void createMenu();
-    void playMenu();
+    void runMenu();
 
     std::vector<std::string> m_menuStrings;
     std::vector<sf::Text> m_menuItems;
