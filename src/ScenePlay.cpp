@@ -69,6 +69,7 @@ void ScenePlay::init(const std::string& levelPath)
     createPanelEntities();
 
     m_pGui.emplace(m_game->window(), m_entityManager, font);
+    m_collision.emplace(m_entityManager, m_currentFrame);
 }
 
 void ScenePlay::loadLevel(const std::string& fileName)
@@ -327,17 +328,56 @@ void ScenePlay::doPanelAction(CInput& input, Entity& entity)
     }
 }
 
+void ScenePlay::doMovement()
+{
+    // auto player = getPlayer();
+    // move entities
+    for (auto entity: m_entityManager.getEntities())
+    {
+        // if (entity.tagId() == ePlayer) { continue; }
+        auto& t = entity.get<CTransform>();
+
+
+        // // Сначала вычисляем новую позицию на основе скорости
+        // Vec2 newPos = t.pos + t.velocity;
+        //
+        // // Если скорость высокая, проверяем по пути
+        // if (Physics::overlap(newPos, entity.get<CTransform>().pos,
+        //     player.get<CBoundingBox>().size, entity.get<CBoundingBox>().size))
+        // {
+        //     // Если обнаружена коллизия, корректируем позицию
+        //     t.velocity = {0, 0}; // Откатываем скорость
+        //     // Опционально: скорректировать позицию, чтобы объект не "проникал" в препятствие
+        // }
+        // else
+        // {
+        //     // Если коллизии нет, обновляем позицию
+        //     t.prevPos = t.pos;
+        //     t.pos = newPos;
+        // }
+
+        if (entity.has<CGravity>())
+        {
+            t.velocity.y += entity.get<CGravity>().gravity * 0.5f;
+
+            // if (t.velocity.y > m_playerConfig.gravity) { t.velocity.y = m_playerConfig.gravity; }
+        }
+        t.prevPos = t.pos;
+        t.pos += t.velocity * 1.3f; // delta time
+        sCollision();
+    }
+}
+
 void ScenePlay::sMovement()
 {
     auto player = getPlayer();
     if (!player.isActive()) { return; }
 
     auto& input = player.get<CInput>();
-    auto& state = player.get<CState>();
-    auto& transf = player.get<CTransform>();
-
     doPanelAction(input, player);
 
+    auto& state = player.get<CState>();
+    auto& transf = player.get<CTransform>();
     Vec2 playerVelocity(transf.velocity.x, 0);
     Vec2 facing = transf.facing;
     bool isMoving = true;
@@ -426,20 +466,7 @@ void ScenePlay::sMovement()
     }
     transf.velocity = playerVelocity;
 
-    // move entities
-    for (auto entity: m_entityManager.getEntities())
-    {
-        auto& t = entity.get<CTransform>();
-        if (entity.has<CGravity>())
-        {
-            t.velocity.y += entity.get<CGravity>().gravity * 0.5f;
-
-            if (t.velocity.y > m_playerConfig.gravity) { t.velocity.y = m_playerConfig.gravity; }
-        }
-        t.prevPos = t.pos;
-        t.pos += t.velocity * 1.3f; // delta time
-        // sCollision();
-    }
+    doMovement();
 }
 
 void ScenePlay::sAI() {}
@@ -542,11 +569,12 @@ void ScenePlay::sCamera(bool reset)
 
 void ScenePlay::sCollision()
 {
-    entityTileCollision();
-    weaponTileCollision();
-    // playerNpcCollision();
-    entityItemCollision();
-    entityGroundCollision();
+    auto player = getPlayer();
+    m_collision->entityTileCollision(player);
+    m_collision->weaponTileCollision();
+    // m_collision->playerNpcCollision();
+    m_collision->entityItemCollision(player);
+    m_collision->entityGroundCollision();
 }
 
 void ScenePlay::sGUI()
@@ -602,29 +630,6 @@ void ScenePlay::destroyEntity(Entity& entity)
     }
     entity.destroy();
     spawnEntity(entity.tagId(), pos);
-}
-
-void ScenePlay::moveEntity(Entity& entity)
-{
-    if (entity.tagId() != eConsumable) { return; }
-
-    // get consumable name and convert to panel name
-    auto name = entity.get<CAnimation>().animation.getName();
-    size_t pos = name.find(entity.tag());
-    if (pos != std::string::npos)
-    {
-        name.replace(pos, entity.tag().length(), tags[ePanel]);
-    }
-    entity.destroy();
-
-    for (auto item: m_entityManager.getEntities(ePanel))
-    {
-        if (item.get<CAnimation>().animation.getName() == name)
-        {
-            item.get<CConsumable>().amount += 1;
-            break;
-        }
-    }
 }
 
 void ScenePlay::createPanelEntities()
@@ -797,129 +802,6 @@ void ScenePlay::drawCollisions()
                     m_game->window().draw(dot);
                 }
             }
-        }
-    }
-}
-
-void ScenePlay::collisionEntities(Entity& entity, Entity& tile)
-{
-    const auto overlap = Physics::getOverlap(entity, tile);
-    if (overlap.x > 0.0f && overlap.y > 0.0f)
-    {
-        if (tile.get<CBoundingBox>().blockMove)
-        {
-            if (entity.tagId() == eWeapon)
-            {
-                destroyEntity(tile);
-                return;
-            }
-            // Overlap: defining a direction
-            const auto prevOverlap = Physics::getPreviousOverlap(entity, tile);
-            auto& entityPos = entity.get<CTransform>().pos;
-            auto& tilePos = tile.get<CTransform>().pos;
-
-            // top/bottom collision
-            if (prevOverlap.x > 0.0f)
-            {
-                if (entityPos.y < tilePos.y) // down
-                {
-                    entityPos.y -= overlap.y;
-                    if (entity.has<CState>()) { entity.get<CState>().inAir = false; }
-                }
-                else // up
-                {
-                    entityPos.y += overlap.y;
-                    // TODO: logic of interaction with somwthing
-                }
-
-                // stop moving
-                entity.get<CTransform>().velocity.y = 0.0f;
-                entity.get<CState>().canJump = true;
-            }
-
-            // side collision
-            if (prevOverlap.y > 0.0f)
-            {
-                entityPos.x += entityPos.x < tilePos.x ? -overlap.x : overlap.x;
-                entity.get<CTransform>().velocity.x = 0.0f;
-            }
-        }
-
-        if (entity.has<CInvincibility>()) { return; }
-        if (entity.has<CBuff>() && entity.get<CBuff>().shield) { return; }
-        if (tile.has<CDamage>())
-        {
-            entity.get<CHealth>().current -= tile.get<CDamage>().damage;
-            entity.add<CInvincibility>(kInvincibility);
-
-            if (entity.get<CHealth>().current <= 0)
-            {
-                destroyEntity(entity);
-                // m_game->playSound("died");
-            }
-            else
-            {
-                // m_game->playSound("hit");
-            }
-        }
-    }
-}
-
-void ScenePlay::entityTileCollision()
-{
-    auto player = getPlayer();
-    for (auto& tile: m_entityManager.getEntities(eTile))
-    {
-        collisionEntities(player, tile);
-
-        for (auto& npc: m_entityManager.getEntities(eNpc))
-        {
-            collisionEntities(npc, tile);
-        }
-    }
-}
-
-void ScenePlay::weaponTileCollision()
-{
-    for (auto& weapon: m_entityManager.getEntities(eWeapon))
-    {
-        for (auto& tile: m_entityManager.getEntities(eTile))
-        {
-            collisionEntities(weapon, tile);
-        }
-    }
-}
-
-void ScenePlay::entityGroundCollision()
-{
-    for (auto entity: m_entityManager.getEntities())
-    {
-        if (entity.tagId() == eTile) { continue; }
-
-        if (entity.get<CTransform>().pos.y > height() - entity.get<CBoundingBox>().halfSize.y)
-        {
-            destroyEntity(entity);
-        }
-    }
-}
-
-void ScenePlay::playerNpcCollision() {}
-
-void ScenePlay::entityItemCollision()
-{
-    auto player = getPlayer();
-    for (auto& consumable: m_entityManager.getEntities(TagName::eConsumable))
-    {
-        const auto overlap = Physics::getOverlap(player, consumable);
-        if (overlap.x > 0.0f && overlap.y > 0.0f)
-        {
-            moveEntity(consumable);
-            //m_game->playSound("pickupInk");
-        }
-
-        for (auto tile: m_entityManager.getEntities(eTile))
-        {
-            collisionEntities(consumable, tile);
         }
     }
 }

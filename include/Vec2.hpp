@@ -56,8 +56,11 @@ public:
      * (unit vector)
      *      N = Vec2(V.x / L, V.y / L)
      */
-    [[nodiscard]] Vec2 normalize();
-    [[nodiscard]] float magnitude() const;
+    Vec2 normalize();
+    /**
+     * (vec2 - vec1).magnitude(speed)
+     */
+    Vec2& magnitude(float length);
     [[nodiscard]] float angle(const Vec2& point) const;
 
     float x = 0.0f;

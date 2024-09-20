@@ -2,11 +2,13 @@
 #ifndef TEST_JUMPING_HPP
 #define TEST_JUMPING_HPP
 
+#include <iostream>
+
 #include <SFML/Graphics.hpp>
 
 void test_jumping()
 {
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Fixed Time Step");
+    sf::RenderWindow window(sf::VideoMode(1200, 760), "Fixed Time Step");
     window.setFramerateLimit(60);
 
     // So called char
