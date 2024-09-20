@@ -103,9 +103,11 @@ Vec2 Vec2::normalize()
     return *this;
 }
 
-float Vec2::magnitude() const
+Vec2& Vec2::magnitude(const float length)
 {
-    return std::sqrt(x * x + y * y);
+    normalize();
+    *this *= length;
+    return *this;
 }
 
 float Vec2::angle(const Vec2& point) const

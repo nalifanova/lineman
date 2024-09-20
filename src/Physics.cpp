@@ -1,7 +1,5 @@
 #include "Physics.hpp"
 
-#include <random>
-
 #include "Components.hpp"
 
 Vec2 Physics::overlap(const Vec2& aPos, const Vec2& bPos, const Vec2& aSize, const Vec2& bSize)
@@ -26,6 +24,13 @@ Vec2 Physics::getPreviousOverlap(Entity& a, Entity& b)
     const auto& aSize = a.get<CBoundingBox>().halfSize;
     const auto& bSize = b.get<CBoundingBox>().halfSize;
     return overlap(aPos, bPos, aSize, bSize);
+}
+
+bool Physics::isColliding(Entity& a, Entity& b)
+{
+    auto overlap = getOverlap(a, b);
+    if (overlap.x > 0.0f && overlap.y > 0.0f) { return true; }
+    return false;
 }
 
 Intersect Physics::lineIntersect(const Vec2& a, const Vec2& b, const Vec2& c, const Vec2& d)

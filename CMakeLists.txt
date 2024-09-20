@@ -48,6 +48,7 @@ add_executable(${PROJECT_NAME}
     include/Action.hpp
     include/Animation.hpp
     include/Assets.hpp
+    include/Collision.hpp
     include/Components.hpp
     include/Data.hpp
     include/DebugGui.hpp
@@ -68,6 +69,7 @@ add_executable(${PROJECT_NAME}
     src/Action.cpp
     src/Animation.cpp
     src/Assets.cpp
+    src/Collision.cpp
     src/DebugGui.cpp
     src/DeltaTime.cpp
     src/Entity.cpp

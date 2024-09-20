@@ -1,6 +1,7 @@
 #ifndef SCENEPLAY_HPP
 #define SCENEPLAY_HPP
 
+#include "Collision.hpp"
 #include "SFML/Graphics.hpp"
 
 #include "Grid.hpp"
@@ -45,26 +46,19 @@ protected:
     void sCollision();
     void sGUI();
 
+    void doMovement();
     void doPanelAction(CInput& input, Entity& entity);
     void spawnPlayer(bool init = false);
     void spawnEntity(size_t tag, Vec2 pos);
     void spawnInk(Vec2 pos);
     void destroyEntity(Entity& entity);
-    void moveEntity(Entity& entity);
+
     void createPanelEntities();
 
     // help functions
     void drawTextures();
     void drawCollisions();
 
-    void collisionEntities(Entity& entity, Entity& tile);
-    void entityTileCollision();
-    void weaponTileCollision();
-    void playerNpcCollision();
-    void entityItemCollision();
-    // void teleportCollision();
-    // void roomCollision(std::shared_ptr<Entity>& entity);
-    void entityGroundCollision();
     //
     void stateAnimation(std::string& animName, Entity& entity);
     static void facingDirection(CTransform& transf);
@@ -75,11 +69,13 @@ protected:
 
     PlayerConfig m_playerConfig{};
     ConsumableConfig m_consConfig{};
+
+    std::optional<Collision> m_collision;
     std::optional<Grid> m_grid;
     std::optional<DebugGui> m_gui;
     std::optional<PlayerGui> m_pGui;
-    Vec2 m_mousePos;
 
+    Vec2 m_mousePos;
     std::string m_levelPath;
     sf::ConvexShape m_background;
     std::vector<Entity> m_entityPanel;
