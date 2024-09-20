@@ -330,36 +330,14 @@ void ScenePlay::doPanelAction(CInput& input, Entity& entity)
 
 void ScenePlay::doMovement()
 {
-    // auto player = getPlayer();
     // move entities
     for (auto entity: m_entityManager.getEntities())
     {
-        // if (entity.tagId() == ePlayer) { continue; }
         auto& t = entity.get<CTransform>();
-
-
-        // // Сначала вычисляем новую позицию на основе скорости
-        // Vec2 newPos = t.pos + t.velocity;
-        //
-        // // Если скорость высокая, проверяем по пути
-        // if (Physics::overlap(newPos, entity.get<CTransform>().pos,
-        //     player.get<CBoundingBox>().size, entity.get<CBoundingBox>().size))
-        // {
-        //     // Если обнаружена коллизия, корректируем позицию
-        //     t.velocity = {0, 0}; // Откатываем скорость
-        //     // Опционально: скорректировать позицию, чтобы объект не "проникал" в препятствие
-        // }
-        // else
-        // {
-        //     // Если коллизии нет, обновляем позицию
-        //     t.prevPos = t.pos;
-        //     t.pos = newPos;
-        // }
 
         if (entity.has<CGravity>())
         {
             t.velocity.y += entity.get<CGravity>().gravity * 0.5f;
-
             // if (t.velocity.y > m_playerConfig.gravity) { t.velocity.y = m_playerConfig.gravity; }
         }
         t.prevPos = t.pos;
