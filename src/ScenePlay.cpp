@@ -341,8 +341,7 @@ void ScenePlay::doMovement()
             // if (t.velocity.y > m_playerConfig.gravity) { t.velocity.y = m_playerConfig.gravity; }
         }
         t.prevPos = t.pos;
-        t.pos += t.velocity * 1.3f; // delta time
-        sCollision();
+        t.pos += t.velocity * 0.8f; // delta time
     }
 }
 

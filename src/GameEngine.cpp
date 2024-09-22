@@ -35,13 +35,14 @@ void GameEngine::run()
         ImGui::SFML::Update(m_window, deltaTime);
         update();
         ImGui::SFML::Render(m_window);
-        m_window.display();
+        m_window.display(); // draw the new stuff
     }
 }
 
 void GameEngine::quit()
 {
     m_running = false;
+    ImGui::SFML::Shutdown();
     m_window.close();
 }
 
