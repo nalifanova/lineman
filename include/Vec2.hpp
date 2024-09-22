@@ -59,6 +59,10 @@ public:
     Vec2 normalize();
     /**
      * (vec2 - vec1).magnitude(speed)
+     *
+     * direction = vec2 - vec1
+     * normalize(direction)
+     * addImpulse(direction * speed)
      */
     Vec2& magnitude(float length);
     [[nodiscard]] float angle(const Vec2& point) const;
