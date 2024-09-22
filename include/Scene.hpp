@@ -42,6 +42,7 @@ protected:
     bool m_paused = false;
     bool m_hasEnded = false;
     size_t m_currentFrame = 0;
+    float m_accel = 0.0f;
 };
 
 #endif //SCENE_H

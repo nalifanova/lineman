@@ -60,6 +60,7 @@ add_executable(${PROJECT_NAME}
     include/Grid.hpp
     include/Physics.hpp
     include/PlayerGui.hpp
+    include/PlayerMovement.hpp
     include/Scene.hpp
     include/SceneMenu.hpp
     include/SceneMenuControls.hpp
@@ -79,6 +80,7 @@ add_executable(${PROJECT_NAME}
     src/Grid.cpp
     src/Physics.cpp
     src/PlayerGui.cpp
+    src/PlayerMovement.cpp
     src/Scene.cpp
     src/SceneMenu.cpp
     src/ScenePlay.cpp
