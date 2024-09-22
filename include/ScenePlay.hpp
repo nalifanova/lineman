@@ -47,7 +47,7 @@ protected:
     void sGUI();
 
     void doMovement();
-    void doPanelAction(CInput& input, Entity& entity);
+    void doPanelAction(Entity& entity);
     void spawnPlayer(bool init = false);
     void spawnEntity(size_t tag, Vec2 pos);
     void spawnInk(Vec2 pos);

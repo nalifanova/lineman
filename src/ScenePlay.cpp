@@ -10,6 +10,7 @@
 #include "DeltaTime.hpp"
 #include "GameEngine.hpp"
 #include "Physics.hpp"
+#include "PlayerMovement.hpp"
 #include "SceneMenu.hpp"
 #include "Tags.hpp"
 
@@ -22,6 +23,9 @@ ScenePlay::ScenePlay(GameEngine* game, std::string levelPath) :
 void ScenePlay::update()
 {
     m_entityManager.update();
+    float deltaTime = DeltaTime::get().asSeconds();
+    m_accel += deltaTime;
+    // std::cout << "m_accel " << m_accel << "\n";
 
     sDrag();
     if (!m_paused)
@@ -254,13 +258,15 @@ void ScenePlay::sRender()
     auto tex = m_game->assets().getTexture("TexDecBgrnd");
     setRoomBackground(tex);
     m_pGui->setBottomPanel();
+    Entity player = getPlayer();
+    doPanelAction(player);
 
     // draw all textures
     drawTextures();
     // draw all Entity collision bounding boxes with a rectangle shape
     drawCollisions();
+
     // draw the grid so that can easily debug
-    Entity player = getPlayer();
     m_grid->drawGrid(m_drawGrid, player);
 }
 
@@ -269,8 +275,9 @@ void ScenePlay::sDrag()
     //
 }
 
-void ScenePlay::doPanelAction(CInput& input, Entity& entity)
+void ScenePlay::doPanelAction(Entity& entity)
 {
+    auto& input = entity.get<CInput>();
     auto& ink = m_entityPanel[0];
     auto& shield = m_entityPanel[1];
     auto& boom = m_entityPanel[2];
@@ -341,7 +348,7 @@ void ScenePlay::doMovement()
             // if (t.velocity.y > m_playerConfig.gravity) { t.velocity.y = m_playerConfig.gravity; }
         }
         t.prevPos = t.pos;
-        t.pos += t.velocity * 0.8f; // delta time
+        t.pos += t.velocity * 1.3f; // delta time
     }
 }
 
@@ -350,98 +357,14 @@ void ScenePlay::sMovement()
     auto player = getPlayer();
     if (!player.isActive()) { return; }
 
-    auto& input = player.get<CInput>();
-    doPanelAction(input, player);
-
-    auto& state = player.get<CState>();
-    auto& transf = player.get<CTransform>();
-    Vec2 playerVelocity(transf.velocity.x, 0);
-    Vec2 facing = transf.facing;
-    bool isMoving = true;
-
-    if ((input.up && input.down) || (input.left && input.right) || (input.up && input.attack) ||
-        (input.down && input.attack) || (input.left && input.attack) || (input.right && input.attack)
-    )
+    auto pm = PlayerMovement(player, m_playerConfig.speed, m_playerConfig.jump);
+    if (!pm.correctInputs())
     {
-        player.get<CAnimation>().paused = true;
         return; // can't hold keys in opposite directions
     }
+    player.get<CTransform>().velocity = pm.getVelocityMove(m_accel);
 
-    if (input.up && !state.inAir && state.canJump)
-    {
-        playerVelocity.y = -m_playerConfig.jump * 10; // ~200
-        state.inAir = true;
-        facing = Vec2(0.0, 1.0f);
-        state.canJump = false;
-    }
-    else if (input.down)
-    {
-        playerVelocity.y += m_playerConfig.speed;
-        facing = Vec2(0.0, -1.0f);
-    }
-    else if (input.right)
-    {
-        playerVelocity.x = m_playerConfig.speed;
-        facing = Vec2(1.0, 0.0f);
-    }
-    else if (input.left)
-    {
-        playerVelocity.x = -m_playerConfig.speed;
-        facing = Vec2(-1.0, 0.0f);
-    }
-    else
-    {
-        playerVelocity = Vec2(0.0, 0.0f);
-        isMoving = false;
-    }
-
-    if (transf.facing != facing)
-    {
-        transf.facing = facing; // update
-        state.changed = true;
-    }
-
-    // attack / move / stand
-    if (input.attack)
-    {
-        if (state.state != "attak") // prefix is set here, suffix in animation
-        {
-            state.state = "attak";
-            state.changed = true;
-            // might spawn smth
-        }
-    }
-    else if (input.interact)
-    {
-        if (state.state != "Interact") // prefix is set here, suffix in animation
-        {
-            state.state = "Interact";
-            state.changed = true;
-            // might consume something
-        }
-    }
-    if (isMoving)
-    {
-        if (state.inAir)
-        {
-            state.state = "Air";
-            state.changed = true;
-        }
-        else if (state.state != "Walk")
-        {
-            state.state = "Walk";
-            state.changed = true;
-        }
-    }
-    else
-    {
-        if (!state.inAir && state.state != "Stand")
-        {
-            state.state = "Stand";
-            state.changed = true;
-        }
-    }
-    transf.velocity = playerVelocity;
+    // pm.runInteract();
 
     doMovement();
 }
