@@ -541,7 +541,7 @@ void ScenePlay::spawnEntity(const size_t tag, size_t spawnTag, Vec2 pos)
     {
         if (spawnTag == eInteractable) { spawnInteractable(pos); }
         // if (spawnTag == eNpc) { spawnNpc(pos); }
-        if (spawnTag == eConsumable) { spawnInk(pos); }
+        // if (spawnTag == eConsumable) { spawnInk(pos); } // TODO: dangerous! Check it out
     }
 }
 
