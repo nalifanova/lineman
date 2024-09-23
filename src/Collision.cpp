@@ -7,22 +7,34 @@
 Collision::Collision(EntityManager& entityManager, size_t& currentFrame):
     m_entityManager(entityManager), m_currentFrame(currentFrame) {}
 
-void Collision::resolveCollision(Entity& entity, Entity& tile)
+void Collision::resolveCollision(Entity& entity, Entity& another)
 {
-    const auto overlap = Physics::getOverlap(entity, tile);
+    const auto overlap = Physics::getOverlap(entity, another);
     if (overlap.x > 0.0f && overlap.y > 0.0f)
     {
-        if (tile.get<CBoundingBox>().blockMove)
+        if (another.get<CBoundingBox>().blockMove)
         {
             if (entity.tagId() == eWeapon)
             {
-                tile.destroy();
+                destroyEntity(another);
                 return;
             }
+
+            // ladders
+            if (another.has<CClimbable>())
+            {
+                if (entity.has<CState>())
+                {
+                    entity.get<CState>().inAir = false;
+                    entity.get<CState>().climbing = true;
+                }
+                return;
+            }
+
             // Overlap: defining a direction
-            const auto prevOverlap = Physics::getPreviousOverlap(entity, tile);
+            const auto prevOverlap = Physics::getPreviousOverlap(entity, another);
             auto& entityPos = entity.get<CTransform>().pos;
-            auto& tilePos = tile.get<CTransform>().pos;
+            auto& tilePos = another.get<CTransform>().pos;
 
             // top/bottom collision
             if (prevOverlap.x > 0.0f)
@@ -50,19 +62,19 @@ void Collision::resolveCollision(Entity& entity, Entity& tile)
                 entity.get<CTransform>().velocity.x = 0.0f;
             }
         }
-        handleEffectsInCollision(entity, tile);
+        handleEffectsInCollision(entity, another);
     }
 }
 
-void Collision::handleEffectsInCollision(Entity& entity, Entity& tile)
+void Collision::handleEffectsInCollision(Entity& entity, Entity& another)
 {
     if (entity.has<CInvincibility>()) { return; }
 
     if (entity.has<CBuff>() && entity.get<CBuff>().shield) { return; }
 
-    if (tile.has<CDamage>())
+    if (another.has<CDamage>())
     {
-        entity.get<CHealth>().current -= tile.get<CDamage>().damage;
+        entity.get<CHealth>().current -= another.get<CDamage>().damage;
         entity.add<CInvincibility>(kInvincibility);
 
         if (entity.get<CHealth>().current <= 0)
@@ -87,16 +99,49 @@ void Collision::entityTileCollision(Entity& player)
         {
             resolveCollision(npc, tile);
         }
+
+        for (auto& cons: m_entityManager.getEntities(eConsumable))
+        {
+            resolveCollision(cons, tile);
+        }
+
+        for (auto& inter: m_entityManager.getEntities(eInteractable))
+        {
+            resolveCollision(inter, tile);
+        }
     }
 }
 
-void Collision::weaponTileCollision()
+void Collision::entityInteractableCollision(Entity& player)
+{
+    for (auto& inter: m_entityManager.getEntities(eInteractable))
+    {
+        resolveCollision(player, inter);
+
+        for (auto& npc: m_entityManager.getEntities(eNpc))
+        {
+            resolveCollision(npc, inter);
+        }
+
+        for (auto& cons: m_entityManager.getEntities(eConsumable))
+        {
+            resolveCollision(cons, inter);
+        }
+    }
+}
+
+void Collision::weaponEntityCollision()
 {
     for (auto& weapon: m_entityManager.getEntities(eWeapon))
     {
         for (auto& tile: m_entityManager.getEntities(eTile))
         {
             resolveCollision(weapon, tile);
+        }
+
+        for (auto& inter: m_entityManager.getEntities(eInteractable))
+        {
+            resolveCollision(weapon, inter);
         }
     }
 }
@@ -105,11 +150,16 @@ void Collision::entityGroundCollision()
 {
     for (auto entity: m_entityManager.getEntities())
     {
-        if (entity.tagId() == eTile) { continue; }
+        if (entity.tagId() == eTile && !entity.has<CGravity>()) { continue; }
 
         if (entity.get<CTransform>().pos.y > game::kWinHeight - entity.get<CBoundingBox>().halfSize.y)
         {
             destroyEntity(entity);
+        }
+
+        if (entity.get<CTransform>().pos.x < entity.get<CBoundingBox>().halfSize.x)
+        {
+            entity.get<CTransform>().pos.x = entity.get<CBoundingBox>().halfSize.x;
         }
     }
 }
@@ -133,6 +183,20 @@ void Collision::entityItemCollision(Entity& player)
     }
 }
 
+bool Collision::isClimbing(Entity& entity) const
+{
+    for (auto& tile: m_entityManager.getEntities(eTile))
+    {
+        if (!tile.has<CClimbable>()) { continue; }
+
+        if (Physics::isColliding(entity, tile))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 void Collision::moveEntity(Entity& entity)
 {
     if (entity.tagId() != eConsumable) { return; }
@@ -144,7 +208,15 @@ void Collision::moveEntity(Entity& entity)
     {
         name.replace(pos, entity.tag().length(), tags[ePanel]);
     }
-    entity.destroy();
+    if (entity.has<CSurprise>())
+    {
+        entity.get<CSurprise>().isActivated = true;
+        destroyEntity(entity);
+    }
+    else
+    {
+        entity.destroy();
+    }
 
     for (auto item: m_entityManager.getEntities(ePanel))
     {
@@ -160,10 +232,11 @@ void Collision::destroyEntity(Entity& entity)
 {
     if (!entity.has<CLifespan>())
     {
-        entity.add<CLifespan>(2, m_currentFrame);
-    } else
+        entity.add<CLifespan>(1, m_currentFrame);
+    }
+    else
     {
-        entity.get<CLifespan>().lifespan = 2;
+        entity.get<CLifespan>().lifespan = 1;
         entity.get<CLifespan>().frameCreated = static_cast<int>(m_currentFrame);
     }
 }

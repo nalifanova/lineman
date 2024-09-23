@@ -15,11 +15,16 @@ class ScenePlay final: public Scene
     {
         float x, y, cX, cY, speed, health, gravity, jump;
         std::string weapon;
+        int roomX = 0;
+        int roomY = 0;
+        int tileX = 1;
+        int tileY = 1;
     };
 
     struct ConsumableConfig
     {
-        float health, gravity;
+        float health = 1.0f;
+        float gravity = 3.0f;
     };
 
 public:
@@ -49,8 +54,10 @@ protected:
     void doMovement();
     void doPanelAction(Entity& entity);
     void spawnPlayer(bool init = false);
-    void spawnEntity(size_t tag, Vec2 pos);
+    void spawnEntity(size_t tag, size_t spawnTag, Vec2 pos);
+    void spawnEntity(size_t tag, size_t spawnTag, int rx, int ry, int tx, int ty);
     void spawnInk(Vec2 pos);
+    void spawnInteractable(Vec2 pos);
     void destroyEntity(Entity& entity);
 
     void createPanelEntities();
@@ -61,7 +68,7 @@ protected:
 
     //
     void stateAnimation(std::string& animName, Entity& entity);
-    static void facingDirection(CTransform& transf);
+    static void facingDirection(CTransform& transf, std::string& animName);
     // bool isPositionOccupied(const sf::Vector2f& position);
     //
     void setRoomBackground(sf::Texture& tex);

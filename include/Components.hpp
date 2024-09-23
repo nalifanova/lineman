@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "Animation.hpp"
+#include "Tags.hpp"
 #include "Vec2.hpp"
 
 constexpr int kInvincibility = 60;
@@ -32,6 +33,14 @@ public:
     CDraggable() = default;
 
     bool dragging = false;
+};
+
+class CClimbable: public Component
+{
+public:
+    CClimbable() = default;
+
+    bool climbing = true;
 };
 
 class CTransform: public Component
@@ -170,10 +179,11 @@ public:
     explicit CState(std::string s) :
         state(std::move(s)) {}
 
-    std::string state = "stand";
+    std::string state = "Stand";
     bool inAir = true;
     bool changed = false;
     bool canJump = false;
+    bool climbing = false;
 };
 
 class CGravity: public Component
@@ -210,6 +220,28 @@ public:
     std::vector<Vec2> positions;
     size_t currentPosition = 0;
     float speed = 0;
+};
+
+class CSurprise: public Component
+{
+public:
+    CSurprise() = default;
+
+    CSurprise(int rx, int ry, int tx, int ty, int t) :
+        roomX(rx), roomY(ry), tileX(tx), tileY(ty), tagId(static_cast<TagName>(t))
+    {
+        if (tagId != eConsumable && tagId != eNpc && tagId != eInteractable)
+        {
+            tagId = eInteractable;
+        }
+    }
+
+    int roomX = 0;
+    int roomY = 0;
+    int tileX = 0;
+    int tileY = 0;
+    TagName tagId = eInteractable;
+    bool isActivated = false;
 };
 
 #endif //COMPONENTS_H

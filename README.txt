@@ -62,11 +62,15 @@ Decoration Name RX RY TX TY
   Dec Position         TX TY    int, int (in block coordinates)
 
 Cons Specification:
-Consumable Name RX RY TX TY H
+Consumable Name RX RY TX TY H G SPR
   Animation Name       Name     std::string
   Room Coordinate      RX RY    int, int (in block coordinates)
   Cons Position        TX TY    int, int (in block coordinates)
   Health               H        int
+  Gravity              G        int
+  Surprise             SPR      Surprise
+  - 0
+  - sRX, sRY, sTX, sTY, tagId
 
 NPC Specification:
   NPC Name RX RY TX TY BM BV H D AI ...

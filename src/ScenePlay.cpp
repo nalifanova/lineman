@@ -101,13 +101,16 @@ void ScenePlay::loadLevel(const std::string& fileName)
             auto tile = m_entityManager.addEntity(TagName::eTile);
             tile.add<CAnimation>(m_game->assets().getAnimation(name), true);
             tile.add<CTransform>(m_grid->getPosition(rx, ry, tx, ty));
-            tile.add<CBoundingBox>(tile.get<CAnimation>().animation.getSize(), bm, bv);
+            tile.add<CBoundingBox>(tile.get<CAnimation>().animation.getSize() - 4.0f, bm, bv);
             tile.add<CDraggable>();
             if (name.find("Saw") != std::string::npos)
             {
                 tile.add<CDamage>(4); // saw takes 4 HP
             }
-            // std::cout << "DEBUG: Tile is onboarded: " << name << "\n";
+            if (name.find("Ladder") != std::string::npos)
+            {
+                tile.add<CClimbable>(); // can be climbed
+            }
             token = "None";
         }
         else if (token == "Dec")
@@ -123,8 +126,8 @@ void ScenePlay::loadLevel(const std::string& fileName)
         }
         else if (token == "Cons")
         {
-            int rx, ry, tx, ty;
-            fin >> name >> rx >> ry >> tx >> ty >> m_consConfig.health >> m_consConfig.gravity;
+            int rx, ry, tx, ty, surprise;
+            fin >> name >> rx >> ry >> tx >> ty >> m_consConfig.health >> m_consConfig.gravity >> surprise;
             auto cons = m_entityManager.addEntity(TagName::eConsumable);
             cons.add<CAnimation>(m_game->assets().getAnimation(name), true);
             cons.add<CTransform>(m_grid->getPosition(rx, ry, tx, ty));
@@ -133,6 +136,12 @@ void ScenePlay::loadLevel(const std::string& fileName)
             cons.add<CDraggable>();
             cons.add<CGravity>(m_consConfig.gravity);
             cons.add<CHealth>(m_consConfig.health, m_consConfig.health);
+            if (surprise)
+            {
+                int sRx, sRy, sTx, sTy, tagId;
+                fin >> sRx >> sRy >> sTx >> sTy >> tagId;
+                cons.add<CSurprise>(sRx, sRy, sTx, sTy, tagId);
+            }
             token = "None";
         }
         else if (token == "Panel")
@@ -257,7 +266,7 @@ void ScenePlay::sRender()
     // background
     auto tex = m_game->assets().getTexture("TexDecBgrnd");
     setRoomBackground(tex);
-    m_pGui->setBottomPanel();
+    m_pGui->setTopPanel();
     Entity player = getPlayer();
     doPanelAction(player);
 
@@ -342,10 +351,14 @@ void ScenePlay::doMovement()
     {
         auto& t = entity.get<CTransform>();
 
-        if (entity.has<CGravity>())
+        if (!(entity.has<CState>() && entity.get<CState>().climbing))
         {
-            t.velocity.y += entity.get<CGravity>().gravity * 0.5f;
-            // if (t.velocity.y > m_playerConfig.gravity) { t.velocity.y = m_playerConfig.gravity; }
+            // No gravity when character is climing
+            if (entity.has<CGravity>())
+            {
+                t.velocity.y += entity.get<CGravity>().gravity * 0.5f;
+                // if (t.velocity.y > m_playerConfig.gravity) { t.velocity.y = m_playerConfig.gravity; }
+            }
         }
         t.prevPos = t.pos;
         t.pos += t.velocity * 1.3f; // delta time
@@ -364,6 +377,10 @@ void ScenePlay::sMovement()
     }
     player.get<CTransform>().velocity = pm.getVelocityMove(m_accel);
 
+    if (!m_collision->isClimbing(player))
+    {
+        player.get<CState>().climbing = false;
+    }
     // pm.runInteract();
 
     doMovement();
@@ -375,8 +392,6 @@ void ScenePlay::sStatus()
 {
     for (auto& entity: m_entityManager.getEntities())
     {
-        if (entity.tagId() == eTile) { continue; }
-
         if (entity.has<CLifespan>())
         {
             const auto& life = entity.get<CLifespan>();
@@ -401,6 +416,12 @@ void ScenePlay::sStatus()
             auto& buff = entity.get<CBuff>();
             if (m_currentFrame - buff.frameCreated > buff.cooldown) { entity.remove<CBuff>(); }
         }
+
+        if (entity.has<CSurprise>() && entity.get<CSurprise>().isActivated)
+        {
+            auto& s = entity.get<CSurprise>();
+            spawnEntity(entity.tagId(), s.tagId, s.roomX, s.roomY, s.tileX, s.tileY);
+        }
     }
 }
 
@@ -411,7 +432,7 @@ void ScenePlay::sAnimation()
 
     auto& state = player.get<CState>();
 
-    if (state.changed)
+    if (state.changed || (state.climbing && !state.changed))
     {
         std::string animName = state.state;
         stateAnimation(animName, player);
@@ -471,7 +492,8 @@ void ScenePlay::sCollision()
 {
     auto player = getPlayer();
     m_collision->entityTileCollision(player);
-    m_collision->weaponTileCollision();
+    m_collision->entityInteractableCollision(player);
+    m_collision->weaponEntityCollision();
     // m_collision->playerNpcCollision();
     m_collision->entityItemCollision(player);
     m_collision->entityGroundCollision();
@@ -487,7 +509,17 @@ void ScenePlay::sGUI()
 void ScenePlay::spawnPlayer(bool init)
 {
     auto player = m_entityManager.addEntity(TagName::ePlayer);
-    player.add<CTransform>(Vec2(m_playerConfig.x, m_playerConfig.y));
+    if (init)
+    {
+        player.add<CTransform>(Vec2(m_playerConfig.x, m_playerConfig.y));
+    }
+    else
+    {
+        player.add<CTransform>(m_grid->getPosition(
+            m_playerConfig.roomX, m_playerConfig.roomY, m_playerConfig.tileX, m_playerConfig.tileY
+            ));
+    }
+
     player.add<CAnimation>(m_game->assets().getAnimation("Air"), true);
     player.add<CBoundingBox>(Vec2(m_playerConfig.cX, m_playerConfig.cY), true, false);
     player.add<CHealth>(m_playerConfig.health, m_playerConfig.health);
@@ -498,10 +530,27 @@ void ScenePlay::spawnPlayer(bool init)
     else { std::cout << "A player is respawned, id[" << player.id() << "]\n"; }
 }
 
-void ScenePlay::spawnEntity(const size_t tag, Vec2 pos)
+void ScenePlay::spawnEntity(const size_t tag, size_t spawnTag, Vec2 pos)
 {
     if (tag == ePlayer) { spawnPlayer(); }
-    if (tag == eTile) { spawnInk(pos); }
+    if (tag == eTile)
+    {
+        if (spawnTag == eTile) { spawnInk(pos); }
+    }
+    if (tag == eConsumable)
+    {
+        if (spawnTag == eInteractable) { spawnInteractable(pos); }
+        // if (spawnTag == eNpc) { spawnNpc(pos); }
+        if (spawnTag == eConsumable) { spawnInk(pos); }
+    }
+}
+
+void ScenePlay::spawnEntity(const size_t tag, const size_t spawnTag, int rx, int ry, int tx, int ty)
+{
+    auto pos = m_grid->getPosition(rx, ry, tx, ty);
+    std::cout << "Room (" << rx << ", " << ry << "), tile (" << tx << ", " << ty << ")\n";
+    std::cout << "Position for " << tags.at(spawnTag) << " is " << pos << "\n";
+    spawnEntity(tag, spawnTag, m_grid->getPosition(rx, ry, tx, ty));
 }
 
 void ScenePlay::spawnInk(Vec2 pos)
@@ -513,6 +562,17 @@ void ScenePlay::spawnInk(Vec2 pos)
     cons.add<CDraggable>();
     cons.add<CGravity>(m_consConfig.gravity);
     cons.add<CHealth>(m_consConfig.health, m_consConfig.health);
+}
+
+void ScenePlay::spawnInteractable(Vec2 pos)
+{
+    // TODO: make random tile!!! :D
+    auto cons = m_entityManager.addEntity(eInteractable);
+    cons.add<CAnimation>(m_game->assets().getAnimation("TileDoor"), true);
+    cons.add<CTransform>(pos);
+    cons.add<CBoundingBox>(cons.get<CAnimation>().animation.getSize() - 4, true, true);
+    cons.add<CDraggable>();
+    cons.add<CGravity>(m_consConfig.gravity);
 }
 
 void ScenePlay::destroyEntity(Entity& entity)
@@ -529,7 +589,7 @@ void ScenePlay::destroyEntity(Entity& entity)
         dead.add<CLifespan>(entity.get<CHealth>().max * 60, m_currentFrame);
     }
     entity.destroy();
-    spawnEntity(entity.tagId(), pos);
+    spawnEntity(entity.tagId(), entity.tagId(), pos);
 }
 
 void ScenePlay::createPanelEntities()
@@ -562,7 +622,7 @@ void ScenePlay::drawTextures()
     if (m_drawTextures)
     {
         // Note: last rendered is on top of previous rendered
-        std::vector tags = {eTile, eDecoration, eConsumable, eNpc, ePlayer, eWeapon};
+        std::vector tags = {eTile, eDecoration, eConsumable, eInteractable, eNpc, ePlayer, eWeapon};
         for (const auto& tag: tags)
         {
             for (auto& entity: m_entityManager.getEntities(tag))
@@ -708,14 +768,22 @@ void ScenePlay::drawCollisions()
 
 void ScenePlay::stateAnimation(std::string& animName, Entity& entity)
 {
-    facingDirection(entity.get<CTransform>());
+    facingDirection(entity.get<CTransform>(), animName);
     entity.add<CAnimation>(m_game->assets().getAnimation(animName), true);
 }
 
-void ScenePlay::facingDirection(CTransform& transf)
+void ScenePlay::facingDirection(CTransform& transf, std::string& animName)
 {
-    if (transf.facing.y == 1.0f) { transf.scale.x = 1.0f; }
-    else if (transf.facing.y == -1.0f) { transf.scale.x = 1.0f; }
+    if (transf.facing.y == 1.0f)
+    {
+        transf.scale.x = 1.0f;
+        if (animName == "Climb") { animName.append("Up"); }
+    }
+    else if (transf.facing.y == -1.0f)
+    {
+        transf.scale.x = 1.0f;
+        if (animName.find("Climb") != std::string::npos) { animName.append("Down"); }
+    }
     else // flipping to left if needed
         if (transf.facing.x != 0.0f) { transf.scale.x = transf.facing.x; }
 }

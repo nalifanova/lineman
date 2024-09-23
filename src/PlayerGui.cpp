@@ -9,20 +9,38 @@ PlayerGui::PlayerGui(sf::RenderWindow& window, EntityManager& entityManager, con
 void PlayerGui::setBottomPanel()
 {
     sf::View view = m_window.getView();
-    m_bottomPanel.setSize(sf::Vector2f(game::kGridSize * 6, game::kGridSize * 1.5f));
-    m_bottomPanel.setFillColor(sf::Color::Transparent);
-    // m_bottomPanel.setOutlineColor(sf::Color(game::Gray));
-    m_bottomPanel.setOutlineThickness(0);
-    m_bottomPanel.setPosition(
+    m_panel.setSize(sf::Vector2f(game::kGridSize * 6, game::kGridSize * 1.5f));
+    m_panel.setFillColor(sf::Color::Transparent);
+    // m_panel.setOutlineColor(sf::Color(game::Gray));
+    m_panel.setOutlineThickness(0);
+    m_panel.setPosition(
         view.getCenter().x - game::kGridSize * 3,
         static_cast<float>(m_window.getSize().y) - game::kGridSize * 2.0f
         );
 
-    auto winPos = m_bottomPanel.getPosition(); // 7.10
+    auto winPos = m_panel.getPosition(); // 7.10
 
     setPanelIcons(winPos);
     setPanelIconTitles();
-    m_window.draw(m_bottomPanel);
+    m_window.draw(m_panel);
+}
+
+void PlayerGui::setTopPanel()
+{
+    sf::View view = m_window.getView();
+    m_panel.setSize(sf::Vector2f(game::kGridSize * 6, game::kGridSize * 1.5f));
+    m_panel.setFillColor(sf::Color::Transparent);
+    m_panel.setOutlineColor(sf::Color(game::Gray));
+    m_panel.setOutlineThickness(0);
+    m_panel.setPosition(view.getCenter().x - game::kGridSize * 9.0f,
+        static_cast<float>(m_window.getSize().y) - game::kGridSize * 12.0f
+        );
+
+    auto winPos = m_panel.getPosition(); // 7.10
+
+    setPanelIcons(winPos);
+    setPanelIconTitles();
+    m_window.draw(m_panel);
 }
 
 void PlayerGui::setPanelIcons(const sf::Vector2f& winPos)
@@ -89,7 +107,6 @@ void PlayerGui::setPanelIconTitles() const
 
 void PlayerGui::barsUpgrade(Entity& entity)
 {
-    sf::RectangleShape tick({1.0f, 6.0f});
     sf::Color color = game::DarkGray;
 
     auto& item = entity.get<CConsumable>();
@@ -111,14 +128,6 @@ void PlayerGui::barsUpgrade(Entity& entity)
     rect.setFillColor(sf::Color(color));
     rect.setOutlineThickness(0);
     m_window.draw(rect);
-
-    for (int i = 0; i < game::maxAmountToChange; i++)
-    {
-        tick.setPosition(
-            rect.getPosition() + sf::Vector2f(i * game::kGridSize * 1.0 / game::maxAmountToChange, 64)
-            );
-        m_window.draw(tick);
-    }
 }
 
 void PlayerGui::showCoolDownProgress(Entity& entity)
