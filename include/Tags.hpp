@@ -3,7 +3,7 @@
 
 #include <map>
 
-enum TagName { ePlayer = 10, eNpc, eTile, eDecoration, eConsumable, ePanel, eWeapon };
+enum TagName { ePlayer = 10, eNpc, eTile, eDecoration, eConsumable, ePanel, eWeapon, eInteractable };
 
 // string names are used in config settings
 inline std::map<size_t, std::string> tags = {
@@ -14,6 +14,7 @@ inline std::map<size_t, std::string> tags = {
     {TagName::eConsumable, "Cons"},
     {TagName::ePanel, "Panel"},
     {TagName::eWeapon, "Weapon"},
+    {TagName::eInteractable, "Interactable"},
 };
 
 #endif //TAGS_HPP

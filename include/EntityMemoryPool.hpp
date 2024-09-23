@@ -11,6 +11,7 @@ typedef std::tuple<
     std::vector<CAnimation>,
     std::vector<CBoundingBox>,
     std::vector<CBuff>,
+    std::vector<CClimbable>,
     std::vector<CConsumable>,
     std::vector<CDamage>,
     std::vector<CDraggable>,
@@ -22,6 +23,7 @@ typedef std::tuple<
     std::vector<CLifespan>,
     std::vector<CPatrol>,
     std::vector<CState>,
+    std::vector<CSurprise>,
     std::vector<CTransform>
 > EntityComponentVectorTuple;
 

@@ -52,6 +52,7 @@ EntityMemoryPool::EntityMemoryPool(size_t maxEntities):
         CAnimation,
         CBoundingBox,
         CBuff,
+        CClimbable,
         CConsumable,
         CDamage,
         CDraggable,
@@ -63,6 +64,7 @@ EntityMemoryPool::EntityMemoryPool(size_t maxEntities):
         CLifespan,
         CPatrol,
         CState,
+        CSurprise,
         CTransform
     >(maxEntities);
 }
@@ -84,6 +86,7 @@ void EntityMemoryPool::resetEntityComponents(const size_t index)
     std::get<std::vector<CAnimation>>(m_pool)[index] = CAnimation();
     std::get<std::vector<CBoundingBox>>(m_pool)[index] = CBoundingBox();
     std::get<std::vector<CBuff>>(m_pool)[index] = CBuff();
+    std::get<std::vector<CClimbable>>(m_pool)[index] = CClimbable();
     std::get<std::vector<CConsumable>>(m_pool)[index] = CConsumable();
     std::get<std::vector<CDamage>>(m_pool)[index] = CDamage();
     std::get<std::vector<CDraggable>>(m_pool)[index] = CDraggable();
@@ -95,6 +98,7 @@ void EntityMemoryPool::resetEntityComponents(const size_t index)
     std::get<std::vector<CLifespan>>(m_pool)[index] = CLifespan();
     std::get<std::vector<CPatrol>>(m_pool)[index] = CPatrol();
     std::get<std::vector<CState>>(m_pool)[index] = CState();
+    std::get<std::vector<CSurprise>>(m_pool)[index] = CSurprise();
     std::get<std::vector<CTransform>>(m_pool)[index] = CTransform();
 }
 
@@ -103,6 +107,7 @@ void EntityMemoryPool::deactivateEntityComponents(const size_t index)
     std::get<std::vector<CAnimation>>(m_pool)[index].active = false;
     std::get<std::vector<CBoundingBox>>(m_pool)[index].active = false;
     std::get<std::vector<CBuff>>(m_pool)[index].active = false;
+    std::get<std::vector<CClimbable>>(m_pool)[index].active = false;
     std::get<std::vector<CConsumable>>(m_pool)[index].active = false;
     std::get<std::vector<CDamage>>(m_pool)[index].active = false;
     std::get<std::vector<CDraggable>>(m_pool)[index].active = false;
@@ -114,5 +119,6 @@ void EntityMemoryPool::deactivateEntityComponents(const size_t index)
     std::get<std::vector<CLifespan>>(m_pool)[index].active = false;
     std::get<std::vector<CPatrol>>(m_pool)[index].active = false;
     std::get<std::vector<CState>>(m_pool)[index].active = false;
+    std::get<std::vector<CSurprise>>(m_pool)[index].active = false;
     std::get<std::vector<CTransform>>(m_pool)[index].active = false;
 }

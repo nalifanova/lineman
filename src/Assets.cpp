@@ -68,6 +68,7 @@ const sf::Texture& Assets::getTexture(const std::string& texName) const
 
 const Animation& Assets::getAnimation(const std::string& animName) const
 {
+    // std::cout << "Animname: " << animName << "\n";
     assert(m_animationMap.find(animName) != m_animationMap.end());
     return m_animationMap.at(animName);
 }

@@ -12,13 +12,14 @@ public:
     explicit PlayerGui(sf::RenderWindow& window, EntityManager& entityManager, const sf::Font& font);
 
     void setBottomPanel();
+    void setTopPanel();
     void setPanelIcons(const sf::Vector2f& winPos);
     void setPanelIconTitles() const;
     void barsUpgrade(Entity& entity);
     void showCoolDownProgress(Entity& entity);
 
 private:
-    sf::RectangleShape m_bottomPanel;
+    sf::RectangleShape m_panel;
     sf::RenderWindow& m_window;
     EntityManager& m_entityManager;
     sf::Font m_font;

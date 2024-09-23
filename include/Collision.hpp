@@ -9,12 +9,14 @@ class Collision
 public:
     explicit Collision(EntityManager& entityManager, size_t& currentFrame);
 
-    void resolveCollision(Entity& entity, Entity& tile);
-    void handleEffectsInCollision(Entity& entity, Entity& tile);
+    void resolveCollision(Entity& entity, Entity& another);
+    void handleEffectsInCollision(Entity& entity, Entity& another);
     void entityTileCollision(Entity& player);
-    void weaponTileCollision();
+    void entityInteractableCollision(Entity& player);
+    void weaponEntityCollision();
     void playerNpcCollision();
     void entityItemCollision(Entity& player);
+    bool isClimbing(Entity& entity) const;
     // void teleportCollision();
     // void roomCollision(std::shared_ptr<Entity>& entity);
     void entityGroundCollision();
