@@ -2,7 +2,6 @@
 #define PLAYERMOVEMENT_HPP
 
 #include "Entity.hpp"
-#include "InputHandler.hpp"
 
 class PlayerMovement
 {
