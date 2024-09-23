@@ -34,7 +34,7 @@ void EntityMemoryPool::destroy(const size_t entityId)
     if (entityId < m_actives.size())
     {
         m_actives[entityId] = false;
-        // m_tags[entityId] = std::numeric_limits<size_t>::max(); // humm, why?
+        m_tags[entityId] = std::numeric_limits<size_t>::max();
         m_numEntities--;
     }
 }
