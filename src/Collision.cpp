@@ -127,6 +127,12 @@ void Collision::entityInteractableCollision(Entity& player)
         {
             resolveCollision(cons, inter);
         }
+
+        for (auto& another: m_entityManager.getEntities(eInteractable))
+        {
+            if (another.id() == inter.id()) { continue; }
+            resolveCollision(another, inter);
+        }
     }
 }
 

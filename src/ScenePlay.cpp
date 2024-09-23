@@ -36,9 +36,9 @@ void ScenePlay::update()
         sCollision();
         sAnimation();
         sCamera();
-        sGUI();
         m_currentFrame++;
     }
+    sGUI();
     sRender();
 }
 
@@ -392,6 +392,12 @@ void ScenePlay::sStatus()
 {
     for (auto& entity: m_entityManager.getEntities())
     {
+        if (entity.has<CSurprise>() && entity.get<CSurprise>().isActivated)
+        {
+            auto& s = entity.get<CSurprise>();
+            spawnEntity(entity.tagId(), s.tagId, s.roomX, s.roomY, s.tileX, s.tileY);
+        }
+
         if (entity.has<CLifespan>())
         {
             const auto& life = entity.get<CLifespan>();
@@ -415,12 +421,6 @@ void ScenePlay::sStatus()
         {
             auto& buff = entity.get<CBuff>();
             if (m_currentFrame - buff.frameCreated > buff.cooldown) { entity.remove<CBuff>(); }
-        }
-
-        if (entity.has<CSurprise>() && entity.get<CSurprise>().isActivated)
-        {
-            auto& s = entity.get<CSurprise>();
-            spawnEntity(entity.tagId(), s.tagId, s.roomX, s.roomY, s.tileX, s.tileY);
         }
     }
 }
@@ -533,11 +533,11 @@ void ScenePlay::spawnPlayer(bool init)
 void ScenePlay::spawnEntity(const size_t tag, size_t spawnTag, Vec2 pos)
 {
     if (tag == ePlayer) { spawnPlayer(); }
-    if (tag == eTile)
+    else if (tag == eTile)
     {
         if (spawnTag == eTile) { spawnInk(pos); }
     }
-    if (tag == eConsumable)
+    else if (tag == eConsumable)
     {
         if (spawnTag == eInteractable) { spawnInteractable(pos); }
         // if (spawnTag == eNpc) { spawnNpc(pos); }
@@ -566,30 +566,36 @@ void ScenePlay::spawnInk(Vec2 pos)
 
 void ScenePlay::spawnInteractable(Vec2 pos)
 {
-    // TODO: make random tile!!! :D
-    auto cons = m_entityManager.addEntity(eInteractable);
-    cons.add<CAnimation>(m_game->assets().getAnimation("TileDoor"), true);
-    cons.add<CTransform>(pos);
-    cons.add<CBoundingBox>(cons.get<CAnimation>().animation.getSize() - 4, true, true);
-    cons.add<CDraggable>();
-    cons.add<CGravity>(m_consConfig.gravity);
+    // TODO: make random tile!!! :D TileBrick vs TileDoor
+    for (size_t i = 0; i < 4; i++)
+    {
+        pos.y -= 32.0f * static_cast<float>(i);
+        auto intr = m_entityManager.addEntity(eInteractable);
+        intr.add<CAnimation>(m_game->assets().getAnimation("TileBrick"), true);
+        intr.add<CTransform>(pos);
+        intr.add<CBoundingBox>(intr.get<CAnimation>().animation.getSize() - 4, true, true);
+        intr.add<CDraggable>();
+        intr.add<CGravity>(m_consConfig.gravity);
+    }
 }
 
 void ScenePlay::destroyEntity(Entity& entity)
 {
     // std::cout << "DEBUG: Remove " << entity.tag() << " with id[" << entity.id() << "]\n";
     const auto pos = entity.get<CTransform>().pos;
+    auto tagId = entity.tagId();
 
-    if (entity.tagId() == ePlayer)
+    if (tagId == ePlayer)
     {
         auto dead = m_entityManager.addEntity(eDecoration);
         dead.add<CAnimation>(m_game->assets().getAnimation("Dead"), true);
         dead.get<CAnimation>().animation.getSprite().setColor(game::LightGray);
         dead.add<CTransform>(pos);
-        dead.add<CLifespan>(entity.get<CHealth>().max * 60, m_currentFrame);
+        // dead.add<CLifespan>(entity.get<CHealth>().max * 60, m_currentFrame);
     }
     entity.destroy();
-    spawnEntity(entity.tagId(), entity.tagId(), pos);
+    m_entityManager.update();
+    spawnEntity(tagId, tagId, pos);
 }
 
 void ScenePlay::createPanelEntities()
