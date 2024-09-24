@@ -89,6 +89,7 @@ add_executable(${PROJECT_NAME}
     # Tests
     tests/test_panel_icon.hpp
     tests/test_jumping.hpp
+    tests/test_parallax_shader.hpp
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC ImGui-SFML::ImGui-SFML)

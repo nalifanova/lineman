@@ -452,9 +452,13 @@ void ScenePlay::sStatus()
 
         if (entity.has<CInvincibility>())
         {
-            auto& invincibility = entity.get<CInvincibility>();
-            invincibility.iframes -= 1;
-            if (invincibility.iframes < 0) { entity.remove<CInvincibility>(); }
+            auto& inv = entity.get<CInvincibility>();
+            inv.iframes -= 1;
+            if (inv.iframes <= 0)
+            {
+                entity.remove<CInvincibility>();
+                entity.get<CState>().changed = true;
+            }
         }
 
         if (entity.has<CBuff>())
@@ -671,8 +675,8 @@ void ScenePlay::drawTextures()
             for (auto& entity: m_entityManager.getEntities(tag))
             {
                 auto& transform = entity.get<CTransform>();
-                sf::Color c = sf::Color::White;
-                if (entity.has<CInvincibility>()) { c = sf::Color(255, 255, 255, 128); }
+                sf::Color c = entity.get<CAnimation>().animation.getSprite().getColor();
+                if (entity.has<CInvincibility>()) { c = game::LightGray; }
 
                 if (entity.has<CBuff>())
                 {
@@ -694,6 +698,7 @@ void ScenePlay::drawTextures()
                     animation.getSprite().setScale(
                         transform.scale.x, transform.scale.y
                         );
+                    animation.getSprite().setColor(c);
                     m_game->window().draw(animation.getSprite());
                 }
 
