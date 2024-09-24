@@ -56,7 +56,7 @@ Tile Name RX RY TX TY BM BV
   Block Vision         BV       int (1 = true, 0 = false)
 
 Interactable Specification:
-Intr Name RX RY TX TY BM BV KT OP L
+Intr Name RX RY TX TY BM BV KT OP L AT
   Animation Name       Name     std::string
   Room Coordinate      RX RY    int, int (in block coordinates)
   Tile Position        TX TY    int, int (in block coordinates)
@@ -65,6 +65,7 @@ Intr Name RX RY TX TY BM BV KT OP L
   Key Type             KT       int (90, 93, 95, 97, 99)
   isOpen               OP       bool
   isLocked             L        bool
+  ActionType           AT       int
 
 Dec Specification:
 Decoration Name RX RY TX TY

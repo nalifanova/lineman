@@ -157,7 +157,7 @@ Tile TileBrick 2 0 18 9 1 1
 Tile TileBrick 2 0 19 9 1 1
 Tile TileBrick 2 0 18 3 1 1
 Tile TileBrick 2 0 19 3 1 1
-Intr IntrDoor  2 0 19 2 1 1 90 0 0
+Intr IntrDoor  2 0 19 2 1 1 90 0 0 1
 
 Tile TileLadder 2 0 1 4 1 0
 Tile TileLadder 2 0 1 5 1 0

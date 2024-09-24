@@ -62,6 +62,7 @@ void SceneMenu::init()
 
     createMenu();
     m_levelPaths.emplace_back("config/level1.txt");
+    m_levelPaths.emplace_back("config/level2.txt");
 }
 
 void SceneMenu::update()

@@ -37,12 +37,12 @@ void GameEngine::run()
         ImGui::SFML::Render(m_window);
         m_window.display(); // draw the new stuff
     }
+    ImGui::SFML::Shutdown();
 }
 
 void GameEngine::quit()
 {
     m_running = false;
-    ImGui::SFML::Shutdown();
     m_window.close();
 }
 

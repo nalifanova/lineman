@@ -115,7 +115,7 @@ void ScenePlay::loadLevel(const std::string& fileName)
         }
         else if (token == "Intr")
         {
-            int rx, ry, tx, ty, bm, bv, keytype;
+            int rx, ry, tx, ty, bm, bv, keyType, actionType;
             bool open, locked;
             fin >> name >> rx >> ry >> tx >> ty >> bm >> bv;
             auto intr = m_entityManager.addEntity(TagName::eInteractable);
@@ -124,8 +124,8 @@ void ScenePlay::loadLevel(const std::string& fileName)
             intr.add<CBoundingBox>(intr.get<CAnimation>().animation.getSize() - 4.0f, bm, bv);
             intr.add<CInteractableBox>(intr.get<CAnimation>().animation.getSize());
             intr.add<CDraggable>();
-            fin >> keytype >> open >> locked;
-            intr.add<CLockable>(open, locked, keytype);
+            fin >> keyType >> open >> locked >> actionType;
+            intr.add<CLockable>(open, locked, keyType, actionType);
             token = "None";
         }
         else if (token == "Dec")
@@ -235,8 +235,14 @@ void ScenePlay::onEnd()
     {
         entity.destroy();
     }
+}
+
+void ScenePlay::backToMenu()
+{
+    onEnd();
     m_game->changeScene("MENU", m_game->getScene("MENU"), true);
 }
+
 
 void ScenePlay::sDoAction(const Action& action)
 {
@@ -248,7 +254,7 @@ void ScenePlay::sDoAction(const Action& action)
     if (action.type() == "START")
     {
         if (action.name() == "PAUSE") { setPaused(!m_paused); }
-        else if (action.name() == "QUIT") { onEnd(); }
+        else if (action.name() == "QUIT") { backToMenu(); }
         else if (action.name() == "TOGGLE_TEXTURE") { m_drawTextures = !m_drawTextures; }
         else if (action.name() == "TOGGLE_COLLISION") { m_drawCollision = !m_drawCollision; }
         else if (action.name() == "TOGGLE_GRID") { m_drawGrid = !m_drawGrid; }
@@ -308,12 +314,13 @@ void ScenePlay::doPanelAction(Entity& entity)
     auto& ink = m_entityPanel[0];
     auto& shield = m_entityPanel[1];
     auto& boom = m_entityPanel[2];
+    size_t timeToInteract = 0.3 * 60;
 
     if (input.interact)
     {
         if (auto& c = shield.get<CConsumable>();
             (input.key2 && ink.get<CConsumable>().amount >= game::maxAmountToChange)
-            && (m_currentFrame - c.frameCreated > c.cooldown))
+            && (m_currentFrame - c.frameCreated > timeToInteract))
         {
             ink.get<CConsumable>().amount -= game::maxAmountToChange;
             c.amount += 1;
@@ -321,7 +328,7 @@ void ScenePlay::doPanelAction(Entity& entity)
         }
         else if (auto& c = boom.get<CConsumable>();
             (input.key3 && ink.get<CConsumable>().amount >= game::maxAmountToChange)
-            && (m_currentFrame - c.frameCreated > c.cooldown))
+            && (m_currentFrame - c.frameCreated > timeToInteract))
         {
             ink.get<CConsumable>().amount -= game::maxAmountToChange;
             c.amount += 1;
@@ -389,10 +396,7 @@ void ScenePlay::sMovement()
     if (!player.isActive()) { return; }
 
     auto pm = PlayerMovement(player, m_playerConfig.speed, m_playerConfig.jump);
-    if (!pm.correctInputs())
-    {
-        return; // can't hold keys in opposite directions
-    }
+
     player.get<CTransform>().velocity = pm.getVelocityMove(m_accel);
 
     if (!m_collision->isClimbing(player))
@@ -410,6 +414,14 @@ void ScenePlay::sStatus()
 {
     for (auto& entity: m_entityManager.getEntities())
     {
+        if (entity.tagId() == ePlayer && entity.get<CState>().interAction == game::interActions[eExit])
+        {
+            onEnd();
+            // TODO: Hardcoded!
+            m_game->changeScene("LEVEL2",
+                std::make_shared<ScenePlay>(m_game, "config/level2.txt"));
+        }
+
         if (entity.has<CSurprise>() && entity.get<CSurprise>().isActivated)
         {
             auto& s = entity.get<CSurprise>();
@@ -562,7 +574,7 @@ void ScenePlay::spawnEntity(const size_t tag, size_t spawnTag, Vec2 pos)
     if (tag == ePlayer) { spawnPlayer(); }
     else if (tag == eTile)
     {
-        if (spawnTag == eTile) { spawnInk(pos); }
+        if (spawnTag == eTile) { spawnInk(pos); } // Note: condition when tiles are ruined - ink appears
     }
     else if (tag == eConsumable)
     {
@@ -618,7 +630,6 @@ void ScenePlay::destroyEntity(Entity& entity)
         dead.add<CAnimation>(m_game->assets().getAnimation("Dead"), true);
         dead.get<CAnimation>().animation.getSprite().setColor(game::LightGray);
         dead.add<CTransform>(pos);
-        // dead.add<CLifespan>(entity.get<CHealth>().max * 60, m_currentFrame);
     }
     entity.destroy();
     m_entityManager.update();
