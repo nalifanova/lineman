@@ -113,6 +113,19 @@ void ScenePlay::loadLevel(const std::string& fileName)
             }
             token = "None";
         }
+        else if (token == "Intr")
+        {
+            int rx, ry, tx, ty, bm, bv, kt;
+            bool closed, locked;
+            fin >> name >> rx >> ry >> tx >> ty >> bm >> bv;
+            auto intr = m_entityManager.addEntity(TagName::eInteractable);
+            intr.add<CAnimation>(m_game->assets().getAnimation(name), true);
+            intr.add<CTransform>(m_grid->getPosition(rx, ry, tx, ty));
+            intr.add<CBoundingBox>(intr.get<CAnimation>().animation.getSize() - 4.0f, bm, bv);
+            intr.add<CDraggable>();
+            intr.add<CLockable>(closed, locked, kt);
+            token = "None";
+        }
         else if (token == "Dec")
         {
             int rx, ry, tx, ty;
@@ -134,7 +147,10 @@ void ScenePlay::loadLevel(const std::string& fileName)
             cons.get<CTransform>().pos.y += 16;
             cons.add<CBoundingBox>(cons.get<CAnimation>().animation.getSize());
             cons.add<CDraggable>();
-            cons.add<CGravity>(m_consConfig.gravity);
+            if (!name.ends_with("Air"))
+            {
+                cons.add<CGravity>(m_consConfig.gravity);
+            }
             cons.add<CHealth>(m_consConfig.health, m_consConfig.health);
             if (surprise)
             {
@@ -381,7 +397,7 @@ void ScenePlay::sMovement()
     {
         player.get<CState>().climbing = false;
     }
-    // pm.runInteract();
+    pm.runInteract();
 
     doMovement();
 }
@@ -452,17 +468,15 @@ void ScenePlay::sAnimation()
 
 void ScenePlay::sCamera(bool reset)
 {
-    // set the viewport of the window to be centered on the player if it's far enough right
     auto& pPos = getPlayer().get<CTransform>().pos;
-    float windowCenterX = std::max(
-        static_cast<float>(m_game->window().getSize().x) / 2.0f,
-        pPos.x
-        );
+    float levelWidth = 3 * width(); // width of all rooms
+    float windowCenterX = std::max(width() / 2.0f, pPos.x);
+    float maxCameraX = levelWidth - width() / 2.0f;
+    windowCenterX = std::min(windowCenterX, maxCameraX);
+
     sf::View view = m_game->window().getView();
-    view.setCenter(
-        windowCenterX,
-        static_cast<float>(m_game->window().getSize().y) - view.getCenter().y
-        );
+
+    view.setCenter(windowCenterX, height() - view.getCenter().y);
 
     if (m_zoom)
     {

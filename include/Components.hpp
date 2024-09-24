@@ -244,4 +244,22 @@ public:
     bool isActivated = false;
 };
 
+enum KeyType {eDoorBig = 99, eDoorSmall = 97, eChestBig = 95, eChestSmall = 93, eNoKey = 90};
+
+class CLockable: public Component
+{
+public:
+    CLockable() = default;
+
+    explicit CLockable(bool c) :
+        isClosed(c) {}
+
+    CLockable(bool c, bool l, int (t)) :
+        isClosed(c), isLocked(l), keyType(static_cast<KeyType>(t)) {}
+
+    bool isClosed = false;
+    bool isLocked = false;
+    KeyType keyType = eNoKey;
+};
+
 #endif //COMPONENTS_H

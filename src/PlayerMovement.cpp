@@ -88,19 +88,19 @@ Vec2 PlayerMovement::getVelocityMove(float& dt)
 
 void PlayerMovement::runInteract()
 {
-    // attack / move / stand
+    // attack / move
     if (m_input.attack)
     {
-        if (m_state.state != "attak") // prefix is set here, suffix in animation
+        if (m_state.state != "Attak")
         {
-            m_state.state = "attak";
+            m_state.state = "Attak";
             m_state.changed = true;
             // might spawn smth
         }
     }
     else if (m_input.interact)
     {
-        if (m_state.state != "Interact") // prefix is set here, suffix in animation
+        if (m_state.state != "Interact")
         {
             m_state.state = "Interact";
             m_state.changed = true;

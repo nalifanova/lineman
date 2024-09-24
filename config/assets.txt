@@ -8,17 +8,20 @@ Texture TexTopLeft assets/images/tiles/tile_top_left.png
 Texture TexLandSaws assets/images/tiles/tile_land_saws.png
 Texture TexBrick assets/images/tiles/tile_brick.png
 Texture TexLadder assets/images/tiles/tile_ladder.png
-Texture TexDoor assets/images/tiles/tile_door.png
+Texture TexTileDoor assets/images/tiles/tile_door.png
+Texture TexDoor assets/images/tiles/intr_door.png
 
 Texture TexManStand assets/images/lineman/man_stand.png
 Texture TexManAir assets/images/lineman/man_air.png
 Texture TexManWalk assets/images/lineman/man_walk.png
 Texture TexManClimb assets/images/lineman/man_climb.png
 Texture TexManClimbDown assets/images/lineman/man_climb_down.png
+Texture TexManInteract assets/images/lineman/man_interact.png
 Texture TexManDead assets/images/lineman/man_dead.png
 
 Texture TexDecBgrnd assets/images/decoration/dec_background.png
 Texture TexConsInk assets/images/consumables/cons_ink.png
+Texture TexConsInkAir assets/images/consumables/cons_ink_air.png
 Texture TexFlyingInk assets/images/weapon/flying_ink.png
 Texture TexPanelInk assets/images/panel/panel_ink.png
 Texture TexPanelShield assets/images/panel/panel_shield.png
@@ -32,7 +35,8 @@ Animation TileTopRight TexTopRight 1 1
 
 Animation TileBrick TexBrick 1 0
 Animation TileLadder TexLadder 1 0
-Animation TileDoor TexDoor 1 0
+Animation TileDoor TexTileDoor 1 1
+Animation IntrDoor TexDoor 1 1
 
 Animation TileLandSaws TexLandSaws 4 16
 
@@ -42,9 +46,11 @@ Animation Walk TexManWalk 4 16
 Animation Climb TexManClimb 2 16
 Animation ClimbUp TexManClimb 2 16
 Animation ClimbDown TexManClimbDown 2 16
+Animation Interact TexManInteract 2 16
 Animation Dead TexManDead 1 0
 
 Animation ConsInk TexConsInk   2 16
+Animation ConsInkAir TexConsInkAir   2 16
 Animation WeaponInk TexFlyingInk   2 16
 Animation PanelInk TexPanelInk 1 0
 Animation PanelShield TexPanelShield 1 0

@@ -24,9 +24,15 @@ Tile TileLadder 0 0 6 6 1 0
 Tile TileLadder 0 0 6 7 1 0
 Tile TileLadder 0 0 6 8 1 0
 
+Cons ConsInkAir 0 0 2 5 5 5 0
+Cons ConsInkAir 0 0 4 5 5 5 0
+Cons ConsInkAir 0 0 11 8 5 5 0
+Cons ConsInkAir 0 0 13 8 5 5 0
+Cons ConsInkAir 0 0 15 8 5 5 0
 Cons ConsInk   0 0 2 2 5 5 0
 Cons ConsInk   0 0 3 2 5 5 0
 Cons ConsInk   0 0 4 2 5 5 0
+Cons ConsInk   0 0 5 2 5 5 0
 Cons ConsInk   0 0 7 4 5 5 0
 Cons ConsInk   0 0 8 4 5 5 0
 Cons ConsInk   0 0 16 8 5 5 0
@@ -57,8 +63,8 @@ Tile TileLandSaws 0 0 15 10 1 1
 
 Tile TileBrick 0 0 16 10 1 1
 Tile TileBrick 0 0 17 10 1 1
-Tile TileBrick 0 0 18 10 1 1
-Tile TileBrick 0 0 19 10 1 1
+Tile TileBrick 0 0 18 11 1 1
+Tile TileBrick 0 0 19 11 1 1
 
 Cons ConsInk   0 0 18 4 5 5 0
 Cons ConsInk   0 0 19 4 5 5 0
@@ -73,10 +79,12 @@ Tile TileLadder 1 0 0 6 1 0
 Tile TileLadder 1 0 0 7 1 0
 Tile TileLadder 1 0 0 8 1 0
 
-Cons ConsInk      1 0 1  5 5 5 0
-Cons ConsInk      1 0 2  5 5 5 0
-Cons ConsInk      1 0 3  3 5 5 0
-Cons ConsInk      1 0 7  4 5 5 0
+Cons ConsInk      1 0 1 5 5 5 0
+Cons ConsInk      1 0 2 5 5 5 0
+Cons ConsInk      1 0 3 3 5 5 0
+Cons ConsInkAir   1 0 5 2 5 5 0
+Cons ConsInk      1 0 7 4 5 5 0
+Cons ConsInkAir   1 0 9 3 5 5 0
 Tile TileBrick    1 0 1 6 1 1
 Tile TileBrick    1 0 2 6 1 1
 Tile TileBrick    1 0 3 4 1 1
@@ -85,7 +93,7 @@ Tile TileBrick    1 0 7 5 1 1
 Cons ConsInk      1 0 11 5 5 5 0
 Tile TileBrick    1 0 11 6 1 1
 
-Tile TileBrick 1 0 0 10 1 1
+Tile TileBrick 1 0 0 11 1 1
 Tile TileBrick 1 0 1 10 1 1
 Tile TileBrick 1 0 2 10 1 1
 
@@ -99,6 +107,11 @@ Tile TileLandSaws 1 0 9 10 1 1
 Tile TileLandSaws 1 0 10 10 1 1
 Tile TileLandSaws 1 0 11 10 1 1
 Tile TileLandSaws 1 0 12 10 1 1
+
+Cons ConsInkAir 1 0  3 8 5 5 0
+Cons ConsInkAir 1 0  6 8 5 5 0
+Cons ConsInkAir 1 0  9 8 5 5 0
+Cons ConsInkAir 1 0 12 8 5 5 0
 
 Cons ConsInk   1 0 14 7 5 5 0
 Cons ConsInk   1 0 15 7 5 5 0
@@ -137,8 +150,60 @@ Tile TileBrick 2 0 11 10 1 1
 Tile TileBrick 2 0 12 10 1 1
 Tile TileBrick 2 0 13 10 1 1
 Tile TileBrick 2 0 14 10 1 1
-Tile TileBrick 2 0 15 9 1 1
-Tile TileBrick 2 0 16 9 1 1
-Tile TileBrick 2 0 17 9 1 1
+Tile TileBrick 2 0 15 10 1 1
+Tile TileBrick 2 0 16 10 1 1
+Tile TileBrick 2 0 17 10 1 1
 Tile TileBrick 2 0 18 9 1 1
 Tile TileBrick 2 0 19 9 1 1
+Tile TileBrick 2 0 18 3 1 1
+Tile TileBrick 2 0 19 3 1 1
+Intr IntrDoor  2 0 19 2 1 1 90 0 1
+
+Tile TileLadder 2 0 1 4 1 0
+Tile TileLadder 2 0 1 5 1 0
+Tile TileLadder 2 0 1 6 1 0
+Tile TileLadder 2 0 1 7 1 0
+
+Tile TileLandSaws 2 0 2 8 1 1
+Tile TileLandSaws 2 0 3 8 1 1
+Tile TileLandSaws 2 0 4 8 1 1
+Tile TileLandSaws 2 0 5 8 1 1
+Tile TileLandSaws 2 0 6 8 1 1
+Tile TileLandSaws 2 0 7 8 1 1
+Tile TileLandSaws 2 0 8 8 1 1
+Tile TileLandSaws 2 0 9 8 1 1
+Tile TileLandSaws 2 0 10 8 1 1
+Tile TileLandSaws 2 0 11 8 1 1
+Tile TileLandSaws 2 0 12 8 1 1
+Tile TileLandSaws 2 0 13 8 1 1
+Tile TileLandSaws 2 0 14 8 1 1
+Tile TileLandSaws 2 0 15 8 1 1
+Tile TileLandSaws 2 0 16 8 1 1
+
+Cons ConsInkAir 2 0  4 5 5 5 0
+Cons ConsInkAir 2 0  6 5 5 5 0
+Cons ConsInkAir 2 0  8 5 5 5 0
+Cons ConsInkAir 2 0  10 5 5 5 0
+Cons ConsInkAir 2 0 12 5 5 5 0
+Cons ConsInkAir 2 0 14 5 5 5 0
+
+Cons ConsInkAir 2 0  3 7 5 5 0
+Cons ConsInkAir 2 0  5 7 5 5 0
+Cons ConsInkAir 2 0  7 7 5 5 0
+Cons ConsInkAir 2 0  9 7 5 5 0
+Cons ConsInkAir 2 0 11 7 5 5 0
+Cons ConsInkAir 2 0 13 7 5 5 0
+Cons ConsInkAir 2 0 15 7 5 5 0
+
+Cons ConsInk   2 0  3 9 5 5 0
+Cons ConsInk   2 0  5 9 5 5 0
+Cons ConsInk   2 0  7 9 5 5 0
+Cons ConsInk   2 0  9 9 5 5 0
+Cons ConsInk   2 0 11 9 5 5 0
+Cons ConsInk   2 0 13 9 5 5 0
+Cons ConsInk   2 0 15 9 5 5 0
+
+Tile TileLadder 2 0 17 4 1 0
+Tile TileLadder 2 0 17 5 1 0
+Tile TileLadder 2 0 17 6 1 0
+Tile TileLadder 2 0 17 7 1 0
