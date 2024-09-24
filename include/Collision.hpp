@@ -13,13 +13,13 @@ public:
     void handleEffectsInCollision(Entity& entity, Entity& another);
     void entityTileCollision(Entity& player);
     void entityInteractableCollision(Entity& player);
+    void checkInteraction(Entity& player);
     void weaponEntityCollision();
     void playerNpcCollision();
     void entityItemCollision(Entity& player);
     bool isClimbing(Entity& entity) const;
     // void teleportCollision();
-    // void roomCollision(std::shared_ptr<Entity>& entity);
-    void entityGroundCollision();
+    void entityRoomCollision(float width, float height);
     void moveEntity(Entity& entity);
     void destroyEntity(Entity& entity);
 

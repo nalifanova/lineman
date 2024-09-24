@@ -18,6 +18,7 @@ public:
     static Vec2 getOverlap(Entity& a, Entity& b);
     static Vec2 getPreviousOverlap(Entity& a, Entity& b);
     static bool isColliding(Entity& a, Entity& b);
+    static bool isInteractableColliding(Entity& player, Entity& intr);
 
     static Intersect lineIntersect(const Vec2& a, const Vec2& b, const Vec2& c, const Vec2& d);
     static bool entityIntersect(const Vec2& a, const Vec2& b, Entity& entity);
