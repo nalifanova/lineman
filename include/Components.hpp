@@ -19,6 +19,7 @@ class CConsumable: public Component
 {
 public:
     CConsumable() = default;
+
     explicit CConsumable(const u_int16_t cooldown) :
         cooldown(cooldown) {}
 
@@ -196,6 +197,7 @@ public:
     bool changed = false;
     bool canJump = false;
     bool climbing = false;
+    std::string interAction;
 };
 
 class CGravity: public Component
@@ -256,7 +258,9 @@ public:
     bool isActivated = false;
 };
 
-enum KeyType {eDoorBig = 99, eDoorSmall = 97, eChestBig = 95, eChestSmall = 93, eNoKey = 90};
+enum KeyType { eDoorBig = 99, eDoorSmall = 97, eChestBig = 95, eChestSmall = 93, eNoKey = 90 };
+
+enum LockTypeAction { eExit = 1, eRandomJump = 2, eExactJump = 3, eGrabAll = 4, eNoLockType = 0 };
 
 class CLockable: public Component
 {
@@ -266,13 +270,14 @@ public:
     explicit CLockable(bool c) :
         isOpen(c) {}
 
-    CLockable(bool c, bool l, int (t)) :
-        isOpen(c), isLocked(l), keyType(static_cast<KeyType>(t)) {}
+    CLockable(bool c, bool l, int t, int a) :
+        isOpen(c), isLocked(l), keyType(static_cast<KeyType>(t)), action(static_cast<LockTypeAction>(a)) {}
 
     bool isOpen = false;
     bool isLocked = false;
-    bool isUsed = false;
+    bool isActivated = false;
     KeyType keyType = eNoKey;
+    LockTypeAction action = eNoLockType;
 };
 
 #endif //COMPONENTS_H

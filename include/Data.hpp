@@ -1,5 +1,8 @@
 #ifndef DATA_HPP
 #define DATA_HPP
+
+#include <unordered_map>
+
 #include "GameEngine.hpp"
 
 namespace game {
@@ -12,6 +15,11 @@ namespace game {
     };
     inline u_int16_t maxAmountToChange = 5;
     inline u_int16_t coolDown = 5;
+
+    // eExit = 1, eRandomJump = 2, eExactJump = 3, eGrabAll = 4, eNoLockType = 0
+    inline std::unordered_map<u_int16_t, std::string> interActions {
+        {1, "Exit"}, {2, "RandomJump"}
+    };
 }
 
 #endif //DATA_HPP

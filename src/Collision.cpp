@@ -1,5 +1,6 @@
 #include "Collision.hpp"
 
+#include "Data.hpp"
 #include "GameEngine.hpp"
 #include "Physics.hpp"
 #include "Tags.hpp"
@@ -18,6 +19,14 @@ void Collision::resolveCollision(Entity& entity, Entity& another)
             {
                 destroyEntity(another);
                 return;
+            }
+
+            if (another.has<CInteractableBox>())
+            {
+                if (entity.tagId() == ePlayer && another.has<CLockable>() && another.get<CLockable>().isActivated)
+                {
+                    entity.get<CState>().interAction = game::interActions.at(another.get<CLockable>().action);
+                }
             }
 
             // ladders
@@ -149,12 +158,13 @@ void Collision::checkInteraction(Entity& player)
                 if (!l.isOpen)
                 {
                     l.isOpen = true;
+                    // Let character overlap the eInteractable
                     intr.get<CBoundingBox>().size = Vec2(2.0f, 2.0f);
                     intr.get<CBoundingBox>().halfSize = intr.get<CBoundingBox>().size / 2.f;
                 }
-                else if (l.isOpen && !l.isUsed)
+                else if (l.isOpen && !l.isActivated)
                 {
-                    l.isUsed = true;
+                    l.isActivated = true;
                     std::cout << "We enter the door!\n";
                 }
             }

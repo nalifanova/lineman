@@ -50,6 +50,7 @@ protected:
     void sCamera(bool reset = false);
     void sCollision();
     void sGUI();
+    void backToMenu();
 
     void doMovement();
     void doPanelAction(Entity& entity);
