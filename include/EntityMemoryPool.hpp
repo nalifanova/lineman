@@ -21,6 +21,7 @@ typedef std::tuple<
     std::vector<CInput>,
     std::vector<CInvincibility>,
     std::vector<CLifespan>,
+    std::vector<CLockable>,
     std::vector<CPatrol>,
     std::vector<CState>,
     std::vector<CSurprise>,
