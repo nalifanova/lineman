@@ -33,6 +33,17 @@ bool Physics::isColliding(Entity& a, Entity& b)
     return false;
 }
 
+bool Physics::isInteractableColliding(Entity& player, Entity& intr)
+{
+    const auto& aPos = player.get<CTransform>().pos;
+    const auto& bPos = intr.get<CTransform>().pos;
+    const auto& aSize = player.get<CInteractableBox>().size;
+    const auto& bSize = intr.get<CInteractableBox>().size;
+    const auto o = overlap(aPos, bPos, aSize, bSize);
+    if (o.x > 0.0f && o.y > 0.0f) { return true; }
+    return false;
+}
+
 Intersect Physics::lineIntersect(const Vec2& a, const Vec2& b, const Vec2& c, const Vec2& d)
 {
     const Vec2 r = b - a;

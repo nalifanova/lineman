@@ -19,6 +19,7 @@ typedef std::tuple<
     std::vector<CGravity>,
     std::vector<CHealth>,
     std::vector<CInput>,
+    std::vector<CInteractableBox>,
     std::vector<CInvincibility>,
     std::vector<CLifespan>,
     std::vector<CLockable>,

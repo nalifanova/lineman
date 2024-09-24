@@ -158,6 +158,18 @@ public:
     bool blockVision = false;
 };
 
+class CInteractableBox: public Component
+{
+public:
+    CInteractableBox() = default;
+
+    explicit CInteractableBox(const Vec2& s):
+        size(s), sizeOneHalf(s.x * 1.5f, s.y * 1.5f) {}
+
+    Vec2 size;
+    Vec2 sizeOneHalf;
+};
+
 class CAnimation: public Component
 {
 public:
@@ -252,13 +264,14 @@ public:
     CLockable() = default;
 
     explicit CLockable(bool c) :
-        isClosed(c) {}
+        isOpen(c) {}
 
     CLockable(bool c, bool l, int (t)) :
-        isClosed(c), isLocked(l), keyType(static_cast<KeyType>(t)) {}
+        isOpen(c), isLocked(l), keyType(static_cast<KeyType>(t)) {}
 
-    bool isClosed = false;
+    bool isOpen = false;
     bool isLocked = false;
+    bool isUsed = false;
     KeyType keyType = eNoKey;
 };
 

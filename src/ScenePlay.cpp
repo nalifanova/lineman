@@ -115,15 +115,17 @@ void ScenePlay::loadLevel(const std::string& fileName)
         }
         else if (token == "Intr")
         {
-            int rx, ry, tx, ty, bm, bv, kt;
-            bool closed, locked;
+            int rx, ry, tx, ty, bm, bv, keytype;
+            bool open, locked;
             fin >> name >> rx >> ry >> tx >> ty >> bm >> bv;
             auto intr = m_entityManager.addEntity(TagName::eInteractable);
             intr.add<CAnimation>(m_game->assets().getAnimation(name), true);
             intr.add<CTransform>(m_grid->getPosition(rx, ry, tx, ty));
             intr.add<CBoundingBox>(intr.get<CAnimation>().animation.getSize() - 4.0f, bm, bv);
+            intr.add<CInteractableBox>(intr.get<CAnimation>().animation.getSize());
             intr.add<CDraggable>();
-            intr.add<CLockable>(closed, locked, kt);
+            fin >> keytype >> open >> locked;
+            intr.add<CLockable>(open, locked, keytype);
             token = "None";
         }
         else if (token == "Dec")
@@ -414,6 +416,16 @@ void ScenePlay::sStatus()
             spawnEntity(entity.tagId(), s.tagId, s.roomX, s.roomY, s.tileX, s.tileY);
         }
 
+        if (entity.has<CLockable>())
+        {
+            auto& l = entity.get<CLockable>();
+            auto& anim = entity.get<CAnimation>().animation;
+            if (l.isOpen && !anim.getName().ends_with("Open"))
+            {
+                anim = m_game->assets().getAnimation(anim.getName() + "Open");
+            }
+        }
+
         if (entity.has<CLifespan>())
         {
             const auto& life = entity.get<CLifespan>();
@@ -507,10 +519,11 @@ void ScenePlay::sCollision()
     auto player = getPlayer();
     m_collision->entityTileCollision(player);
     m_collision->entityInteractableCollision(player);
+    m_collision->checkInteraction(player);
     m_collision->weaponEntityCollision();
     // m_collision->playerNpcCollision();
     m_collision->entityItemCollision(player);
-    m_collision->entityGroundCollision();
+    m_collision->entityRoomCollision(3 * width(), height());
 }
 
 void ScenePlay::sGUI()
@@ -642,8 +655,7 @@ void ScenePlay::drawTextures()
     if (m_drawTextures)
     {
         // Note: last rendered is on top of previous rendered
-        std::vector tags = {eTile, eDecoration, eConsumable, eInteractable, eNpc, ePlayer, eWeapon};
-        for (const auto& tag: tags)
+        for (const auto& tag: vectorTags)
         {
             for (auto& entity: m_entityManager.getEntities(tag))
             {
@@ -719,12 +731,12 @@ void ScenePlay::drawCollisions()
             if (entity.has<CBoundingBox>())
             {
                 auto& box = entity.get<CBoundingBox>();
-                auto& transform = entity.get<CTransform>();
+                auto& transf = entity.get<CTransform>();
                 sf::RectangleShape rect;
                 rect.setSize(sf::Vector2f(box.size.x - 1, box.size.y - 1));
                 rect.setOrigin(sf::Vector2f(box.halfSize.x, box.halfSize.y));
                 // rect.setPosition(box.center.x, box.center.y);
-                rect.setPosition(transform.pos.x, transform.pos.y);
+                rect.setPosition(transf.pos.x, transf.pos.y);
                 rect.setFillColor(sf::Color(0, 0, 0, 0));
 
                 if (box.blockMove && box.blockVision)
@@ -763,6 +775,21 @@ void ScenePlay::drawCollisions()
                             );
                     }
                 }
+            }
+
+            if (entity.has<CInteractableBox>())
+            {
+                auto& box = entity.get<CInteractableBox>();
+                auto& transf = entity.get<CTransform>();
+                sf::RectangleShape rect;
+                rect.setSize(sf::Vector2f(box.sizeOneHalf.x, box.sizeOneHalf.y));
+                rect.setOrigin(sf::Vector2f(box.sizeOneHalf.x, box.sizeOneHalf.y));
+
+                rect.setPosition(transf.pos.x + box.sizeOneHalf.x / 2.0f, transf.pos.y + box.sizeOneHalf.y / 2.0f);
+                rect.setFillColor(sf::Color(0, 0, 0, 0));
+                rect.setOutlineColor(sf::Color::Green);
+                rect.setOutlineThickness(1);
+                m_game->window().draw(rect);
             }
 
             // draw patrol points
@@ -810,20 +837,20 @@ void ScenePlay::facingDirection(CTransform& transf, std::string& animName)
 
 void ScenePlay::setRoomBackground(sf::Texture& tex)
 {
-    auto points = game::roomsPoints;
-    m_background.setPointCount(points.size());
+    auto vertices = game::roomVertices;
+    m_background.setPointCount(vertices.size());
     m_background.setOutlineColor(sf::Color(40, 40, 40));
     m_background.setOutlineThickness(1.0f);
-    for (size_t i = 0; i < points.size(); i++)
+    for (size_t i = 0; i < vertices.size(); i++)
     {
-        m_background.setPoint(i, sf::Vector2f(points[i].x, points[i].y));
+        m_background.setPoint(i, sf::Vector2f(vertices[i].x, vertices[i].y));
     }
     tex.setRepeated(true);
     m_background.setTexture(&tex);
-    m_background.setOrigin(static_cast<float>(tex.getSize().x) / 2.0f,
-                           static_cast<float>(tex.getSize().y) / 2.0f);
+    m_background.setOrigin(static_cast<float>(tex.getSize().x),
+                           static_cast<float>(tex.getSize().y));
     m_background.setTextureRect(sf::IntRect(
-        0, 0, static_cast<int>(width() * 4.0f),
+        0, 0, static_cast<int>(width() * 3.0f),
         static_cast<int>(height() * 1.0f)
         ));
     m_game->window().draw(m_background);

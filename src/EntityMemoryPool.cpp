@@ -60,6 +60,7 @@ EntityMemoryPool::EntityMemoryPool(size_t maxEntities):
         CGravity,
         CHealth,
         CInput,
+        CInteractableBox,
         CInvincibility,
         CLifespan,
         CLockable,
@@ -95,6 +96,7 @@ void EntityMemoryPool::resetEntityComponents(const size_t index)
     std::get<std::vector<CGravity>>(m_pool)[index] = CGravity();
     std::get<std::vector<CHealth>>(m_pool)[index] = CHealth();
     std::get<std::vector<CInput>>(m_pool)[index] = CInput();
+    std::get<std::vector<CInteractableBox>>(m_pool)[index] = CInteractableBox();
     std::get<std::vector<CInvincibility>>(m_pool)[index] = CInvincibility();
     std::get<std::vector<CLifespan>>(m_pool)[index] = CLifespan();
     std::get<std::vector<CLockable>>(m_pool)[index] = CLockable();
@@ -117,6 +119,7 @@ void EntityMemoryPool::deactivateEntityComponents(const size_t index)
     std::get<std::vector<CGravity>>(m_pool)[index].active = false;
     std::get<std::vector<CHealth>>(m_pool)[index].active = false;
     std::get<std::vector<CInput>>(m_pool)[index].active = false;
+    std::get<std::vector<CInteractableBox>>(m_pool)[index].active = false;
     std::get<std::vector<CInvincibility>>(m_pool)[index].active = false;
     std::get<std::vector<CLifespan>>(m_pool)[index].active = false;
     std::get<std::vector<CLockable>>(m_pool)[index].active = false;

@@ -114,24 +114,50 @@ void Collision::entityTileCollision(Entity& player)
 
 void Collision::entityInteractableCollision(Entity& player)
 {
-    for (auto& inter: m_entityManager.getEntities(eInteractable))
+    for (auto& intr: m_entityManager.getEntities(eInteractable))
     {
-        resolveCollision(player, inter);
+        resolveCollision(player, intr);
 
         for (auto& npc: m_entityManager.getEntities(eNpc))
         {
-            resolveCollision(npc, inter);
+            resolveCollision(npc, intr);
         }
 
         for (auto& cons: m_entityManager.getEntities(eConsumable))
         {
-            resolveCollision(cons, inter);
+            resolveCollision(cons, intr);
         }
 
         for (auto& another: m_entityManager.getEntities(eInteractable))
         {
-            if (another.id() == inter.id()) { continue; }
-            resolveCollision(another, inter);
+            if (another.id() == intr.id()) { continue; }
+            resolveCollision(another, intr);
+        }
+    }
+}
+
+void Collision::checkInteraction(Entity& player)
+{
+    for (auto& intr: m_entityManager.getEntities(eInteractable))
+    {
+        if (Physics::isInteractableColliding(player, intr))
+        {
+            if (intr.has<CLockable>() && player.get<CState>().state == "Interact")
+            {
+                auto& l = intr.get<CLockable>();
+                // TODO: think of a lockable mechanics with a key
+                if (!l.isOpen)
+                {
+                    l.isOpen = true;
+                    intr.get<CBoundingBox>().size = Vec2(2.0f, 2.0f);
+                    intr.get<CBoundingBox>().halfSize = intr.get<CBoundingBox>().size / 2.f;
+                }
+                else if (l.isOpen && !l.isUsed)
+                {
+                    l.isUsed = true;
+                    std::cout << "We enter the door!\n";
+                }
+            }
         }
     }
 }
@@ -152,20 +178,26 @@ void Collision::weaponEntityCollision()
     }
 }
 
-void Collision::entityGroundCollision()
+void Collision::entityRoomCollision(float width, float height)
 {
     for (auto entity: m_entityManager.getEntities())
     {
         if (entity.tagId() == eTile && !entity.has<CGravity>()) { continue; }
 
-        if (entity.get<CTransform>().pos.y > game::kWinHeight - entity.get<CBoundingBox>().halfSize.y)
+        if (entity.get<CTransform>().pos.y > height - entity.get<CBoundingBox>().halfSize.y)
         {
             destroyEntity(entity);
         }
 
+        // room
         if (entity.get<CTransform>().pos.x < entity.get<CBoundingBox>().halfSize.x)
         {
             entity.get<CTransform>().pos.x = entity.get<CBoundingBox>().halfSize.x;
+        }
+
+        if (entity.get<CTransform>().pos.x > width - entity.get<CBoundingBox>().halfSize.x)
+        {
+            entity.get<CTransform>().pos.x = width - entity.get<CBoundingBox>().halfSize.x;
         }
     }
 }
