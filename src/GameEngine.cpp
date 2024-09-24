@@ -102,8 +102,10 @@ void GameEngine::init(const std::string& path)
 {
     m_assets.loadFromFile(path);
 
-    m_window.create(sf::VideoMode(game::kWinWidth, game::kWinHeight), "Line man");
+    m_window.create(sf::VideoMode(game::kWinWidth, game::kWinHeight), "Ink man"
+                  , sf::Style::Titlebar | sf::Style::Close);
     m_window.setFramerateLimit(60);
+    m_window.setVerticalSyncEnabled(true);
 
     if (!ImGui::SFML::Init(m_window))
     {

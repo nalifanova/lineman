@@ -135,6 +135,7 @@ Tile TileBrick 1 0 19 5 1 1
 Tile TileBrick 1 0 19 4 1 1
 
 #Room 2.0
+Tile TileBrick 2 0 0 3 1 1
 Tile TileBrick 2 0 0 9 1 1
 Tile TileBrick 2 0 1 10 1 1
 Tile TileBrick 2 0 2 10 1 1
