@@ -1,6 +1,8 @@
 #ifndef PLAYERGUI_HPP
 #define PLAYERGUI_HPP
 
+#include <map>
+
 #include "SFML/Graphics.hpp"
 
 #include "Entity.hpp"
@@ -9,7 +11,8 @@
 class PlayerGui
 {
 public:
-    explicit PlayerGui(sf::RenderWindow& window, EntityManager& entityManager, const sf::Font& font);
+    explicit PlayerGui(sf::RenderWindow& window, EntityManager& entityManager, const sf::Font& font
+                     , std::map<std::string, int>& scoreData);
 
     void setBottomPanel();
     void setTopPanel();
@@ -25,6 +28,7 @@ private:
     EntityManager& m_entityManager;
     sf::Font m_font;
     sf::Clock m_clock;
+    std::map<std::string, int>& m_scoreData;
 };
 
 #endif //PLAYERGUI_HPP

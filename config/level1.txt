@@ -17,7 +17,7 @@ Tile TileBrick 0 0  8 11 1 1
 Tile TileBrick 0 0  9 10 1 1
 Tile TileBrick 0 0 10 10 1 1
 
-Npc NpcEraser 0 0 6 9 1 1 2 4 Patrol 1.1 2 6 9 4 9
+Npc NpcEraser 0 0 6 9 1 1 3 4 Patrol 1.1 2 6 9 4 9
 # NPC Name RX RY TX TY BM BV H D AI ... Speed N x1 y1 x2 y2
 
 Tile TileLadder 0 0 6 3 1 0
@@ -212,5 +212,5 @@ Tile TileLadder 2 0 17 5 1 0
 Tile TileLadder 2 0 17 6 1 0
 Tile TileLadder 2 0 17 7 1 0
 
-Npc NpcEraser 2 0 2 9 1 1 2 4 Patrol 1.1 2 2 9 16 9
-Npc NpcEraser 2 0 18 8 1 1 2 4 Guard
+Npc NpcEraser 2 0 2 9 1 1 3 4 Patrol 1.1 2 2 9 16 9
+Npc NpcEraser 2 0 18 8 1 1 3 4 Guard

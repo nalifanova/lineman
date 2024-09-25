@@ -59,6 +59,8 @@ protected:
     void spawnEntity(size_t tag, size_t spawnTag, int rx, int ry, int tx, int ty);
     void spawnInk(Vec2 pos);
     void spawnInteractable(Vec2 pos);
+    void spawnSpecialWeapon(Entity& entity, const bool& hard);
+    void spawnWeaponDrop(Entity& entity);
     void destroyEntity(Entity& entity);
 
     void createPanelEntities();
@@ -73,7 +75,7 @@ protected:
     // bool isPositionOccupied(const sf::Vector2f& position);
     //
     void setRoomBackground(sf::Texture& tex);
-    void spawnSpecialWeapon(Entity& entity, const bool& hard);
+    void updateScoreData();
 
     PlayerConfig m_playerConfig{};
     ConsumableConfig m_consConfig{};
@@ -87,6 +89,10 @@ protected:
     std::string m_levelPath;
     sf::ConvexShape m_background;
     std::vector<Entity> m_entityPanel;
+
+    std::map<std::string, int> m_scoreData = {
+        {"Inks", 0}, {"Life", 0}, {"Drops", 0}
+    };
 
     bool m_drawCollision = false;
     bool m_drawGrid = false;
