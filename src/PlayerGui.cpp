@@ -32,15 +32,38 @@ void PlayerGui::setTopPanel()
     m_panel.setFillColor(sf::Color::Transparent);
     m_panel.setOutlineColor(sf::Color(game::Gray));
     m_panel.setOutlineThickness(0);
-    m_panel.setPosition(view.getCenter().x - game::kGridSize * 9.0f,
-        static_cast<float>(m_window.getSize().y) - game::kGridSize * 12.0f
+    m_panel.setPosition(view.getCenter().x - game::kGridSize * 8.0f,
+                        static_cast<float>(m_window.getSize().y) - game::kGridSize * 12.0f
         );
 
     auto winPos = m_panel.getPosition(); // 7.10
 
+    setPanelText(winPos);
     setPanelIcons(winPos);
     setPanelIconTitles();
     m_window.draw(m_panel);
+}
+
+void PlayerGui::setPanelText(sf::Vector2f winPos)
+{
+    auto inkTotal = m_entityManager.getEntities(eConsumable).size();
+    sf::Text text;
+    unsigned int charSize = 20;
+    text.setFont(m_font);
+    text.setCharacterSize(charSize);
+    text.setOrigin(
+        text.getLocalBounds().width / 2.0f,
+        text.getLocalBounds().height / 2.0f
+        );
+    text.setString("Inks: " + std::to_string(inkTotal));
+    text.setFillColor(sf::Color(game::Silver));
+    text.setPosition(winPos.x - game::kGridSize * 1.8f, winPos.y + 10.f);
+    m_window.draw(text);
+
+    text.setString("Life: " + std::to_string(3));
+    text.setFillColor(sf::Color(game::Silver));
+    text.setPosition(text.getPosition().x, text.getPosition().y + 32.f);
+    m_window.draw(text);
 }
 
 void PlayerGui::setPanelIcons(const sf::Vector2f& winPos)

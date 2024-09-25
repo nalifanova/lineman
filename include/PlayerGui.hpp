@@ -13,6 +13,7 @@ public:
 
     void setBottomPanel();
     void setTopPanel();
+    void setPanelText(sf::Vector2f winPos);
     void setPanelIcons(const sf::Vector2f& winPos);
     void setPanelIconTitles() const;
     void barsUpgrade(Entity& entity);

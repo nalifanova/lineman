@@ -132,11 +132,6 @@ void Collision::entityInteractableCollision(Entity& player)
             resolveCollision(npc, intr);
         }
 
-        for (auto& cons: m_entityManager.getEntities(eConsumable))
-        {
-            resolveCollision(cons, intr);
-        }
-
         for (auto& another: m_entityManager.getEntities(eInteractable))
         {
             if (another.id() == intr.id()) { continue; }
@@ -251,6 +246,9 @@ void Collision::moveEntity(Entity& entity)
 
     // get consumable name and convert to panel name
     auto name = entity.get<CAnimation>().animation.getName();
+    std::string suffix = "Air"; // Note: maybe later we'll have a vector of suffixes
+    if (name.ends_with(suffix)) { name.erase(name.size() - suffix.length()); }
+
     size_t pos = name.find(entity.tag());
     if (pos != std::string::npos)
     {
