@@ -20,6 +20,7 @@ There's a list (not an order) of things to be done.
 01. Count all consumables
 02. Score based on collected consumables and time passed the level
 03. Display Score/Lives/Time (maybe time) / Name?
+    Where to store lives?
 04. Boss mechanics
 05. Effects made with shaders
 06. Add map of finished levels (w/o possibility to restart the level)
