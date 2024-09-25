@@ -72,8 +72,9 @@ void ScenePlay::init(const std::string& levelPath)
     initKeyBinds();
     createPanelEntities();
 
-    m_pGui.emplace(m_game->window(), m_entityManager, font);
+    m_pGui.emplace(m_game->window(), m_entityManager, font, m_scoreData);
     m_collision.emplace(m_entityManager, m_currentFrame);
+    m_scoreData.at("Life") = 3;
 }
 
 void ScenePlay::loadLevel(const std::string& fileName)
@@ -208,7 +209,6 @@ void ScenePlay::loadLevel(const std::string& fileName)
                 }
                 npc.add<CPatrol>(patrolNodes, speed);
             }
-            std::cout << "NPC created with id " << npc.id() << " and tag id " << npc.tagId() << "\n";
             token = "None";
         }
         else if (token == "Player")
@@ -248,10 +248,10 @@ void ScenePlay::backToMenu()
     m_game->changeScene("MENU", m_game->getScene("MENU"), true);
 }
 
-
 void ScenePlay::sDoAction(const Action& action)
 {
-    auto& input = getPlayer().get<CInput>();
+    auto player = getPlayer();
+    auto& input = player.get<CInput>();
 
     // Only the setting of the player's input component variables should be set here
     if (action.name() == "MOUSE_MOVE") { m_mousePos = action.pos(); }
@@ -282,6 +282,11 @@ void ScenePlay::sDoAction(const Action& action)
         else if (action.name() == "LEFT") { input.left = false; }
         else if (action.name() == "RIGHT") { input.right = false; }
         else if (action.name() == "INTERACT") { input.interact = false; }
+        else if (action.name() == "ATTACK")
+        {
+            input.attack = false;
+            player.get<CState>().canAttack = true;
+        }
         else if (action.name() == "KEY1") { input.key1 = false; }
         else if (action.name() == "KEY2") { input.key2 = false; }
         else
@@ -330,6 +335,7 @@ void ScenePlay::doPanelAction(Entity& entity)
             ink.get<CConsumable>().amount -= game::maxAmountToChange;
             c.amount += 1;
             c.frameCreated = m_currentFrame;
+            updateScoreData();
         }
         else if (auto& c = boom.get<CConsumable>();
             (input.key3 && ink.get<CConsumable>().amount >= game::maxAmountToChange)
@@ -338,6 +344,7 @@ void ScenePlay::doPanelAction(Entity& entity)
             ink.get<CConsumable>().amount -= game::maxAmountToChange;
             c.amount += 1;
             c.frameCreated = m_currentFrame;
+            updateScoreData();
         }
     }
     else if (input.key1)
@@ -349,6 +356,7 @@ void ScenePlay::doPanelAction(Entity& entity)
             c.frameCreated = m_currentFrame;
             c.amount--;
             h.current = (h.current + h.max / 2 < h.max) ? h.max / 2 : h.max;
+            updateScoreData();
         }
     }
     else if (input.key2)
@@ -408,7 +416,16 @@ void ScenePlay::sMovement()
     {
         player.get<CState>().climbing = false;
     }
+
     pm.runInteract();
+    if (player.get<CState>().canAttack && m_scoreData.at("Drops") > 0)
+    {
+        spawnWeaponDrop(player);
+        player.get<CState>().canAttack = false;
+        m_scoreData.at("Drops") -= 1;
+        int ratio = 2;
+        if (m_scoreData.at("Drops") % ratio > 0) { m_scoreData.at("Inks") -= 1; }
+    }
 
     doMovement();
 }
@@ -449,7 +466,7 @@ void ScenePlay::sStatus()
             onEnd();
             // TODO: Hardcoded!
             m_game->changeScene("LEVEL2",
-                std::make_shared<ScenePlay>(m_game, "config/level2.txt"));
+                                std::make_shared<ScenePlay>(m_game, "config/level2.txt"));
         }
 
         if (entity.has<CSurprise>() && entity.get<CSurprise>().isActivated)
@@ -606,14 +623,13 @@ void ScenePlay::spawnPlayer(bool init)
 void ScenePlay::spawnEntity(const size_t tag, size_t spawnTag, Vec2 pos)
 {
     if (tag == ePlayer) { spawnPlayer(); }
-    else if (tag == eTile)
+    else if (tag == eTile || tag == eNpc)
     {
-        if (spawnTag == eTile) { spawnInk(pos); } // Note: condition when tiles are ruined - ink appears
+        if (spawnTag == eConsumable) { spawnInk(pos); } // Note: condition when tiles are ruined - ink appears
     }
     else if (tag == eConsumable)
     {
         if (spawnTag == eInteractable) { spawnInteractable(pos); }
-        // if (spawnTag == eNpc) { spawnNpc(pos); }
         // if (spawnTag == eConsumable) { spawnInk(pos); } // TODO: dangerous! Check it out
     }
 }
@@ -652,11 +668,46 @@ void ScenePlay::spawnInteractable(Vec2 pos)
     }
 }
 
+void ScenePlay::spawnSpecialWeapon(Entity& entity, const bool& hard)
+{
+    const size_t vertices = hard ? 12 : 6;
+    for (size_t i = 0; i < vertices; i++)
+    {
+        auto boom = m_entityManager.addEntity(eWeapon);
+        const float angle = 360.0f / vertices * i;
+        const float radian = angle * 3.1415f / 180;
+
+        Vec2& pos = entity.get<CTransform>().pos;
+        Vec2 velocity(cos(radian), sin(radian));
+        Vec2 scale = {0.8f, 0.8f};
+        velocity *= 5; // speed
+
+        boom.add<CAnimation>(m_game->assets().getAnimation("BoomInk"), true);
+        boom.add<CTransform>(pos, velocity, scale, angle - 90);
+        boom.add<CLifespan>(45, m_currentFrame);
+    }
+}
+
+void ScenePlay::spawnWeaponDrop(Entity& entity)
+{
+    auto& transf = entity.get<CTransform>();
+
+    auto drop = m_entityManager.addEntity(eWeapon);
+    drop.add<CAnimation>(m_game->assets().getAnimation("DropInk"), true);
+    float sign = transf.scale.x > 0 ? 1.0f : -1.0f; // attack to left or right only
+    drop.add<CTransform>(transf.pos + Vec2(32.0f, 0.0f) * sign);
+    drop.get<CTransform>().velocity.x = m_playerConfig.speed * sign;
+    drop.add<CBoundingBox>(drop.get<CAnimation>().animation.getSize());
+    drop.add<CDamage>(1);
+    drop.add<CLifespan>(2 * 60, m_currentFrame);
+}
+
 void ScenePlay::destroyEntity(Entity& entity)
 {
     // std::cout << "DEBUG: Remove " << entity.tag() << " with id[" << entity.id() << "]\n";
     const auto pos = entity.get<CTransform>().pos;
     auto tagId = entity.tagId();
+    auto spawnableId = entity.tagId();
 
     if (tagId == ePlayer)
     {
@@ -664,10 +715,23 @@ void ScenePlay::destroyEntity(Entity& entity)
         dead.add<CAnimation>(m_game->assets().getAnimation("Dead"), true);
         dead.get<CAnimation>().animation.getSprite().setColor(game::LightGray);
         dead.add<CTransform>(pos);
+        m_scoreData.at("Life") -= 1;
+    }
+    else if (tagId == eConsumable)
+    {
+        updateScoreData();
+    }
+    else if (tagId == eNpc)
+    {
+        spawnableId = eConsumable;
+    }
+    else if (tagId == eTile)
+    {
+        spawnableId = eConsumable;
     }
     entity.destroy();
     m_entityManager.update();
-    spawnEntity(tagId, tagId, pos);
+    spawnEntity(tagId, spawnableId, pos);
 }
 
 void ScenePlay::createPanelEntities()
@@ -902,22 +966,9 @@ void ScenePlay::setRoomBackground(sf::Texture& tex)
     m_game->window().draw(m_background);
 }
 
-void ScenePlay::spawnSpecialWeapon(Entity& entity, const bool& hard)
+void ScenePlay::updateScoreData()
 {
-    const size_t vertices = hard ? 12 : 6;
-    for (size_t i = 0; i < vertices; i++)
-    {
-        auto boom = m_entityManager.addEntity(eWeapon);
-        const float angle = 360.0f / vertices * i;
-        const float radian = angle * 3.1415f / 180;
-
-        Vec2& pos = entity.get<CTransform>().pos;
-        Vec2 velocity(cos(radian), sin(radian));
-        Vec2 scale = {0.8f, 0.8f};
-        velocity *= 5; // speed
-
-        boom.add<CAnimation>(m_game->assets().getAnimation("WeaponInk"), true);
-        boom.add<CTransform>(pos, velocity, scale, angle - 90);
-        boom.add<CLifespan>(45, m_currentFrame);
-    }
+    auto inks = m_entityManager.getEntities(ePanel)[0].get<CConsumable>().amount;
+    m_scoreData.at("Inks") = inks;
+    m_scoreData.at("Drops") = m_scoreData.at("Inks") * 2; // + delta;
 }

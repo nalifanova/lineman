@@ -91,9 +91,9 @@ void PlayerMovement::runInteract()
     // attack / move
     if (m_input.attack)
     {
-        if (m_state.state != "Attak")
+        if (m_state.state != "Attack")
         {
-            m_state.state = "Attak";
+            m_state.state = "Attack";
             m_state.changed = true;
             // might spawn smth
         }

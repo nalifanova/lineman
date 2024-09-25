@@ -196,6 +196,7 @@ public:
     bool inAir = true;
     bool changed = false;
     bool canJump = false;
+    bool canAttack = false;
     bool climbing = false;
     std::string interAction;
 };

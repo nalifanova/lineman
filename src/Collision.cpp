@@ -17,7 +17,12 @@ void Collision::resolveCollision(Entity& entity, Entity& another)
         {
             if (entity.tagId() == eWeapon)
             {
-                destroyEntity(another);
+                resolveWeaponCollision(entity, another);
+                return;
+            }
+            if (another.has<CClimbable>()) // ladders, etc.
+            {
+                resolveLadderCollision(entity);
                 return;
             }
 
@@ -27,17 +32,6 @@ void Collision::resolveCollision(Entity& entity, Entity& another)
                 {
                     entity.get<CState>().interAction = game::interActions.at(another.get<CLockable>().action);
                 }
-            }
-
-            // ladders
-            if (another.has<CClimbable>())
-            {
-                if (entity.has<CState>())
-                {
-                    entity.get<CState>().inAir = false;
-                    entity.get<CState>().climbing = true;
-                }
-                return;
             }
 
             // Overlap: defining a direction
@@ -180,6 +174,11 @@ void Collision::weaponEntityCollision()
         {
             resolveCollision(weapon, inter);
         }
+
+        for (auto& npc: m_entityManager.getEntities(eNpc))
+        {
+            resolveCollision(weapon, npc);
+        }
     }
 }
 
@@ -267,7 +266,7 @@ void Collision::moveEntity(Entity& entity)
     }
     else
     {
-        entity.destroy();
+        destroyEntity(entity);
     }
 
     for (auto item: m_entityManager.getEntities(ePanel))
@@ -290,5 +289,37 @@ void Collision::destroyEntity(Entity& entity)
     {
         entity.get<CLifespan>().lifespan = 1;
         entity.get<CLifespan>().frameCreated = static_cast<int>(m_currentFrame);
+    }
+}
+
+// helper functions
+void Collision::resolveWeaponCollision(Entity& weapon, Entity& another)
+{
+    auto& anim = weapon.get<CAnimation>().animation;
+
+    if (anim.getName().starts_with("Boom")) // only special weapon destroys everything
+    {
+        destroyEntity(another);
+    }
+    else if (another.tagId() == eNpc)
+    {
+        auto& h = another.get<CHealth>();
+        h.current -= weapon.get<CDamage>().damage;
+
+        if (h.current <= 0)
+        {
+            destroyEntity(another);
+            // play dead sound
+        }
+        destroyEntity(weapon);
+    }
+}
+
+void Collision::resolveLadderCollision(Entity& entity)
+{
+    if (entity.has<CState>())
+    {
+        entity.get<CState>().inAir = false;
+        entity.get<CState>().climbing = true;
     }
 }

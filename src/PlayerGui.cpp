@@ -3,8 +3,9 @@
 #include "Data.hpp"
 #include "Tags.hpp"
 
-PlayerGui::PlayerGui(sf::RenderWindow& window, EntityManager& entityManager, const sf::Font& font):
-    m_window(window), m_entityManager(entityManager), m_font(font) {};
+PlayerGui::PlayerGui(sf::RenderWindow& window, EntityManager& entityManager, const sf::Font& font
+                   , std::map<std::string, int>& scoreData):
+    m_window(window), m_entityManager(entityManager), m_font(font), m_scoreData(scoreData) {};
 
 void PlayerGui::setBottomPanel()
 {
@@ -46,24 +47,29 @@ void PlayerGui::setTopPanel()
 
 void PlayerGui::setPanelText(sf::Vector2f winPos)
 {
-    auto inkTotal = m_entityManager.getEntities(eConsumable).size();
     sf::Text text;
-    unsigned int charSize = 20;
+    unsigned int charSize = 18;
     text.setFont(m_font);
     text.setCharacterSize(charSize);
     text.setOrigin(
         text.getLocalBounds().width / 2.0f,
         text.getLocalBounds().height / 2.0f
         );
-    text.setString("Inks: " + std::to_string(inkTotal));
-    text.setFillColor(sf::Color(game::Silver));
-    text.setPosition(winPos.x - game::kGridSize * 1.8f, winPos.y + 10.f);
-    m_window.draw(text);
+    bool first = true;
+    std::vector<std::string> displayOrder = {"Inks", "Drops", "Life"};
+    for (auto key: displayOrder)
+    {
+        text.setString(key + ": " + std::to_string(m_scoreData.at(key)));
+        text.setFillColor(sf::Color(game::Silver));
+        if (first)
+        {
+            text.setPosition(winPos.x - game::kGridSize * 1.8f, winPos.y + 10.f);
+            first = false;
+        }
+        else { text.setPosition(text.getPosition().x, text.getPosition().y + 32.f); }
 
-    text.setString("Life: " + std::to_string(3));
-    text.setFillColor(sf::Color(game::Silver));
-    text.setPosition(text.getPosition().x, text.getPosition().y + 32.f);
-    m_window.draw(text);
+        m_window.draw(text);
+    }
 }
 
 void PlayerGui::setPanelIcons(const sf::Vector2f& winPos)
@@ -176,6 +182,5 @@ void PlayerGui::showCoolDownProgress(Entity& entity)
     {
         grayOverlay.setFillColor(sf::Color(128, 128, 128, 0));
     }
-
     m_window.draw(grayOverlay);
 }
