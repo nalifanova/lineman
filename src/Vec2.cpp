@@ -119,3 +119,10 @@ float Vec2::angle(const Vec2& point) const
 {
     return atan2(y - point.y, x - point.x);
 }
+
+float Vec2::dist(const Vec2& rhs) const
+{
+    const float dX = abs(x - rhs.x);
+    const float dY = abs(y - rhs.y);
+    return sqrtf(dX * dX + dY * dY);
+}

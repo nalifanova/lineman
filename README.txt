@@ -96,6 +96,8 @@ NPC Specification:
   AI Behavior Name     AI       std::string
   AI Parameters        ...      (see below)
 
+AI = Guard
+
 AI = Follow
   ... = S
   Follow Speed         S        float (speed to follow player)
