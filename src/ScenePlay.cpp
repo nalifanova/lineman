@@ -74,7 +74,7 @@ void ScenePlay::init(const std::string& levelPath)
 
     m_pGui.emplace(m_game->window(), m_entityManager, font, m_scoreData);
     m_collision.emplace(m_entityManager, m_currentFrame);
-    m_scoreData.at("Life") = 3;
+    m_scoreData.at("Life") = 1;
 }
 
 void ScenePlay::loadLevel(const std::string& fileName)
@@ -622,7 +622,14 @@ void ScenePlay::spawnPlayer(bool init)
 
 void ScenePlay::spawnEntity(const size_t tag, size_t spawnTag, Vec2 pos)
 {
-    if (tag == ePlayer) { spawnPlayer(); }
+    if (tag == ePlayer)
+    {
+        if (m_scoreData.at("Life") > 0) { spawnPlayer(); }
+        else
+        {
+            m_pGui->gameOver([this] { backToMenu(); });
+        }
+    }
     else if (tag == eTile || tag == eNpc)
     {
         if (spawnTag == eConsumable) { spawnInk(pos); } // Note: condition when tiles are ruined - ink appears

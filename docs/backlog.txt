@@ -8,20 +8,17 @@ There's a list (not an order) of things to be done.
 02. New Game / Load Game (menu)
 03. Assign another keys to play
 04. Add name of the player
-05. Add score table of players
-06. Add number of lives
 07. Add throwable
 08. Add boss
 09. Modify changeScene/load next level logic
 10. Add NPCs that can jump and/or follow
-11. Add gameover (when lives are over or no condition to finish the level)
-12. Add attack
+
 
 ### THINK OF
 01. Count all consumables
 02. Score based on collected consumables and time passed the level
 03. Display Score/Lives/Time (maybe time) / Name?
-    Where to store lives?
+    Life and Inks are displayed. Should we move it to another level?
 04. Boss mechanics
 05. Effects made with shaders
 06. Add map of finished levels (w/o possibility to restart the level)
