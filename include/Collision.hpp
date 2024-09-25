@@ -15,7 +15,7 @@ public:
     void entityInteractableCollision(Entity& player);
     void checkInteraction(Entity& player);
     void weaponEntityCollision();
-    void playerNpcCollision();
+    void playerNpcCollision(Entity& player);
     void entityItemCollision(Entity& player);
     bool isClimbing(Entity& entity) const;
     // void teleportCollision();

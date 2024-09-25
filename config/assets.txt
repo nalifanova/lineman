@@ -20,6 +20,8 @@ Texture TexManClimbDown assets/images/lineman/man_climb_down.png
 Texture TexManInteract assets/images/lineman/man_interact.png
 Texture TexManDead assets/images/lineman/man_dead.png
 
+Texture TexNpcEraser assets/images/npc/npc_eraser.png
+
 Texture TexDecBgrnd assets/images/decoration/dec_background.png
 Texture TexConsInk assets/images/consumables/cons_ink.png
 Texture TexConsInkAir assets/images/consumables/cons_ink_air.png
@@ -50,6 +52,8 @@ Animation ClimbUp TexManClimb 2 16
 Animation ClimbDown TexManClimbDown 2 16
 Animation Interact TexManInteract 2 16
 Animation Dead TexManDead 1 0
+
+Animation NpcEraser TexNpcEraser 4 32
 
 Animation ConsInk TexConsInk   2 16
 Animation ConsInkAir TexConsInkAir   2 16

@@ -207,11 +207,17 @@ void Collision::entityRoomCollision(float width, float height)
     }
 }
 
-void Collision::playerNpcCollision() {}
+void Collision::playerNpcCollision(Entity& player)
+{
+    for (auto& npc: m_entityManager.getEntities(eNpc))
+    {
+        resolveCollision(player, npc);
+    }
+}
 
 void Collision::entityItemCollision(Entity& player)
 {
-    for (auto& consumable: m_entityManager.getEntities(TagName::eConsumable))
+    for (auto& consumable: m_entityManager.getEntities(eConsumable))
     {
         if (Physics::isColliding(player, consumable))
         {

@@ -172,12 +172,12 @@ void ScenePlay::loadLevel(const std::string& fileName)
             cons.add<CBoundingBox>(cons.get<CAnimation>().animation.getSize());
             token = "None";
         }
-        else if (token == "NPC")
+        else if (token == "Npc")
         {
             std::string aiType;
             int rx, ry, tx, ty, bm, bv, health, damage;
-            float speed;
-            fin >> name >> rx >> ry >> tx >> ty >> bm >> bv >> health >> damage >> aiType >> speed;
+            float speed = 0.0f;
+            fin >> name >> rx >> ry >> tx >> ty >> bm >> bv >> health >> damage >> aiType;
 
             auto npc = m_entityManager.addEntity(TagName::eNpc);
             npc.add<CAnimation>(m_game->assets().getAnimation(name), true);
@@ -186,6 +186,10 @@ void ScenePlay::loadLevel(const std::string& fileName)
             npc.add<CDraggable>();
             npc.add<CHealth>(health, health);
             npc.add<CDamage>(damage);
+            npc.add<CGravity>(2); // By default
+
+            // Npc stays still
+            if (aiType != "Guard") { fin >> speed; }
 
             if (aiType == "Follow")
             {
@@ -204,6 +208,7 @@ void ScenePlay::loadLevel(const std::string& fileName)
                 }
                 npc.add<CPatrol>(patrolNodes, speed);
             }
+            std::cout << "NPC created with id " << npc.id() << " and tag id " << npc.tagId() << "\n";
             token = "None";
         }
         else if (token == "Player")
@@ -408,7 +413,32 @@ void ScenePlay::sMovement()
     doMovement();
 }
 
-void ScenePlay::sAI() {}
+void ScenePlay::sAI()
+{
+    for (auto& npc: m_entityManager.getEntities(eNpc))
+    {
+        if (npc.has<CPatrol>()) // Patrol behavior
+        {
+            auto& patrol = npc.get<CPatrol>();
+            auto& transf = npc.get<CTransform>();
+
+            const auto roomPos = m_grid->getRoomXY(transf.pos);
+            const auto npcTilePos = patrol.positions[patrol.currentPosition];
+            auto npcPos = m_grid->getPosition(
+                static_cast<int>(roomPos.x), static_cast<int>(roomPos.y),
+                static_cast<int>(npcTilePos.x), static_cast<int>(npcTilePos.y)
+                );
+            npcPos.y += 16.f;
+
+            if (npcPos.dist(transf.pos) < 5.0f) // how smoothly npc changes angle
+            {
+                patrol.currentPosition = (1 + patrol.currentPosition) % patrol.positions.size();
+            }
+
+            transf.velocity = (npcPos - transf.pos).magnitude(patrol.speed);
+        }
+    }
+}
 
 void ScenePlay::sStatus()
 {
@@ -537,7 +567,7 @@ void ScenePlay::sCollision()
     m_collision->entityInteractableCollision(player);
     m_collision->checkInteraction(player);
     m_collision->weaponEntityCollision();
-    // m_collision->playerNpcCollision();
+    m_collision->playerNpcCollision(player);
     m_collision->entityItemCollision(player);
     m_collision->entityRoomCollision(3 * width(), height());
 }

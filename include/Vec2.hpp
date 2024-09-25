@@ -68,6 +68,8 @@ public:
     Vec2& magnitude(float length);
     [[nodiscard]] float angle(const Vec2& point) const;
 
+    [[nodiscard]] float dist(const Vec2& rhs) const;
+
     float x = 0.0f;
     float y = 0.0f;
 };
