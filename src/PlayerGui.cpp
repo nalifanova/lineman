@@ -184,3 +184,55 @@ void PlayerGui::showCoolDownProgress(Entity& entity)
     }
     m_window.draw(grayOverlay);
 }
+
+void PlayerGui::gameOver(const std::function<void()>& callback) const
+{
+    sf::View view = m_window.getView();
+    sf::RectangleShape board;
+    board.setSize(sf::Vector2f(800.f, 600.f));
+    board.setOrigin(
+        board.getLocalBounds().width / 2.0f,
+        board.getLocalBounds().height / 2.0f
+        );
+    board.setFillColor(game::LightGray);
+    board.setOutlineThickness(0);
+    board.setPosition(view.getCenter().x, static_cast<float>(m_window.getSize().y) / 2);
+    m_window.draw(board);
+
+    auto winPos = board.getPosition();
+
+    sf::Text text;
+    text.setFont(m_font);
+    text.setCharacterSize(48);
+    text.setFillColor(sf::Color::Black);
+    text.setOrigin(
+        text.getLocalBounds().width / 2.0f,
+        text.getLocalBounds().height / 2.0f
+        );
+    text.setString("Game Over!");
+    text.setPosition(
+        winPos.x - text.getLocalBounds().width / 2,
+        winPos.y - text.getLocalBounds().height / 2
+        );
+
+    m_window.draw(text);
+
+    text.setCharacterSize(24);
+    text.setString("Press Esc to quit");
+    text.setPosition(
+        text.getPosition().x + 16.f,
+        text.getPosition().y + 250.f
+        );
+    m_window.draw(text);
+    m_window.display();
+
+    sf::Event event{};
+    while (m_window.waitEvent(event))
+    {
+        if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
+        {
+            callback();
+            return;
+        }
+    }
+}

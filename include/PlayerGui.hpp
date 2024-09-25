@@ -21,6 +21,7 @@ public:
     void setPanelIconTitles() const;
     void barsUpgrade(Entity& entity);
     void showCoolDownProgress(Entity& entity);
+    void gameOver(const std::function<void()>& callback) const;
 
 private:
     sf::RectangleShape m_panel;
