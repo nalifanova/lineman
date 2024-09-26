@@ -74,7 +74,7 @@ void ScenePlay::init(const std::string& levelPath)
 
     m_pGui.emplace(m_game->window(), m_entityManager, font, m_scoreData);
     m_collision.emplace(m_entityManager, m_currentFrame);
-    m_scoreData.at("Life") = 1;
+    m_scoreData.at("Life") = 3;
 }
 
 void ScenePlay::loadLevel(const std::string& fileName)
@@ -964,8 +964,6 @@ void ScenePlay::setRoomBackground(sf::Texture& tex)
     }
     tex.setRepeated(true);
     m_background.setTexture(&tex);
-    m_background.setOrigin(static_cast<float>(tex.getSize().x),
-                           static_cast<float>(tex.getSize().y));
     m_background.setTextureRect(sf::IntRect(
         0, 0, static_cast<int>(width() * 3.0f),
         static_cast<int>(height() * 1.0f)
