@@ -135,7 +135,12 @@ void PlayerMovement::changeState()
     }
     else
     {
-        if (!m_state.inAir && m_state.state != "Stand")
+        if (m_state.inAir)
+        {
+            m_state.state = "Air";
+            m_state.changed = true;
+        }
+        else if (m_state.state != "Stand")
         {
             m_state.state = "Stand";
             m_state.changed = true;

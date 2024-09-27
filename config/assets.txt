@@ -52,13 +52,13 @@ Animation Stand TexManStand 4 50
 Animation Air TexManAir 4 50
 Animation Walk TexManWalk 4 16
 Animation Climb TexManClimb 2 16
-Animation ClimbUp TexManClimb 2 16
+Animation ClimbUp TexManClimb 2 8
 Animation ClimbDown TexManClimbDown 2 16
 Animation Interact TexManInteract 2 16
 Animation Attack TexManAttack 2 16
 Animation Dead TexManDead 1 0
 
-Animation NpcEraser TexNpcEraser 4 32
+Animation NpcEraser TexNpcEraser 4 20
 
 Animation ConsInk TexConsInk   2 16
 Animation ConsInkAir TexConsInkAir   2 16

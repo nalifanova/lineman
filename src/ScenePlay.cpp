@@ -187,7 +187,12 @@ void ScenePlay::loadLevel(const std::string& fileName)
             auto npc = m_entityManager.addEntity(TagName::eNpc);
             npc.add<CAnimation>(m_game->assets().getAnimation(name), true);
             npc.add<CTransform>(m_grid->getPosition(rx, ry, tx, ty));
-            npc.add<CBoundingBox>(npc.get<CAnimation>().animation.getSize(), bm, bv);
+            auto animSize = npc.get<CAnimation>().animation.getSize();
+            if (npc.get<CAnimation>().animation.getName().ends_with("Eraser"))
+            {
+                animSize = Vec2(animSize.x - 20, animSize.y);
+            }
+            npc.add<CBoundingBox>(animSize, bm, bv);
             npc.add<CDraggable>();
             npc.add<CHealth>(health, health);
             npc.add<CDamage>(damage);
@@ -274,6 +279,7 @@ void ScenePlay::sDoAction(const Action& action)
         else if (action.name() == "LEFT") { input.left = true; }
         else if (action.name() == "RIGHT") { input.right = true; }
         else if (action.name() == "INTERACT") { input.interact = true; }
+        else if (action.name() == "ATTACK") { input.attack = true; }
         else if (action.name() == "KEY1") { input.key1 = true; }
         else if (action.name() == "KEY2") { input.key2 = true; }
         else
@@ -523,7 +529,7 @@ void ScenePlay::sAnimation()
 
     auto& state = player.get<CState>();
 
-    if (state.changed || (state.climbing && !state.changed))
+    if (state.changed)
     {
         std::string animName = state.state;
         stateAnimation(animName, player);
