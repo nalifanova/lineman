@@ -56,17 +56,26 @@ void PlayerGui::setPanelText(sf::Vector2f winPos)
         text.getLocalBounds().height / 2.0f
         );
     bool first = true;
-    std::vector<std::string> displayOrder = {"Inks", "Drops", "Life"};
+    std::vector<std::string> displayOrder = {"Time", "Drops", "Life"};
     for (auto key: displayOrder)
     {
-        text.setString(key + ": " + std::to_string(m_scoreData.at(key)));
         text.setFillColor(sf::Color(game::Silver));
         if (first)
         {
+            auto time = m_scoreData.at(key);
+            int minutes = static_cast<int>(time) / 60;
+            int seconds = static_cast<int>(time) % 60;
+
+            text.setString(
+                key + ": " + std::to_string(minutes) + ":" + (seconds < 10 ? "0" : "") + std::to_string(seconds));
             text.setPosition(winPos.x - game::kGridSize * 1.8f, winPos.y + 10.f);
             first = false;
         }
-        else { text.setPosition(text.getPosition().x, text.getPosition().y + 32.f); }
+        else
+        {
+            text.setString(key + ": " + std::to_string(m_scoreData.at(key)));
+            text.setPosition(text.getPosition().x, text.getPosition().y + 32.f);
+        }
 
         m_window.draw(text);
     }

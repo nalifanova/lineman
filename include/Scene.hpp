@@ -43,6 +43,7 @@ protected:
     bool m_hasEnded = false;
     size_t m_currentFrame = 0;
     float m_accel = 0.0f;
+    float m_timeChecker = 0.f;
 };
 
 #endif //SCENE_H

@@ -77,6 +77,13 @@ protected:
     void setRoomBackground(sf::Texture& tex);
     void updateScoreData();
 
+    Entity& ink();
+    Entity& shield();
+    Entity& boom();
+    int time();
+    int life();
+    int drops();
+
     PlayerConfig m_playerConfig{};
     ConsumableConfig m_consConfig{};
 
@@ -91,7 +98,7 @@ protected:
     std::vector<Entity> m_entityPanel;
 
     std::map<std::string, int> m_scoreData = {
-        {"Inks", 0}, {"Life", 0}, {"Drops", 0}
+        {"Time", 0}, {"Life", 0}, {"Drops", 0}
     };
 
     bool m_drawCollision = false;
