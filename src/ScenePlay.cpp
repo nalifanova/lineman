@@ -25,7 +25,6 @@ void ScenePlay::update()
     m_entityManager.update();
     float deltaTime = DeltaTime::get().asSeconds();
     m_accel += deltaTime;
-    // std::cout << "m_accel " << m_accel << "\n";
 
     sDrag();
     if (!m_paused)
@@ -37,6 +36,11 @@ void ScenePlay::update()
         sAnimation();
         sCamera();
         m_currentFrame++;
+        if (m_timeChecker += deltaTime; m_timeChecker >= 1.f)
+        {
+            m_scoreData["Time"] += 1;
+            m_timeChecker -= 1.f;
+        }
     }
     sGUI();
     sRender();
@@ -321,35 +325,31 @@ void ScenePlay::sDrag()
 void ScenePlay::doPanelAction(Entity& entity)
 {
     auto& input = entity.get<CInput>();
-    auto& ink = m_entityPanel[0];
-    auto& shield = m_entityPanel[1];
-    auto& boom = m_entityPanel[2];
     size_t timeToInteract = 0.3 * 60;
 
     if (input.interact)
     {
-        if (auto& c = shield.get<CConsumable>();
-            (input.key2 && ink.get<CConsumable>().amount >= game::maxAmountToChange)
+        if (auto& c = shield().get<CConsumable>();
+            (input.key2 && ink().get<CConsumable>().amount >= game::maxAmountToChange)
             && (m_currentFrame - c.frameCreated > timeToInteract))
         {
-            ink.get<CConsumable>().amount -= game::maxAmountToChange;
+            ink().get<CConsumable>().amount -= game::maxAmountToChange;
             c.amount += 1;
             c.frameCreated = m_currentFrame;
-            updateScoreData();
         }
-        else if (auto& c = boom.get<CConsumable>();
-            (input.key3 && ink.get<CConsumable>().amount >= game::maxAmountToChange)
+        else if (auto& c = boom().get<CConsumable>();
+            (input.key3 && ink().get<CConsumable>().amount >= game::maxAmountToChange)
             && (m_currentFrame - c.frameCreated > timeToInteract))
         {
-            ink.get<CConsumable>().amount -= game::maxAmountToChange;
+            ink().get<CConsumable>().amount -= game::maxAmountToChange;
             c.amount += 1;
             c.frameCreated = m_currentFrame;
-            updateScoreData();
         }
+        updateScoreData();
     }
     else if (input.key1)
     {
-        auto& c = ink.get<CConsumable>();
+        auto& c = ink().get<CConsumable>();
         auto& h = entity.get<CHealth>();
         if (c.amount > 0 && m_currentFrame - c.frameCreated >= c.cooldown)
         {
@@ -361,7 +361,7 @@ void ScenePlay::doPanelAction(Entity& entity)
     }
     else if (input.key2)
     {
-        auto& c = shield.get<CConsumable>();
+        auto& c = shield().get<CConsumable>();
         if (c.amount > 0 && m_currentFrame - c.frameCreated >= c.cooldown)
         {
             c.frameCreated = m_currentFrame;
@@ -371,7 +371,7 @@ void ScenePlay::doPanelAction(Entity& entity)
     }
     else if (input.key3)
     {
-        auto& c = boom.get<CConsumable>();
+        auto& c = boom().get<CConsumable>();
         const bool hard = c.amount >= game::maxAmountToChange;
         if (c.amount > 0 && m_currentFrame - c.frameCreated >= c.cooldown)
         {
@@ -418,13 +418,13 @@ void ScenePlay::sMovement()
     }
 
     pm.runInteract();
-    if (player.get<CState>().canAttack && m_scoreData.at("Drops") > 0)
+    if (player.get<CState>().canAttack && drops() > 0)
     {
         spawnWeaponDrop(player);
         player.get<CState>().canAttack = false;
         m_scoreData.at("Drops") -= 1;
         int ratio = 2;
-        if (m_scoreData.at("Drops") % ratio > 0) { m_scoreData.at("Inks") -= 1; }
+        if (drops() % ratio > 0) { ink().get<CConsumable>().amount -= 1; }
     }
 
     doMovement();
@@ -624,7 +624,7 @@ void ScenePlay::spawnEntity(const size_t tag, size_t spawnTag, Vec2 pos)
 {
     if (tag == ePlayer)
     {
-        if (m_scoreData.at("Life") > 0) { spawnPlayer(); }
+        if (life() > 0) { spawnPlayer(); }
         else
         {
             m_pGui->gameOver([this] { backToMenu(); });
@@ -703,7 +703,7 @@ void ScenePlay::spawnWeaponDrop(Entity& entity)
     drop.add<CAnimation>(m_game->assets().getAnimation("DropInk"), true);
     float sign = transf.scale.x > 0 ? 1.0f : -1.0f; // attack to left or right only
     drop.add<CTransform>(transf.pos + Vec2(32.0f, 0.0f) * sign);
-    drop.get<CTransform>().velocity.x = m_playerConfig.speed * sign;
+    drop.get<CTransform>().velocity.x = game::dropSpeed * sign;
     drop.add<CBoundingBox>(drop.get<CAnimation>().animation.getSize());
     drop.add<CDamage>(1);
     drop.add<CLifespan>(2 * 60, m_currentFrame);
@@ -973,7 +973,36 @@ void ScenePlay::setRoomBackground(sf::Texture& tex)
 
 void ScenePlay::updateScoreData()
 {
-    auto inks = m_entityManager.getEntities(ePanel)[0].get<CConsumable>().amount;
-    m_scoreData.at("Inks") = inks;
-    m_scoreData.at("Drops") = m_scoreData.at("Inks") * 2; // + delta;
+    m_scoreData.at("Drops") = ink().get<CConsumable>().amount * 2;
 }
+
+Entity& ScenePlay::ink()
+{
+    return m_entityPanel[0];
+}
+
+Entity& ScenePlay::shield()
+{
+    return m_entityPanel[1];
+};
+
+Entity& ScenePlay::boom()
+{
+    return m_entityPanel[2];
+}
+
+int ScenePlay::time()
+{
+    return m_scoreData.at("Time");
+}
+
+int ScenePlay::life()
+{
+    return m_scoreData.at("Life");
+}
+
+int ScenePlay::drops()
+{
+    return m_scoreData.at("Drops");
+}
+
