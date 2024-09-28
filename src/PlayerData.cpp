@@ -48,10 +48,6 @@ void PlayerData::addTime(int value)
 void PlayerData::updateDrops(int value)
 {
     m_drops += value;
-    // if (m_inks != m_drops / 2)
-    // {
-    //     m_drops = m_inks * 2;
-    // }
 }
 
 void PlayerData::updateLife(int value)

@@ -1,5 +1,7 @@
 #include "Scene.hpp"
 
+#include "fstream"
+
 #include "GameEngine.hpp"
 
 Scene::Scene() = default;
@@ -27,6 +29,23 @@ void Scene::simulate(const size_t frames)
 void Scene::registerAction(int inputKey, const std::string& actionName)
 {
     m_actionMap[inputKey] = actionName;
+}
+
+void Scene::initKeyBinds()
+{
+    auto& keys = m_game->getSupportedKeys();
+    std::ifstream fin("config/gamescene_keybinds.ini");
+    if (!fin)
+    {
+        std::cerr << "Could not load gamescene_keybinds.ini file!\n";
+        exit(-1);
+    }
+    std::string actionName = " ";
+    std::string keyName = " ";
+    while (fin >> actionName >> keyName)
+    {
+        registerAction(keys.at(keyName), actionName);
+    }
 }
 
 float Scene::width() const

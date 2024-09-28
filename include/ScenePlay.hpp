@@ -33,7 +33,6 @@ public:
     void update() override;
 
 protected:
-    void initKeyBinds();
     void init(const std::string& levelPath);
     void loadLevel(const std::string& filename);
     Entity getPlayer() const;

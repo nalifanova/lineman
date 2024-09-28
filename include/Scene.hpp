@@ -25,6 +25,7 @@ public:
 
     void simulate(size_t frames);
     void registerAction(int inputKey, const std::string& actionName);
+    void initKeyBinds();
 
     [[nodiscard]] float width() const;
     [[nodiscard]] float height() const;

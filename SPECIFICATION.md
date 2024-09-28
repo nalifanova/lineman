@@ -21,9 +21,10 @@ checklist to mark your game's progress by putting an [x] inside the square brack
 - [x] Main menu scene that implements the main menu / options functionality
 - [ ] Overworld map scene that allows for level selection / game progression (Super Mario World etc)
 - [x] Main gameplay scene that implements the game physics of the main gameplay mode
-- [ ] Some sort of item inventory or in-game many scene that is used for a relevant function
+- [x] Some sort of item inventory or in-game many scene that is used for a relevant function
 - [ ] Level editor scene that implements level editor functionality
 - [ ] A ‘game over’ scene with some sort of animation and game over / credits
+  - Note: not a scene but a menu... might think of changing to a scene
 
 ## Required Gameplay and Mechanics (From Assignments)
 Your game must contain all the following mechanics. You may copy / paste / edit this list 
@@ -33,30 +34,30 @@ finished feature marked as completed.
 - [x] Collisions
   - [x] Rectangular bounding box collisions between some entities 
   - [x] Some collision between player and level geometry (walls, tiles, etc)
-- [ ] Movement
+- [x] Movement
   - [x] Your game must contain at least 2 'movement abilities' with a cooldown or resource cost
   - Our Game's Movement Abilities:
     - [ ] Example 1: Double Jump 
     - [x] Example 2: Dash (with invulnerability)
     - [ ] Example 3: Wall Jump 
     - [ ] Example 4: Jetpack (with fuel)
-- [ ] Bullets / Weapons
+- [x] Bullets / Weapons
   - [ ] At least 3 unique weapons that are usable by the player
   - Our Game's Weapons are:
     - [ ] Example 1: Boomerang (returns when thrown)
-    - [ ] Example 2: Shotgun (several bullets fired in a spread)
+    - [x] Example 2: Shotgun (several bullets fired in a spread)
     - [ ] Example 3: Sword (melee weapon)
   - [ ] Weapons must be swappable during gameplay via hotkey or ui element
   - [x] At least one weapon must consume ammo obtainable during gameplay
 - [ ] NPCs
   - [ ] At least 3 unique non-player characters in the game that act as enemies or allies
-  - [ ] Must contain basic AI such as path-finding / shooting / patrolling / battling with the player
+  - [x] Must contain basic AI such as path-finding / shooting / patrolling / battling with the player
   - [ ] Each NPC has a unique weapon or method for interacting with the player
-- [ ] Hit Points / Damage
+- [x] Hit Points / Damage
   - [x] Player / enemies in the game should have hit points (life) and take damage / die
   - [x] Invincibility frames must be implemented for all entities that take damage
-  - [ ] Enemy HP levels must be displayed to the user in some way
-- [ ] Objects / Inventory
+  - [x] Enemy HP levels must be displayed to the user in some way
+- [x] Objects / Inventory
   - [x] At least 3 different items should be obtainable during the game via interaction
   - [x] UI should display inventory of these items, allow for their use after obtaining
   - Our Game's Items are:
@@ -70,8 +71,8 @@ finished feature marked as completed.
     - [ ] Example 2: Player torch illuminates areas within line of sight
 - [x] Gravity / Acceleration
   - [x] There must be some form of gravity / attractor in the game that applies acceleration to the player
-- [ ] Camera / World View
-  - [ ] Your game must use at least 2 different camera views in an interesting way
+- [x] Camera / World View
+  - [x] Your game must use at least 2 different camera views in an interesting way
   - Our Game's Camera Views:
     - [x] Example 1: Standard main camera view of gameplay
     - [ ] Example 2: Mini-map of local area that shows player position
@@ -85,12 +86,12 @@ finished feature marked as completed.
     - [x] Player health
     - [x] Weapons and Ammo
     - [ ] Game Progression
-    - [ ] Status Effects / Timers
+    - [x] Status Effects / Timers
     - [ ] Other UI elements listed here
 - [ ] Audio
   - [ ] Must have background music during gameplay / menu scenes
   - [ ] Must have sound effects that occur for events such as getting hit, item pickup, ui selection, etc
-- [ ] Assets
+- [x] Assets
   - [x] You cannot use any assets that were given out in the course (levels / animations / music)
   - [x] You do not have to create assets from scratch, you can obtain them online
   - [ ] If you obtained assets online, please cite the sources of the assets
@@ -111,11 +112,11 @@ of marks are given for the project:
   - [ ] You must have the ability to save and load your game progress somehow to a file
 - [ ] Status Effects
   - [ ] Must contain at least 3 separate status effects
-  - [ ] Status effects are obtainable in some way (item, collision, ability, etc) which alter the gameplay for a limited amount of time
+  - [x] Status effects are obtainable in some way (item, collision, ability, etc) which alter the gameplay for a limited amount of time
   - Our Game's Status Effects are:
     - [ ] Example 1: Speed Potion
     - [ ] Example 2: Quad Damage
-    - [ ] Example 3: Invincibility Star
+    - [x] Example 3: Invincibility Star
 - [ ] Moving Tiles
   - [ ] Must include some part of the level which moves, such as platforms / elevators
 - [ ] Shaders
@@ -145,7 +146,7 @@ of marks are given for the project:
 
 - [ ] Menu that allows you to select an existing level to edit
 - [ ] Ability to select and place any Texture / Animation defined in the Assets file into the level
-- [ ] Any parameters of specific entities must be editable via the level editor. For example, this can include:
+- [x] Any parameters of specific entities must be editable via the level editor. For example, this can include:
   - [ ] Whether NPCs block vision, movement, or neither
-  - [ ] The hit points / damage of NPCs in the level
-  - [ ] The patrol points of moving tiles or NPCs
+  - [x] The hit points / damage of NPCs in the level
+  - [x] The patrol points of moving tiles or NPCs

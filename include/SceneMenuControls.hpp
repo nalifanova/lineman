@@ -20,6 +20,7 @@ protected:
     void onEnd() override;
     void sDoAction(const Action& action) override;
     void controls();
+    std::map<std::string, std::string> getKeyMap();
 
     std::vector<std::string> m_menuStrings;
     std::vector<sf::Text> m_menuItems;
