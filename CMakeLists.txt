@@ -122,10 +122,9 @@ file(
     DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/fonts
 )
 
-file(
-    COPY ${CMAKE_SOURCE_DIR}/saves
-    DESTINATION ${CMAKE_BINARY_DIR}/bin/saves
-)
+set(SAVE_DIRECTORY ${CMAKE_BINARY_DIR}/bin/saves)
+file(MAKE_DIRECTORY ${SAVE_DIRECTORY})
+message(STATUS "Directory `saves` created at: ${SAVE_DIRECTORY}")
 
 file(GLOB img_tiles ${CMAKE_SOURCE_DIR}/assets/images/tiles/*.png)
 file(GLOB img_dec ${CMAKE_SOURCE_DIR}/assets/images/decoration/*.png)
@@ -136,6 +135,7 @@ file(GLOB img_man ${CMAKE_SOURCE_DIR}/assets/images/lineman/*.png)
 file(GLOB img_npc ${CMAKE_SOURCE_DIR}/assets/images/npc/*.png)
 #file(GLOB sounds ${CMAKE_SOURCE_DIR}/assets/sounds/*.*)
 file(GLOB texts ${CMAKE_SOURCE_DIR}/config/*.txt)
+file(GLOB ini ${CMAKE_SOURCE_DIR}/config/*.ini)
 
 file(COPY ${fonts} DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/fonts)
 file(COPY ${img_tiles} DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/images/tiles)
@@ -147,3 +147,4 @@ file(COPY ${img_man} DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/images/lineman)
 file(COPY ${img_npc} DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/images/npc)
 #file(COPY ${sounds} DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/sounds)
 file(COPY ${texts} DESTINATION ${CMAKE_BINARY_DIR}/bin/config)
+file(COPY ${ini} DESTINATION ${CMAKE_BINARY_DIR}/bin/config)
