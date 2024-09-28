@@ -53,7 +53,6 @@ void SceneMenu::init()
     registerAction(sf::Keyboard::S, "DOWN");
     registerAction(sf::Keyboard::Down, "DOWN");
     registerAction(sf::Keyboard::Enter, "RUN");
-    registerAction(sf::Keyboard::Space, "RUN");
     registerAction(sf::Keyboard::M, "MUTE");
     registerAction(sf::Keyboard::Q, "QUIT");
 

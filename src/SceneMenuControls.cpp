@@ -1,5 +1,7 @@
 #include "SceneMenuControls.hpp"
 
+#include <format>
+
 #include "SFML/Graphics.hpp"
 
 #include "Action.hpp"
@@ -78,22 +80,28 @@ void SceneMenuControls::controls()
         m_menuText.getLocalBounds().width / 2.0f,
         m_menuText.getLocalBounds().height / 2.0f
         );
-    m_menuText.setPosition(width() / 2.0f, height() / 4.0f);
+    m_menuText.setPosition(width() / 2.0f, height() / 6.0f);
 
-    m_menuStrings.emplace_back("[W] - Movement Up");
-    m_menuStrings.emplace_back("[A] - Movement Left");
-    m_menuStrings.emplace_back("[S] - Movement Down");
-    m_menuStrings.emplace_back("[D] - Movement Right");
-    m_menuStrings.emplace_back("---------------------");
-    m_menuStrings.emplace_back("[1] - Restore Health");
-    m_menuStrings.emplace_back("[2] - Activate Shield");
-    m_menuStrings.emplace_back("[3] - Make Boom");
-    m_menuStrings.emplace_back("---------------------");
-    m_menuStrings.emplace_back("[E] - Interact");
-    m_menuStrings.emplace_back("[E + 2] - Transform Ink to Shield");
-    m_menuStrings.emplace_back("[E + 3] - Transform Ink to Boom");
+    auto keyMap = getKeyMap();
 
-    m_menuStrings.emplace_back("[P] - Pause");
+    // std::string result = std::format("some text {} text goes on", "smth");
+    m_menuStrings.emplace_back(std::format("[{}] - Movement Up", keyMap["UP"]));
+    m_menuStrings.emplace_back(std::format("[{}] - Movement Left", keyMap["LEFT"]));
+    m_menuStrings.emplace_back(std::format("[{}] - Movement Down", keyMap["DOWN"]));
+    m_menuStrings.emplace_back(std::format("[{}] - Movement Right", keyMap["RIGHT"]));
+    m_menuStrings.emplace_back("---------------------");
+    m_menuStrings.emplace_back(std::format("[{}] - Restore Health", keyMap["KEY1"]));
+    m_menuStrings.emplace_back(std::format("[{}] - Activate Shield", keyMap["KEY2"]));
+    m_menuStrings.emplace_back(std::format("[{}] - Make Boom", keyMap["KEY3"]));
+    m_menuStrings.emplace_back("---------------------");
+    m_menuStrings.emplace_back(std::format("[{}] - Attack", keyMap["ATTACK"]));
+    m_menuStrings.emplace_back(std::format("[{}] - Interact", keyMap["INTERACT"]));
+    m_menuStrings.emplace_back(std::format("[{} + {}] - Transform Ink to Shield",
+        keyMap["INTERACT"], keyMap["KEY2"]));
+    m_menuStrings.emplace_back(std::format("[{} + {}] - Transform Ink to Boom",
+        keyMap["INTERACT"], keyMap["KEY3"]));
+
+    m_menuStrings.emplace_back(std::format("[{}] - Pause", keyMap["PAUSE"]));
     m_menuStrings.emplace_back("---------------------");
     m_menuStrings.emplace_back("ESC back to Menu");
 
@@ -107,4 +115,18 @@ void SceneMenuControls::controls()
             );
         m_menuItems.push_back(text);
     }
+}
+
+std::map<std::string, std::string> SceneMenuControls::getKeyMap()
+{
+    initKeyBinds();
+    auto& keys = m_game->getSupportedKeys(); // string int
+    std::map<std::string, std::string> keyMap;
+    for (auto& [name, keyNumber]: keys)
+    {
+        keyMap[m_actionMap[keyNumber]] = name;
+        // std::cout << "key name: " << name << " action: " << m_actionMap[keyNumber] << "\n";
+    }
+
+    return keyMap;
 }

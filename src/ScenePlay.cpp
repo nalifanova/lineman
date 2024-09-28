@@ -47,23 +47,6 @@ void ScenePlay::update()
 }
 
 // protected
-void ScenePlay::initKeyBinds()
-{
-    auto& keys = m_game->getSupportedKeys();
-    std::ifstream fin("config/gamescene_keybinds.ini");
-    if (!fin)
-    {
-        std::cerr << "Could not load gamescene_keybinds.ini file!\n";
-        exit(-1);
-    }
-    std::string actionName = " ";
-    std::string keyName = " ";
-    while (fin >> actionName >> keyName)
-    {
-        registerAction(keys.at(keyName), actionName);
-    }
-}
-
 void ScenePlay::init(const std::string& levelPath)
 {
     m_grid.emplace(m_game->window()); // initialize m_grid
