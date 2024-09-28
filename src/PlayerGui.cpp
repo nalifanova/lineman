@@ -4,8 +4,8 @@
 #include "Tags.hpp"
 
 PlayerGui::PlayerGui(sf::RenderWindow& window, EntityManager& entityManager, const sf::Font& font
-                   , std::map<std::string, int>& scoreData):
-    m_window(window), m_entityManager(entityManager), m_font(font), m_scoreData(scoreData) {};
+                   , PlayerData& playerData):
+    m_window(window), m_entityManager(entityManager), m_font(font), m_playerData(playerData) {};
 
 void PlayerGui::setBottomPanel()
 {
@@ -51,34 +51,27 @@ void PlayerGui::setPanelText(sf::Vector2f winPos)
     unsigned int charSize = 18;
     text.setFont(m_font);
     text.setCharacterSize(charSize);
-    text.setOrigin(
-        text.getLocalBounds().width / 2.0f,
-        text.getLocalBounds().height / 2.0f
-        );
-    bool first = true;
-    std::vector<std::string> displayOrder = {"Time", "Drops", "Life"};
-    for (auto key: displayOrder)
-    {
-        text.setFillColor(sf::Color(game::Silver));
-        if (first)
-        {
-            auto time = m_scoreData.at(key);
-            int minutes = static_cast<int>(time) / 60;
-            int seconds = static_cast<int>(time) % 60;
+    text.setOrigin(text.getLocalBounds().width / 2.0f, text.getLocalBounds().height / 2.0f);
 
-            text.setString(
-                key + ": " + std::to_string(minutes) + ":" + (seconds < 10 ? "0" : "") + std::to_string(seconds));
-            text.setPosition(winPos.x - game::kGridSize * 1.8f, winPos.y + 10.f);
-            first = false;
-        }
-        else
-        {
-            text.setString(key + ": " + std::to_string(m_scoreData.at(key)));
-            text.setPosition(text.getPosition().x, text.getPosition().y + 32.f);
-        }
+    // TIME
+    text.setFillColor(sf::Color(game::Silver));
+    auto time = m_playerData.time();
+    int minutes = static_cast<int>(time) / 60;
+    int seconds = static_cast<int>(time) % 60;
+    text.setString(
+        "Time: " + std::to_string(minutes) + ":" + (seconds < 10 ? "0" : "") + std::to_string(seconds));
+    text.setPosition(winPos.x - game::kGridSize * 1.8f, winPos.y + 10.f);
+    m_window.draw(text);
 
-        m_window.draw(text);
-    }
+    // DROPS
+    text.setString("Drops: " + std::to_string(m_playerData.drops()));
+    text.setPosition(text.getPosition().x, text.getPosition().y + 32.f);
+    m_window.draw(text);
+
+    // LIFE
+    text.setString("Life: " + std::to_string(m_playerData.life()));
+    text.setPosition(text.getPosition().x, text.getPosition().y + 32.f);
+    m_window.draw(text);
 }
 
 void PlayerGui::setPanelIcons(const sf::Vector2f& winPos)

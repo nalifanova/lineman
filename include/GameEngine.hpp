@@ -31,6 +31,8 @@ public:
 
     void run();
     void quit();
+    void save(PlayerData player, std::string filename);
+    PlayerData load(std::string filename);
 
     void playSound(const std::string& soundName);
     void stopSound(const std::string& soundName);

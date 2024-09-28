@@ -3,12 +3,15 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <nlohmann/json.hpp>
 
 #include "imgui.h"
 #include "imgui-SFML.h"
 
 #include "DeltaTime.hpp"
 #include "SceneMenu.hpp"
+
+using json = nlohmann::json;
 
 GameEngine::GameEngine(const std::string& path)
 {
@@ -44,6 +47,55 @@ void GameEngine::quit()
 {
     m_running = false;
     m_window.close();
+}
+
+void GameEngine::save(PlayerData player, std::string filename)
+{
+    json j;
+    j["name"] = player.name();
+    j["inks"] = player.inks();
+    j["level"] = player.level();
+    j["life"] = player.life();
+    j["time"] = player.time();
+    j["drops"] = player.drops();
+    j["position"] = { player.pos().x, player.pos().y };
+    auto path = "saves/" + filename;
+    std::ofstream file(path);
+    if (file.is_open()) {
+        file << j.dump(7);
+        file.close();
+    } else {
+        std::cerr << "Unable to open file `" << path << "` for saving!";
+    }
+}
+
+PlayerData GameEngine::load(std::string filename)
+{
+    auto path = "saves/" + filename;
+    std::ifstream fin(path);
+    if (!fin)
+    {
+        std::cerr << "Could not load " << path << " file!\n";
+        return {};
+    }
+    while (fin.good())
+    {
+        json j;
+        fin >> j;
+        std::string name = j["name"];
+        int inks = j["inks"];
+        int level = j["level"];
+        int life = j["life"];
+        int time = j["time"];
+        int drops = j["drops"];
+        Vec2 position(j["position"][0], j["position"][1]);
+        auto player = PlayerData(name, inks, level, life, position);
+        player.addTime(time);
+        player.updateDrops(drops);
+        return player;
+    }
+    std::cout << "Check it again \n";
+    return {};
 }
 
 void GameEngine::playSound(const std::string& soundName)

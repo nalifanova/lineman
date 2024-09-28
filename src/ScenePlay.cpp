@@ -38,7 +38,7 @@ void ScenePlay::update()
         m_currentFrame++;
         if (m_timeChecker += deltaTime; m_timeChecker >= 1.f)
         {
-            m_scoreData["Time"] += 1;
+            m_playerData.addTime();
             m_timeChecker -= 1.f;
         }
     }
@@ -68,6 +68,8 @@ void ScenePlay::init(const std::string& levelPath)
 {
     m_grid.emplace(m_game->window()); // initialize m_grid
     loadLevel(levelPath);
+    m_playerData = m_game->load("mysaves.txt");
+    if (m_playerData.life() <= 0) { m_playerData = PlayerData(); }
     auto& font = m_game->assets().getFont("Tech");
 
     m_grid->text().setCharacterSize(12);
@@ -76,9 +78,8 @@ void ScenePlay::init(const std::string& levelPath)
     initKeyBinds();
     createPanelEntities();
 
-    m_pGui.emplace(m_game->window(), m_entityManager, font, m_scoreData);
+    m_pGui.emplace(m_game->window(), m_entityManager, font, m_playerData);
     m_collision.emplace(m_entityManager, m_currentFrame);
-    m_scoreData.at("Life") = 3;
 }
 
 void ScenePlay::loadLevel(const std::string& fileName)
@@ -243,6 +244,9 @@ Entity ScenePlay::getPlayer() const
 
 void ScenePlay::onEnd()
 {
+    // Save data of a player
+    m_playerData.setInks(ink().get<CConsumable>().amount);
+    m_game->save(m_playerData, "mysaves.txt"); // think how to make filename
     m_zoom = false;
     sCamera(true);
     for (auto entity: m_entityManager.getEntities())
@@ -424,13 +428,13 @@ void ScenePlay::sMovement()
     }
 
     pm.runInteract();
-    if (player.get<CState>().canAttack && drops() > 0)
+    if (player.get<CState>().canAttack && m_playerData.drops() > 0)
     {
         spawnWeaponDrop(player);
         player.get<CState>().canAttack = false;
-        m_scoreData.at("Drops") -= 1;
+        m_playerData.updateDrops(-1);
         int ratio = 2;
-        if (drops() % ratio > 0) { ink().get<CConsumable>().amount -= 1; }
+        if (m_playerData.drops() % ratio > 0) { ink().get<CConsumable>().amount -= 1; }
     }
 
     doMovement();
@@ -630,7 +634,7 @@ void ScenePlay::spawnEntity(const size_t tag, size_t spawnTag, Vec2 pos)
 {
     if (tag == ePlayer)
     {
-        if (life() > 0) { spawnPlayer(); }
+        if (m_playerData.life() > 0) { spawnPlayer(); }
         else
         {
             m_pGui->gameOver([this] { backToMenu(); });
@@ -728,7 +732,7 @@ void ScenePlay::destroyEntity(Entity& entity)
         dead.add<CAnimation>(m_game->assets().getAnimation("Dead"), true);
         dead.get<CAnimation>().animation.getSprite().setColor(game::LightGray);
         dead.add<CTransform>(pos);
-        m_scoreData.at("Life") -= 1;
+        m_playerData.updateLife(-1);
     }
     else if (tagId == eConsumable)
     {
@@ -764,6 +768,12 @@ void ScenePlay::createPanelEntities()
         panelEntity.add<CBoundingBox>(Vec2(anim.getSize().x, anim.getSize().y), true, false);
         panelEntity.add<CConsumable>(cooldown[name]);
         m_entityPanel.push_back(panelEntity);
+    }
+    // Update Inks if there are any in PlayerData
+    if (m_playerData.inks() > 0)
+    {
+        std::cout << "Set inks from playerData\n";
+        m_entityPanel[0].get<CConsumable>().amount = m_playerData.inks();
     }
 }
 
@@ -979,7 +989,8 @@ void ScenePlay::setRoomBackground(sf::Texture& tex)
 
 void ScenePlay::updateScoreData()
 {
-    m_scoreData.at("Drops") = ink().get<CConsumable>().amount * 2;
+    auto delta = m_playerData.drops() % 2;
+    m_playerData.setDrops(ink().get<CConsumable>().amount * 2 + delta);
 }
 
 Entity& ScenePlay::ink()
@@ -996,19 +1007,3 @@ Entity& ScenePlay::boom()
 {
     return m_entityPanel[2];
 }
-
-int ScenePlay::time()
-{
-    return m_scoreData.at("Time");
-}
-
-int ScenePlay::life()
-{
-    return m_scoreData.at("Life");
-}
-
-int ScenePlay::drops()
-{
-    return m_scoreData.at("Drops");
-}
-
