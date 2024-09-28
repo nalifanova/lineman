@@ -40,6 +40,13 @@ option(IMGUI_SFML_FIND_SFML "Use find_package to find SFML" OFF)
 
 FetchContent_MakeAvailable(imgui-sfml)
 
+FetchContent_Declare(
+    json
+    GIT_REPOSITORY https://github.com/nlohmann/json
+    GIT_TAG v3.11.3
+)
+FetchContent_MakeAvailable(json)
+
 include_directories(assets)
 include_directories(include)
 
@@ -60,6 +67,7 @@ add_executable(${PROJECT_NAME}
     include/Grid.hpp
     include/Physics.hpp
     include/PlayerGui.hpp
+    include/PlayerData.hpp
     include/PlayerMovement.hpp
     include/Scene.hpp
     include/SceneMenu.hpp
@@ -80,6 +88,7 @@ add_executable(${PROJECT_NAME}
     src/Grid.cpp
     src/Physics.cpp
     src/PlayerGui.cpp
+    src/PlayerData.cpp
     src/PlayerMovement.cpp
     src/Scene.cpp
     src/SceneMenu.cpp
@@ -92,6 +101,7 @@ add_executable(${PROJECT_NAME}
     tests/test_parallax_shader.hpp
 )
 
+target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(${PROJECT_NAME} PUBLIC ImGui-SFML::ImGui-SFML)
 target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics)
 target_link_libraries(${PROJECT_NAME} PRIVATE sfml-audio)
@@ -110,6 +120,11 @@ endif()
 file(
     COPY ${CMAKE_SOURCE_DIR}/assets/fonts/tech.ttf
     DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/fonts
+)
+
+file(
+    COPY ${CMAKE_SOURCE_DIR}/saves
+    DESTINATION ${CMAKE_BINARY_DIR}/bin/saves
 )
 
 file(GLOB img_tiles ${CMAKE_SOURCE_DIR}/assets/images/tiles/*.png)

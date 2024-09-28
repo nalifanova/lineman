@@ -5,6 +5,7 @@
 
 #include "Action.hpp"
 #include "EntityManager.hpp"
+#include "PlayerData.hpp"
 
 class GameEngine;
 
@@ -44,6 +45,7 @@ protected:
     size_t m_currentFrame = 0;
     float m_accel = 0.0f;
     float m_timeChecker = 0.f;
+    PlayerData m_playerData;
 };
 
 #endif //SCENE_H

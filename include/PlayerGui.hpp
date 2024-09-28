@@ -7,12 +7,13 @@
 
 #include "Entity.hpp"
 #include "EntityManager.hpp"
+#include "PlayerData.hpp"
 
 class PlayerGui
 {
 public:
     explicit PlayerGui(sf::RenderWindow& window, EntityManager& entityManager, const sf::Font& font
-                     , std::map<std::string, int>& scoreData);
+                     , PlayerData& playerData);
 
     void setBottomPanel();
     void setTopPanel();
@@ -29,7 +30,7 @@ private:
     EntityManager& m_entityManager;
     sf::Font m_font;
     sf::Clock m_clock;
-    std::map<std::string, int>& m_scoreData;
+    PlayerData& m_playerData;
 };
 
 #endif //PLAYERGUI_HPP

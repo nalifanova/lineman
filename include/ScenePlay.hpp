@@ -97,10 +97,6 @@ protected:
     sf::ConvexShape m_background;
     std::vector<Entity> m_entityPanel;
 
-    std::map<std::string, int> m_scoreData = {
-        {"Time", 0}, {"Life", 0}, {"Drops", 0}
-    };
-
     bool m_drawCollision = false;
     bool m_drawGrid = false;
     bool m_drawTextures = true;
