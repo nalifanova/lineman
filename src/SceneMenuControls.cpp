@@ -9,7 +9,7 @@
 #include "GameEngine.hpp"
 #include "SceneMenu.hpp"
 
-SceneMenuControls::SceneMenuControls(GameEngine* gameEngine) :
+SceneMenuControls::SceneMenuControls(GameEngine* gameEngine):
     Scene(gameEngine)
 {
     init();
@@ -97,9 +97,9 @@ void SceneMenuControls::controls()
     m_menuStrings.emplace_back(std::format("[{}] - Attack", keyMap["ATTACK"]));
     m_menuStrings.emplace_back(std::format("[{}] - Interact", keyMap["INTERACT"]));
     m_menuStrings.emplace_back(std::format("[{} + {}] - Transform Ink to Shield",
-        keyMap["INTERACT"], keyMap["KEY2"]));
+                                           keyMap["INTERACT"], keyMap["KEY2"]));
     m_menuStrings.emplace_back(std::format("[{} + {}] - Transform Ink to Boom",
-        keyMap["INTERACT"], keyMap["KEY3"]));
+                                           keyMap["INTERACT"], keyMap["KEY3"]));
 
     m_menuStrings.emplace_back(std::format("[{}] - Pause", keyMap["PAUSE"]));
     m_menuStrings.emplace_back("---------------------");
@@ -115,18 +115,4 @@ void SceneMenuControls::controls()
             );
         m_menuItems.push_back(text);
     }
-}
-
-std::map<std::string, std::string> SceneMenuControls::getKeyMap()
-{
-    initKeyBinds();
-    auto& keys = m_game->getSupportedKeys(); // string int
-    std::map<std::string, std::string> keyMap;
-    for (auto& [name, keyNumber]: keys)
-    {
-        keyMap[m_actionMap[keyNumber]] = name;
-        // std::cout << "key name: " << name << " action: " << m_actionMap[keyNumber] << "\n";
-    }
-
-    return keyMap;
 }

@@ -1,21 +1,19 @@
-#include "SceneMenu.hpp"
+#include "SceneMenuOptions.hpp"
 
 #include "SFML/Graphics.hpp"
 
 #include "Action.hpp"
 #include "Assets.hpp"
 #include "GameEngine.hpp"
-#include "SceneMenuControls.hpp"
-#include "SceneMenuOptions.hpp"
-#include "ScenePlay.hpp"
+#include "SceneMenu.hpp"
 
-SceneMenu::SceneMenu(GameEngine* gameEngine) :
+SceneMenuOptions::SceneMenuOptions(GameEngine* gameEngine):
     Scene(gameEngine)
 {
     init();
 }
 
-void SceneMenu::sRender()
+void SceneMenuOptions::sRender()
 {
     // set menu background
     m_game->window().clear(sf::Color::Black);
@@ -23,7 +21,6 @@ void SceneMenu::sRender()
     // draw title
     m_game->window().draw(m_menuText);
 
-    // draw menu items
     for (int i = 0; i < m_menuStrings.size(); i++)
     {
         if (i != m_selectedMenuIndex)
@@ -39,8 +36,8 @@ void SceneMenu::sRender()
     }
 }
 
-// protected
-void SceneMenu::init()
+//protected
+void SceneMenuOptions::init()
 {
     sf::View view = m_game->window().getView();
     view.setCenter(
@@ -53,30 +50,23 @@ void SceneMenu::init()
     registerAction(sf::Keyboard::Up, "UP");
     registerAction(sf::Keyboard::S, "DOWN");
     registerAction(sf::Keyboard::Down, "DOWN");
-    registerAction(sf::Keyboard::Enter, "RUN");
-    registerAction(sf::Keyboard::M, "MUTE");
-    registerAction(sf::Keyboard::Q, "QUIT");
-
-    // m_titleMusic = m_game->assets().getSound("TitleTheme");
-    // m_titleMusic.play();
+    registerAction(sf::Keyboard::Enter, "ENTER");
+    registerAction(sf::Keyboard::Escape, "QUIT");
 
     createMenu();
-    m_levelPaths.emplace_back("config/level1.txt");
-    m_levelPaths.emplace_back("config/level2.txt");
 }
 
-void SceneMenu::update()
+void SceneMenuOptions::update()
 {
     sRender();
 }
 
-void SceneMenu::onEnd()
+void SceneMenuOptions::onEnd()
 {
-    m_game->changeScene("QUIT", nullptr, true);
-    m_game->quit();
+    m_game->changeScene("MENU", m_game->getScene("MENU"), true);
 }
 
-void SceneMenu::sDoAction(const Action& action)
+void SceneMenuOptions::sDoAction(const Action& action)
 {
     if (action.type() == "START")
     {
@@ -89,25 +79,21 @@ void SceneMenu::sDoAction(const Action& action)
         {
             m_selectedMenuIndex = (m_selectedMenuIndex + 1) % m_menuStrings.size();
         }
-        else if (action.name() == "RUN")
+        if (action.name() == "ENTER")
         {
-            runMenu();
+            std::cout << "Change controls\n";
         }
-        else if (action.name() == "MUTE")
-        {
-            if (m_titleMusic.getStatus() == sf::SoundSource::Playing) { m_titleMusic.stop(); }
-            else { m_titleMusic.play(); }
-        }
-        else if (action.name() == "QUIT")
+
+        if (action.name() == "QUIT")
         {
             onEnd();
         }
     }
 }
 
-void SceneMenu::createMenu()
+void SceneMenuOptions::createMenu()
 {
-    m_title = "Ink Man";
+    m_title = "Options";
     int titleSize = 60;
 
     m_menuText.setString(m_title);
@@ -118,12 +104,10 @@ void SceneMenu::createMenu()
         m_menuText.getLocalBounds().width / 2.0f,
         m_menuText.getLocalBounds().height / 2.0f
         );
-    m_menuText.setPosition(width() / 2.0f, height() / 4.0f);
+    m_menuText.setPosition(width() / 2.0f, height() / 6.0f);
 
-    m_menuStrings.emplace_back("Play");
-    m_menuStrings.emplace_back("Controls");
-    m_menuStrings.emplace_back("Options");
-    m_menuStrings.emplace_back("Quit");
+    m_menuStrings.emplace_back("Change key bindings");
+    m_menuStrings.emplace_back("Reset key bindings");
 
     int menuSize = 30;
     for (int i = 0; i < m_menuStrings.size(); i++)
@@ -138,30 +122,5 @@ void SceneMenu::createMenu()
             m_menuText.getGlobalBounds().top + static_cast<float>(menuSize * i * 2 + 100)
             );
         m_menuItems.push_back(text);
-    }
-}
-
-void SceneMenu::runMenu()
-{
-    if (m_selectedMenuItem == "Play")
-    {
-        m_titleMusic.stop();
-        std::cout << "Play is chosen\n";
-        m_game->changeScene("PLAY", std::make_shared<ScenePlay>(m_game, m_levelPaths[m_selectedMenuIndex]));
-    }
-    else if (m_selectedMenuItem == "Controls")
-    {
-        std::cout << "Controls is chosen\n";
-        m_game->changeScene("MENU_CONTROLS", std::make_shared<SceneMenuControls>(m_game));
-    }
-    else if (m_selectedMenuItem == "Options")
-    {
-        std::cout << "Options is chosen\n";
-        m_game->changeScene("MENU_OPTIONS", std::make_shared<SceneMenuOptions>(m_game));
-    }
-    else if (m_selectedMenuItem == "Quit")
-    {
-        std::cout << "Quit is chosen\n";
-        onEnd();
     }
 }
