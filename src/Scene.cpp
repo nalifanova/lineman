@@ -12,7 +12,6 @@ Scene::Scene(GameEngine* gameEngine) :
 Scene::~Scene() = default;
 
 // abstract update, sDoAction, sRender
-
 void Scene::doAction(const Action& action)
 {
     sDoAction(action);
@@ -46,6 +45,19 @@ void Scene::initKeyBinds()
     {
         registerAction(keys.at(keyName), actionName);
     }
+}
+
+KeyMap Scene::getKeyMap()
+{
+    initKeyBinds();
+    auto& keys = m_game->getSupportedKeys(); // string int
+    std::map<std::string, std::string> keyMap;
+    for (auto& [name, keyNumber]: keys)
+    {
+        keyMap[m_actionMap[keyNumber]] = name;
+    }
+
+    return keyMap;
 }
 
 float Scene::width() const

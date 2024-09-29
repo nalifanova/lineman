@@ -10,6 +10,7 @@
 class GameEngine;
 
 typedef std::map<int, std::string> ActionMap;
+typedef std::map<std::string, std::string> KeyMap;
 
 class Scene
 {
@@ -26,6 +27,7 @@ public:
     void simulate(size_t frames);
     void registerAction(int inputKey, const std::string& actionName);
     void initKeyBinds();
+    KeyMap getKeyMap();
 
     [[nodiscard]] float width() const;
     [[nodiscard]] float height() const;
