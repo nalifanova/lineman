@@ -51,7 +51,7 @@ void ScenePlay::init(const std::string& levelPath)
 {
     m_grid.emplace(m_game->window()); // initialize m_grid
     loadLevel(levelPath);
-    m_playerData = m_game->load("mysaves.txt");
+    m_playerData = m_game->load(game::fileName);
     if (m_playerData.life() <= 0) { m_playerData = PlayerData(); }
     auto& font = m_game->assets().getFont("Tech");
 
@@ -210,8 +210,8 @@ void ScenePlay::loadLevel(const std::string& fileName)
                 >> m_playerConfig.health >> m_playerConfig.speed >> m_playerConfig.gravity
                 >> m_playerConfig.jump;
             std::cout << "Speed: " << m_playerConfig.speed
-            << ", Jump: " << m_playerConfig.jump
-            << ", Gravity: " << m_playerConfig.gravity << "\n";
+                << ", Jump: " << m_playerConfig.jump
+                << ", Gravity: " << m_playerConfig.gravity << "\n";
             spawnPlayer(true);
             token = "None";
         }
@@ -231,7 +231,7 @@ void ScenePlay::onEnd()
 {
     // Save data of a player
     m_playerData.setInks(ink().get<CConsumable>().amount);
-    m_game->save(m_playerData, "mysaves.txt"); // think how to make filename
+    m_game->save(m_playerData, game::fileName); // think how to make filename
     m_zoom = false;
     sCamera(true);
     for (auto entity: m_entityManager.getEntities())
@@ -462,8 +462,9 @@ void ScenePlay::sStatus()
     {
         if (entity.tagId() == ePlayer && entity.get<CState>().interAction == game::interActions[eExit])
         {
-            onEnd();
             // TODO: Hardcoded!
+            m_playerData.setLevel(2); // TODO: hardcoded;
+            onEnd();
             m_game->changeScene("LEVEL2",
                                 std::make_shared<ScenePlay>(m_game, "config/level2.txt"));
         }

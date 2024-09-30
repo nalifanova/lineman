@@ -24,6 +24,7 @@ public:
     void updateLife(int value);
     void setInks(int value);
     void setDrops(int value);
+    void setLevel(int value);
 
 private:
     std::string m_name = "Player";

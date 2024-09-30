@@ -120,7 +120,8 @@ void SceneMenu::createMenu()
         );
     m_menuText.setPosition(width() / 2.0f, height() / 4.0f);
 
-    m_menuStrings.emplace_back("Play");
+    m_menuStrings.emplace_back("New");
+    m_menuStrings.emplace_back("Load");
     m_menuStrings.emplace_back("Controls");
     m_menuStrings.emplace_back("Options");
     m_menuStrings.emplace_back("Quit");
@@ -143,11 +144,23 @@ void SceneMenu::createMenu()
 
 void SceneMenu::runMenu()
 {
-    if (m_selectedMenuItem == "Play")
+    auto playerData = m_game->load(game::fileName);
+    if (playerData.level() > 1) { m_active = true; }
+    else { m_active = false; }
+
+    if (m_selectedMenuItem == "New")
     {
         m_titleMusic.stop();
-        std::cout << "Play is chosen\n";
-        m_game->changeScene("PLAY", std::make_shared<ScenePlay>(m_game, m_levelPaths[m_selectedMenuIndex]));
+        std::cout << "New game is chosen\n";
+        m_playerData = PlayerData();
+        m_game->save(m_playerData, game::fileName); // TODO: extend and change the name
+        m_game->changeScene("LEVEL1", std::make_shared<ScenePlay>(m_game, m_levelPaths[0]));
+    }
+    else if (m_selectedMenuItem == "Load" && m_active)
+    {
+        m_titleMusic.stop();
+        std::cout << "Load game is chosen\n";
+        m_game->changeScene("LEVEL2", std::make_shared<ScenePlay>(m_game, m_levelPaths[1]));
     }
     else if (m_selectedMenuItem == "Controls")
     {

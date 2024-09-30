@@ -79,9 +79,6 @@ protected:
     Entity& ink();
     Entity& shield();
     Entity& boom();
-    int time();
-    int life();
-    int drops();
 
     PlayerConfig m_playerConfig{};
     ConsumableConfig m_consConfig{};
