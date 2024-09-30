@@ -15,7 +15,9 @@ namespace game {
     };
     inline u_int16_t maxAmountToChange = 5;
     inline u_int16_t coolDown = 5;
-    inline float dropSpeed = 5.5f;
+    inline float weaponSpeed = 35.f;
+    inline float gravity = 981.f;
+    inline float moveSpeed = 25.f;
 
     // eExit = 1, eRandomJump = 2, eExactJump = 3, eGrabAll = 4, eNoLockType = 0
     inline std::unordered_map<u_int16_t, std::string> interActions {

@@ -26,19 +26,24 @@ Vec2 PlayerMovement::getVelocityMove(float& dt)
 {
     Vec2 playerVelocity(m_transf.velocity.x, 0);
 
+    if (!m_input.up)
+    {
+        dt = 0.0f;
+        m_state.canJump = false;
+    }
     if (m_input.up)
     {
         if (m_state.climbing)
         {
             m_state.inAir = false;
             m_state.canJump = true;
-            playerVelocity.y = -m_speed ;
+            playerVelocity.y = -m_speed;
         }
         else
         {
             if (m_state.canJump && m_maxTime >= dt)
             {
-                playerVelocity.y = -m_jump * 0.5172;
+                playerVelocity.y = -m_jump;
                 m_state.inAir = true;
             }
             else

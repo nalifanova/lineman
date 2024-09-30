@@ -180,7 +180,7 @@ void ScenePlay::loadLevel(const std::string& fileName)
             npc.add<CDraggable>();
             npc.add<CHealth>(health, health);
             npc.add<CDamage>(damage);
-            npc.add<CGravity>(2); // By default
+            npc.add<CGravity>(200); // By default
 
             // Npc stays still
             if (aiType != "Guard") { fin >> speed; }
@@ -206,10 +206,12 @@ void ScenePlay::loadLevel(const std::string& fileName)
         }
         else if (token == "Player")
         {
-            // e.g. Player 200 100 60 64 4 10 5 20
             fin >> m_playerConfig.x >> m_playerConfig.y >> m_playerConfig.cX >> m_playerConfig.cY
-                >> m_playerConfig.speed >> m_playerConfig.health >> m_playerConfig.gravity
+                >> m_playerConfig.health >> m_playerConfig.speed >> m_playerConfig.gravity
                 >> m_playerConfig.jump;
+            std::cout << "Speed: " << m_playerConfig.speed
+            << ", Jump: " << m_playerConfig.jump
+            << ", Gravity: " << m_playerConfig.gravity << "\n";
             spawnPlayer(true);
             token = "None";
         }
@@ -377,6 +379,10 @@ void ScenePlay::doPanelAction(Entity& entity)
 
 void ScenePlay::doMovement()
 {
+    auto dt = DeltaTime::get().asSeconds();
+    if (dt > 0.0167) { dt = 0.0167f; }
+    dt *= 10;
+
     // move entities
     for (auto entity: m_entityManager.getEntities())
     {
@@ -387,12 +393,12 @@ void ScenePlay::doMovement()
             // No gravity when character is climing
             if (entity.has<CGravity>())
             {
-                t.velocity.y += entity.get<CGravity>().gravity * 0.5f;
+                t.velocity.y += entity.get<CGravity>().gravity * dt;
                 // if (t.velocity.y > m_playerConfig.gravity) { t.velocity.y = m_playerConfig.gravity; }
             }
         }
         t.prevPos = t.pos;
-        t.pos += t.velocity * 1.3f; // delta time
+        t.pos += t.velocity * dt; // delta time
     }
 }
 
@@ -664,7 +670,7 @@ void ScenePlay::spawnInteractable(Vec2 pos)
         intr.add<CTransform>(pos);
         intr.add<CBoundingBox>(intr.get<CAnimation>().animation.getSize() - 4, true, true);
         intr.add<CDraggable>();
-        intr.add<CGravity>(m_consConfig.gravity);
+        intr.add<CGravity>(game::gravity * 0.1);
     }
 }
 
@@ -674,13 +680,13 @@ void ScenePlay::spawnSpecialWeapon(Entity& entity, const bool& hard)
     for (size_t i = 0; i < vertices; i++)
     {
         auto boom = m_entityManager.addEntity(eWeapon);
-        const float angle = 360.0f / vertices * i;
+        const float angle = 360.0f / static_cast<float>(vertices) * static_cast<float>(i);
         const float radian = angle * 3.1415f / 180;
 
         Vec2& pos = entity.get<CTransform>().pos;
         Vec2 velocity(cos(radian), sin(radian));
         Vec2 scale = {0.8f, 0.8f};
-        velocity *= 5; // speed
+        velocity *= game::weaponSpeed; // speed
 
         boom.add<CAnimation>(m_game->assets().getAnimation("BoomInk"), true);
         boom.add<CTransform>(pos, velocity, scale, angle - 90);
@@ -696,7 +702,7 @@ void ScenePlay::spawnWeaponDrop(Entity& entity)
     drop.add<CAnimation>(m_game->assets().getAnimation("DropInk"), true);
     float sign = transf.scale.x > 0 ? 1.0f : -1.0f; // attack to left or right only
     drop.add<CTransform>(transf.pos + Vec2(32.0f, 0.0f) * sign);
-    drop.get<CTransform>().velocity.x = game::dropSpeed * sign;
+    drop.get<CTransform>().velocity.x = game::weaponSpeed * sign;
     drop.add<CBoundingBox>(drop.get<CAnimation>().animation.getSize());
     drop.add<CDamage>(1);
     drop.add<CLifespan>(2 * 60, m_currentFrame);
