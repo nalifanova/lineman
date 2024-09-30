@@ -188,6 +188,11 @@ void Collision::entityRoomCollision(float width, float height)
     {
         if (entity.tagId() == eTile && !entity.has<CGravity>()) { continue; }
 
+        if (entity.tagId() == ePlayer)
+        if (entity.get<CTransform>().pos.y < entity.get<CBoundingBox>().halfSize.y + 20.f)
+        {
+            entity.get<CTransform>().pos.y = entity.get<CBoundingBox>().halfSize.y + 20.f;
+        }
         if (entity.get<CTransform>().pos.y > height - entity.get<CBoundingBox>().halfSize.y)
         {
             destroyEntity(entity);

@@ -24,7 +24,7 @@ class ScenePlay final: public Scene
     struct ConsumableConfig
     {
         float health = 1.0f;
-        float gravity = 3.0f;
+        float gravity = game::gravity * 1.5f;
     };
 
 public:

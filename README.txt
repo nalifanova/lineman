@@ -39,11 +39,11 @@ Level Specification File
 Note: in this assignment (0,0) is in top-left.
 
 Player Specification:
-Player X Y BX BY S H G J
+Player X Y BX BY H S G J
   Spawn Position       X Y      int, int (in pixel coordinates)
   Bounding Box Size    BX BY    int, int
-  Speed                S        float
   Max Health           H        int
+  Speed                S        float
   Gravity              G        int
   Jump                 J        int
 
