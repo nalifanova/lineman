@@ -64,3 +64,8 @@ void PlayerData::setDrops(int value)
 {
     m_drops = value;
 }
+
+void PlayerData::setLevel(int value)
+{
+    m_level = value;
+}

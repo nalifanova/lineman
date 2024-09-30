@@ -33,6 +33,8 @@ protected:
     std::string m_title;
     size_t m_selectedMenuIndex = 0;
     std::string m_selectedMenuItem;
+
+    bool m_active = false;
 };
 
 #endif //SCENE_MENU_H
