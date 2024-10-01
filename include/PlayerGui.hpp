@@ -1,7 +1,7 @@
 #ifndef PLAYERGUI_HPP
 #define PLAYERGUI_HPP
 
-#include <map>
+#include <functional>
 
 #include "SFML/Graphics.hpp"
 

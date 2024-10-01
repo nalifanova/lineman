@@ -28,10 +28,14 @@ Vec2 Grid::getPosition(const int rx, const int ry, const int tx, const int ty) c
     const auto roomY = static_cast<float>(ry);
     const auto tileX = static_cast<float>(tx);
     const auto tileY = static_cast<float>(ty);
+    return getPosition(roomX, roomY, tileX, tileY);
+}
 
+Vec2 Grid::getPosition(const float rx, const float ry, const float tx, const float ty) const
+{
     return {
-        roomX * width() + tileX * m_gridSize.x + m_gridSize.x / 2.0f
-      , roomY * height() + tileY * m_gridSize.y + m_gridSize.y / 2.0f,
+        rx * width() + tx * m_gridSize.x + m_gridSize.x / 2.0f
+      , ry * height() + ty * m_gridSize.y + m_gridSize.y / 2.0f,
     };
 }
 
@@ -104,10 +108,10 @@ void Grid::drawGrid(bool& drawGrid, Entity& player)
                 const auto w = widthInt();
                 const auto h = heightInt();
                 std::string xCell = std::to_string(
-                    ((((int)x % w) + w) % w) / (int)m_gridSize.x
+                    (((static_cast<int>(x) % w) + w) % w) / static_cast<int>(m_gridSize.x)
                     );
                 std::string yCell = std::to_string(
-                    ((((int)y % h) + h) % h) / (int)m_gridSize.y
+                    (((static_cast<int>(y) % h) + h) % h) / static_cast<int>(m_gridSize.y)
                     );
                 m_gridText.setString("(" + xCell + "," + yCell + ")");
                 m_gridText.setPosition(x + 3, y + 2);

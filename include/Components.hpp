@@ -7,6 +7,8 @@
 #include "Tags.hpp"
 #include "Vec2.hpp"
 
+typedef unsigned short u_int16_t;
+
 constexpr int kInvincibility = 60;
 
 class Component
