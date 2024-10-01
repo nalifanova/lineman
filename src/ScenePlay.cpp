@@ -191,7 +191,8 @@ void ScenePlay::loadLevel(const std::string& fileName)
             }
             else if (aiType == "Patrol")
             {
-                int n, posX, posY;
+                int n;
+                float posX, posY;
                 std::vector<Vec2> patrolNodes{};
                 fin >> n;
                 // Could be N positions with coords posX, posY
@@ -744,8 +745,8 @@ void ScenePlay::destroyEntity(Entity& entity)
 void ScenePlay::createPanelEntities()
 {
     std::vector<std::string> panelEntitiesNames{"PanelInk", "PanelShield", "PanelBoom"};
-    std::map<std::string, u_int16_t> cooldown{
-        {"PanelInk", 0.3 * 60}, {"PanelShield", 5 * 60}, {"PanelBoom", 2 * 60}
+    std::map<std::string, float> cooldown{
+        {"PanelInk", 0.3f * 60}, {"PanelShield", 5.f * 60}, {"PanelBoom", 2.f * 60}
     };
     m_entityPanel.reserve(panelEntitiesNames.size());
 
