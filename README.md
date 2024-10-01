@@ -22,6 +22,11 @@ A line man is walking down the paper sheets and collects ink bottles.
 Requirements to a project are taken from [Project Specification](https://github.com/davechurchill/COMP4300_Project/tree/main/Project%20Specification).
 The copy can be found [here](SPECIFICATION.md)
 
+## Supported OS
+
+- It definitely works on macOS 15.0
+- Tested on Win10 (there are some bugs but it works)
+
 ## Dependencies
 - SFML 2.6.x
 - DearImGui 1.91.0
