@@ -26,7 +26,7 @@ private:
     sf::Sprite m_sprite;
     size_t m_frameCount = 1; // total number of frames of animation
     size_t m_currentFrame = 0; // the current frame of animation being played
-    size_t m_speed = 0; // the speed to play this animation
+    size_t m_speed = 1; // the speed to play this animation
     Vec2 m_size = {1, 1}; // size of the animation frame
     std::string m_name = "none";
 };
