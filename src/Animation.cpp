@@ -29,7 +29,7 @@ Animation::Animation(std::string name, const sf::Texture& t, const size_t frameC
 void Animation::update()
 {
     m_currentFrame++; // add the speed variable to the current frame
-
+    if (m_speed == 0) { m_speed = 1; }
     const size_t animationFrame = (m_currentFrame / m_speed) % m_frameCount;
     m_sprite.setTextureRect(sf::IntRect(
             static_cast<int>(animationFrame) * static_cast<int>(m_size.x),
@@ -41,6 +41,7 @@ void Animation::update()
 
 bool Animation::hasEnded() const
 {
+    if (m_speed == 0) { return false; }
     return (m_currentFrame / m_speed) % m_frameCount == m_frameCount - 1;
 }
 
