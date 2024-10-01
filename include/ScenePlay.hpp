@@ -1,9 +1,11 @@
 #ifndef SCENEPLAY_HPP
 #define SCENEPLAY_HPP
 
-#include "Collision.hpp"
+#include <optional>
+
 #include "SFML/Graphics.hpp"
 
+#include "Collision.hpp"
 #include "Grid.hpp"
 #include "DebugGui.hpp"
 #include "PlayerGui.hpp"

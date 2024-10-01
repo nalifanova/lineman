@@ -171,7 +171,7 @@ void ScenePlay::loadLevel(const std::string& fileName)
             auto npc = m_entityManager.addEntity(TagName::eNpc);
             npc.add<CAnimation>(m_game->assets().getAnimation(name), true);
             npc.add<CTransform>(m_grid->getPosition(rx, ry, tx, ty));
-            auto animSize = npc.get<CAnimation>().animation.getSize();
+            Vec2 animSize = npc.get<CAnimation>().animation.getSize();
             if (npc.get<CAnimation>().animation.getName().ends_with("Eraser"))
             {
                 animSize = Vec2(animSize.x - 20, animSize.y);
@@ -220,7 +220,7 @@ void ScenePlay::loadLevel(const std::string& fileName)
 
 Entity ScenePlay::getPlayer() const
 {
-    for (auto entity: m_entityManager.getEntities(TagName::ePlayer))
+    for (auto& entity: m_entityManager.getEntities(TagName::ePlayer))
     {
         return entity;
     }
@@ -234,7 +234,7 @@ void ScenePlay::onEnd()
     m_game->save(m_playerData, game::fileName); // think how to make filename
     m_zoom = false;
     sCamera(true);
-    for (auto entity: m_entityManager.getEntities())
+    for (auto& entity: m_entityManager.getEntities())
     {
         entity.destroy();
     }
@@ -297,7 +297,7 @@ void ScenePlay::sRender()
 {
     m_game->window().clear(sf::Color(sf::Color::Black));
     // background
-    auto tex = m_game->assets().getTexture("TexDecBgrnd");
+    sf::Texture tex = m_game->assets().getTexture("TexDecBgrnd");
     setRoomBackground(tex);
     m_pGui->setTopPanel();
     Entity player = getPlayer();
@@ -384,7 +384,7 @@ void ScenePlay::doMovement()
     dt *= 10;
 
     // move entities
-    for (auto entity: m_entityManager.getEntities())
+    for (auto& entity: m_entityManager.getEntities())
     {
         auto& t = entity.get<CTransform>();
 
@@ -439,7 +439,7 @@ void ScenePlay::sAI()
             auto& transf = npc.get<CTransform>();
 
             const auto roomPos = m_grid->getRoomXY(transf.pos);
-            const auto npcTilePos = patrol.positions[patrol.currentPosition];
+            const Vec2 npcTilePos = patrol.positions[patrol.currentPosition];
             auto npcPos = m_grid->getPosition(
                 static_cast<int>(roomPos.x), static_cast<int>(roomPos.y),
                 static_cast<int>(npcTilePos.x), static_cast<int>(npcTilePos.y)
@@ -489,7 +489,7 @@ void ScenePlay::sStatus()
         {
             const auto& life = entity.get<CLifespan>();
             const auto remainingTime = m_currentFrame - life.frameCreated;
-            const auto color = entity.get<CAnimation>().animation.getSprite().getColor();
+            const auto& color = entity.get<CAnimation>().animation.getSprite().getColor();
             const auto alpha = 255 - 128 * remainingTime / life.lifespan;
             entity.get<CAnimation>().animation.getSprite().setColor(
                 sf::Color(color.r, color.g, color.b, alpha)
@@ -823,7 +823,7 @@ void ScenePlay::drawTextures()
                     rect.setOutlineThickness(1);
                     m_game->window().draw(rect);
 
-                    float ratio = (float)(h.current) / h.max;
+                    float ratio = static_cast<float>(h.current) / static_cast<float>(h.max);
                     size.x *= ratio;
                     rect.setSize({size.x, size.y});
                     rect.setFillColor(sf::Color(game::LightGray));
@@ -833,7 +833,8 @@ void ScenePlay::drawTextures()
                     for (int i = 0; i < h.max; i++)
                     {
                         tick.setPosition(
-                            rect.getPosition() + sf::Vector2f(i * 64 * 1.0 / h.max, 0)
+                            rect.getPosition() + sf::Vector2f(
+                                static_cast<float>(i) * 64.f * 1.0f / static_cast<float>(h.max), 0)
                             );
                         m_game->window().draw(tick);
                     }
@@ -849,7 +850,7 @@ void ScenePlay::drawCollisions()
     {
         // draw bounding box
         sf::CircleShape dot(4);
-        for (auto entity: m_entityManager.getEntities())
+        for (auto& entity: m_entityManager.getEntities())
         {
             if (entity.has<CBoundingBox>())
             {
@@ -885,7 +886,7 @@ void ScenePlay::drawCollisions()
                 if (entity.tagId() == eNpc)
                 {
                     auto& ePos = entity.get<CTransform>().pos;
-                    auto view = m_game->window().getView().getCenter();
+                    auto& view = m_game->window().getView().getCenter();
                     if (ePos.x >= view.x - (float)width() / 2.0 &&
                         ePos.x <= view.x + (float)width() / 2.0 &&
                         ePos.y >= view.y - (float)height() / 2.0 &&
@@ -924,7 +925,7 @@ void ScenePlay::drawCollisions()
             }
             if (entity.has<CPatrol>())
             {
-                for (auto p: entity.get<CPatrol>().positions)
+                for (auto& p: entity.get<CPatrol>().positions)
                 {
                     Vec2 r = m_grid->getRoomXY(entity.get<CTransform>().pos);
                     Vec2 pos = m_grid->getPosition(r.x, r.y, p.x, p.y);
@@ -960,7 +961,7 @@ void ScenePlay::facingDirection(CTransform& transf, std::string& animName)
 
 void ScenePlay::setRoomBackground(sf::Texture& tex)
 {
-    auto vertices = game::roomVertices;
+    auto& vertices = game::roomVertices;
     m_background.setPointCount(vertices.size());
     m_background.setOutlineColor(sf::Color(40, 40, 40));
     m_background.setOutlineThickness(1.0f);

@@ -16,6 +16,7 @@ public:
     [[nodiscard]] Vec2 getRoomXY(const Vec2& pos) const;
 
     [[nodiscard]] Vec2 getPosition(int rx, int ry, int tx, int ty) const;
+    [[nodiscard]] Vec2 getPosition(float rx, float ry, float tx, float ty) const;
     [[nodiscard]] Vec2 setPosition(const Vec2& vec) const;
 
     sf::Text& text();
