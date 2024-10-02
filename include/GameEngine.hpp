@@ -15,7 +15,7 @@ namespace game
     const sf::Color Silver(200, 200, 200);
 
     constexpr unsigned int kWinWidth = 1280;
-    constexpr unsigned int kWinHeight = 7;
+    constexpr unsigned int kWinHeight = 768;
     constexpr int kGridSizeX = 64;
     constexpr int kGridSizeY = 32;
 };
