@@ -10,13 +10,13 @@ PlayerGui::PlayerGui(sf::RenderWindow& window, EntityManager& entityManager, con
 void PlayerGui::setBottomPanel()
 {
     sf::View view = m_window.getView();
-    m_panel.setSize(sf::Vector2f(game::kGridSize * 6, game::kGridSize * 1.5f));
+    m_panel.setSize(sf::Vector2f(game::kGridSizeX * 6, game::kGridSizeY * 1.5f));
     m_panel.setFillColor(sf::Color::Transparent);
     // m_panel.setOutlineColor(sf::Color(game::Gray));
     m_panel.setOutlineThickness(0);
     m_panel.setPosition(
-        view.getCenter().x - game::kGridSize * 3,
-        static_cast<float>(m_window.getSize().y) - game::kGridSize * 2.0f
+        view.getCenter().x - game::kGridSizeX * 3,
+        static_cast<float>(m_window.getSize().y) - game::kGridSizeY * 2.0f
         );
 
     auto winPos = m_panel.getPosition(); // 7.10
@@ -29,12 +29,12 @@ void PlayerGui::setBottomPanel()
 void PlayerGui::setTopPanel()
 {
     sf::View view = m_window.getView();
-    m_panel.setSize(sf::Vector2f(game::kGridSize * 6, game::kGridSize * 1.5f));
+    m_panel.setSize(sf::Vector2f(game::kGridSizeX * 6, game::kGridSizeY * 3));
     m_panel.setFillColor(sf::Color::Transparent);
     m_panel.setOutlineColor(sf::Color(game::Gray));
     m_panel.setOutlineThickness(0);
-    m_panel.setPosition(view.getCenter().x - game::kGridSize * 8.0f,
-                        static_cast<float>(m_window.getSize().y) - game::kGridSize * 12.0f
+    m_panel.setPosition(view.getCenter().x - game::kGridSizeX * 8.0f,
+                        static_cast<float>(m_window.getSize().y) - game::kGridSizeY * 24.0f
         );
 
     auto winPos = m_panel.getPosition(); // 7.10
@@ -60,7 +60,7 @@ void PlayerGui::setPanelText(sf::Vector2f winPos)
     int seconds = static_cast<int>(time) % 60;
     text.setString(
         "Time: " + std::to_string(minutes) + ":" + (seconds < 10 ? "0" : "") + std::to_string(seconds));
-    text.setPosition(winPos.x - game::kGridSize * 1.8f, winPos.y + 10.f);
+    text.setPosition(winPos.x - game::kGridSizeX * 1.8f, winPos.y + 10.f);
     m_window.draw(text);
 
     // DROPS
@@ -87,8 +87,8 @@ void PlayerGui::setPanelIcons(const sf::Vector2f& winPos)
 
         animation.getSprite().setRotation(transform.angle);
         animation.getSprite().setPosition(
-            winPos.x + game::kGridSize / 2.0f + static_cast<float>(delta) * game::kGridSize + 2.0f,
-            winPos.y + game::kGridSize / 2.0f
+            winPos.x + game::kGridSizeX / 2.0f + static_cast<float>(delta) * game::kGridSizeX + 2.0f,
+            winPos.y + game::kGridSizeY / 2.0f
             );
         animation.getSprite().setScale(transform.scale.x, transform.scale.y);
         if (entity.get<CConsumable>().amount > 0) { iconColor = game::Silver; }
@@ -122,7 +122,7 @@ void PlayerGui::setPanelIconTitles() const
         // name.replace(name.find(entity.tag()), 5, ""); .. tooltip?
         title.setPosition(
             animation.getSprite().getPosition().x - 26,
-            animation.getSprite().getPosition().y - game::kGridSize / 2.0f + 4
+            animation.getSprite().getPosition().y - game::kGridSizeY / 2.0f + 4
             );
         title.setString(std::to_string(entity.get<CConsumable>().amount));
         title.setFillColor(iconColor);
@@ -142,7 +142,7 @@ void PlayerGui::barsUpgrade(Entity& entity)
 
     auto& item = entity.get<CConsumable>();
     auto& pos = entity.get<CAnimation>().animation.getSprite().getPosition();
-    Vec2 size(game::kGridSize - 8.0f, 6); // bar outside size
+    Vec2 size(game::kGridSizeX - 8.0f, 6); // bar outside size
     sf::RectangleShape rect({size.x, size.y}); // bar inside
 
     auto rect2 = rect;

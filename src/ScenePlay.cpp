@@ -131,7 +131,7 @@ void ScenePlay::loadLevel(const std::string& fileName)
         else if (token == "Cons")
         {
             int rx, ry, tx, ty, surprise;
-            fin >> name >> rx >> ry >> tx >> ty >> m_consConfig.health >> m_consConfig.gravity >> surprise;
+            fin >> name >> rx >> ry >> tx >> ty >> m_consConfig.gravity >> surprise;
             auto cons = m_entityManager.addEntity(TagName::eConsumable);
             cons.add<CAnimation>(m_game->assets().getAnimation(name), true);
             cons.add<CTransform>(m_grid->getPosition(rx, ry, tx, ty));
@@ -445,7 +445,7 @@ void ScenePlay::sAI()
                 static_cast<int>(roomPos.x), static_cast<int>(roomPos.y),
                 static_cast<int>(npcTilePos.x), static_cast<int>(npcTilePos.y)
                 );
-            npcPos.y += 16.f;
+            npcPos.y -= 16.f;
 
             if (npcPos.dist(transf.pos) < 5.0f) // how smoothly npc changes angle
             {
@@ -705,7 +705,7 @@ void ScenePlay::spawnWeaponDrop(Entity& entity)
     float sign = transf.scale.x > 0 ? 1.0f : -1.0f; // attack to left or right only
     drop.add<CTransform>(transf.pos + Vec2(32.0f, 0.0f) * sign);
     drop.get<CTransform>().velocity.x = game::weaponSpeed * sign;
-    drop.add<CBoundingBox>(drop.get<CAnimation>().animation.getSize());
+    drop.add<CBoundingBox>(drop.get<CAnimation>().animation.getSize() / 2.0f);
     drop.add<CDamage>(1);
     drop.add<CLifespan>(2 * 60, m_currentFrame);
 }
