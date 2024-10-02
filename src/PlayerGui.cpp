@@ -48,7 +48,7 @@ void PlayerGui::setTopPanel()
 void PlayerGui::setPanelText(sf::Vector2f winPos)
 {
     sf::Text text;
-    unsigned int charSize = 18;
+    unsigned int charSize = 17;
     text.setFont(m_font);
     text.setCharacterSize(charSize);
     text.setOrigin(text.getLocalBounds().width / 2.0f, text.getLocalBounds().height / 2.0f);
@@ -88,7 +88,7 @@ void PlayerGui::setPanelIcons(const sf::Vector2f& winPos)
         animation.getSprite().setRotation(transform.angle);
         animation.getSprite().setPosition(
             winPos.x + game::kGridSizeX / 2.0f + static_cast<float>(delta) * game::kGridSizeX + 2.0f,
-            winPos.y + game::kGridSizeY / 2.0f
+            winPos.y + game::kGridSizeY
             );
         animation.getSprite().setScale(transform.scale.x, transform.scale.y);
         if (entity.get<CConsumable>().amount > 0) { iconColor = game::Silver; }
@@ -122,7 +122,7 @@ void PlayerGui::setPanelIconTitles() const
         // name.replace(name.find(entity.tag()), 5, ""); .. tooltip?
         title.setPosition(
             animation.getSprite().getPosition().x - 26,
-            animation.getSprite().getPosition().y - game::kGridSizeY / 2.0f + 4
+            animation.getSprite().getPosition().y - game::kGridSizeY + 4
             );
         title.setString(std::to_string(entity.get<CConsumable>().amount));
         title.setFillColor(iconColor);
