@@ -66,6 +66,8 @@ Intr Name RX RY TX TY BM BV KT OP L AT
   isOpen               OP       bool
   isLocked             L        bool
   ActionType           AT       int
+ActionType = 3 - exact position
+... = RX RY TX TY
 
 Dec Specification:
 Decoration Name RX RY TX TY
@@ -78,7 +80,6 @@ Consumable Name RX RY TX TY H G SPR
   Animation Name       Name     std::string
   Room Coordinate      RX RY    int, int (in block coordinates)
   Cons Position        TX TY    int, int (in block coordinates)
-  Health               H        int
   Gravity              G        int
   Surprise             SPR      Surprise
   - 0

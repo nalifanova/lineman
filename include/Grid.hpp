@@ -32,7 +32,7 @@ public:
 
 private:
     sf::RenderWindow& m_window;
-    const Vec2 m_gridSize = {game::kGridSize, game::kGridSize};
+    const Vec2 m_gridSize = {game::kGridSizeX, game::kGridSizeY};
     sf::Text m_gridText;
 };
 
