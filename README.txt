@@ -55,6 +55,13 @@ Tile Name RX RY TX TY BM BV
   Block Movement       BM       int (1 = true, 0 = false)
   Block Vision         BV       int (1 = true, 0 = false)
 
+...Platform
+... = M S N X1 Y1 X2 Y2 ... XN YN
+  Platform isMoving      M        bool
+  Platform Speed         S        float
+  Platform Position      N        int (number of platform positions)
+  Position 1-N           Xi Yi    int, int (Tile Position or Platform Position i)
+
 Interactable Specification:
 Intr Name RX RY TX TY BM BV KT OP L AT
   Animation Name       Name     std::string
@@ -62,6 +69,8 @@ Intr Name RX RY TX TY BM BV KT OP L AT
   Tile Position        TX TY    int, int (in block coordinates)
   Block Movement       BM       int (1 = true, 0 = false)
   Block Vision         BV       int (1 = true, 0 = false)
+
+...Door / Chest
   Key Type             KT       int (90, 93, 95, 97, 99)
   isOpen               OP       bool
   isLocked             L        bool

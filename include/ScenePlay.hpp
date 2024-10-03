@@ -63,6 +63,7 @@ protected:
     void spawnSpecialWeapon(Entity& entity, const bool& hard);
     void spawnWeaponDrop(Entity& entity);
     void destroyEntity(Entity& entity);
+    void aiMoveByNodes(Entity& entity, bool addShift = false);
 
     void createPanelEntities();
 
