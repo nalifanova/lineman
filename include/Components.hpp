@@ -22,7 +22,7 @@ class CConsumable: public Component
 public:
     CConsumable() = default;
 
-    explicit CConsumable(const u_int16_t cooldown) :
+    explicit CConsumable(const u_int16_t cooldown):
         cooldown(cooldown) {}
 
     u_int16_t amount = 0;
@@ -51,10 +51,10 @@ class CTransform: public Component
 public:
     CTransform() = default;
 
-    explicit CTransform(const Vec2& p) :
+    explicit CTransform(const Vec2& p):
         pos(p) {}
 
-    CTransform(const Vec2& p, const Vec2& speed, const Vec2& s, float a) :
+    CTransform(const Vec2& p, const Vec2& speed, const Vec2& s, float a):
         pos(p), prevPos(p), velocity(speed), scale(s), angle(a) {}
 
     Vec2 pos = {0.0f, 0.0f};
@@ -70,7 +70,7 @@ class CLifespan: public Component
 public:
     CLifespan() = default;
 
-    explicit CLifespan(int duration, int frame) :
+    explicit CLifespan(int duration, int frame):
         lifespan(duration), frameCreated(frame) {}
 
     int lifespan = 0;
@@ -82,7 +82,7 @@ class CDamage: public Component
 public:
     CDamage() = default;
 
-    explicit CDamage(int d) :
+    explicit CDamage(int d):
         damage(d) {}
 
     int damage = 1;
@@ -93,7 +93,7 @@ class CInvincibility: public Component
 public:
     CInvincibility() = default;
 
-    explicit CInvincibility(int f) :
+    explicit CInvincibility(int f):
         iframes(f) {}
 
     int iframes = 1;
@@ -104,7 +104,7 @@ class CHealth: public Component
 public:
     CHealth() = default;
 
-    CHealth(int m, int c) :
+    CHealth(int m, int c):
         max(m), current(c) {}
 
     int max = 1;
@@ -152,7 +152,7 @@ public:
     explicit CBoundingBox(const Vec2& s):
         size(s), halfSize(s.x / 2, s.y / 2) {}
 
-    CBoundingBox(const Vec2& s, bool m, bool v) :
+    CBoundingBox(const Vec2& s, bool m, bool v):
         size(s), halfSize(s.x / 2.0f, s.y / 2.0f), blockMove(m), blockVision(v) {}
 
     Vec2 size;
@@ -178,7 +178,7 @@ class CAnimation: public Component
 public:
     CAnimation() = default;
 
-    CAnimation(Animation a, bool r) :
+    CAnimation(Animation a, bool r):
         animation(std::move(a)), repeat(r) {}
 
     Animation animation;
@@ -191,7 +191,7 @@ class CState: public Component
 public:
     CState() = default;
 
-    explicit CState(std::string s) :
+    explicit CState(std::string s):
         state(std::move(s)) {}
 
     std::string state = "Stand";
@@ -219,24 +219,11 @@ class CFollowPlayer: public Component
 public:
     CFollowPlayer() = default;
 
-    CFollowPlayer(Vec2 p, float s) :
+    CFollowPlayer(Vec2 p, float s):
         home(p), speed(s) {}
 
     Vec2 home = {0.0f, 0.0f};
     float speed = 0.0f;
-};
-
-class CPatrol: public Component
-{
-public:
-    CPatrol() = default;
-
-    CPatrol(std::vector<Vec2>& pos, float s) :
-        positions(pos), speed(s) {}
-
-    std::vector<Vec2> positions;
-    size_t currentPosition = 0;
-    float speed = 0;
 };
 
 class CSurprise: public Component
@@ -244,7 +231,7 @@ class CSurprise: public Component
 public:
     CSurprise() = default;
 
-    CSurprise(int rx, int ry, int tx, int ty, int t) :
+    CSurprise(int rx, int ry, int tx, int ty, int t):
         roomX(rx), roomY(ry), tileX(tx), tileY(ty), tagId(static_cast<TagName>(t))
     {
         if (tagId != eConsumable && tagId != eNpc && tagId != eInteractable)
@@ -270,10 +257,10 @@ class CLockable: public Component
 public:
     CLockable() = default;
 
-    explicit CLockable(bool c) :
+    explicit CLockable(bool c):
         isOpen(c) {}
 
-    CLockable(bool c, bool l, int t, int a) :
+    CLockable(bool c, bool l, int t, int a):
         isOpen(c), isLocked(l), keyType(static_cast<KeyType>(t)), action(static_cast<LockTypeAction>(a)) {}
 
     bool isOpen = false;
@@ -281,6 +268,31 @@ public:
     bool isActivated = false;
     KeyType keyType = eNoKey;
     LockTypeAction action = eNoLockType;
+};
+
+class Triggerable: public Component
+{
+public:
+    Triggerable() = default;
+
+    explicit Triggerable(bool a):
+        isActivated(a) {}
+
+    bool isActivated = false;
+};
+
+class CMovable: public Component
+{
+public:
+    CMovable() = default;
+
+    CMovable(std::vector<Vec2>& pos, float s, bool isMoving = false):
+        positions(pos), speed(s), isMoving(isMoving) {}
+
+    std::vector<Vec2> positions;
+    size_t currentPosition = 0;
+    float speed = 0;
+    float isMoving = false;
 };
 
 #endif //COMPONENTS_H

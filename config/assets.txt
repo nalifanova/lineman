@@ -3,6 +3,7 @@ Font Tech assets/fonts/tech.ttf
 Texture TexLandSaws assets/images/tiles/tile_land_saws.png
 Texture TexBrick assets/images/tiles/tile_brick.png
 Texture TexSoil assets/images/tiles/tile_soil.png
+Texture TexPlatform2 assets/images/tiles/tile_wood_platform.png
 Texture TexGlass3 assets/images/tiles/tile_glass_3.png
 Texture TexLadder assets/images/tiles/tile_ladder_short.png
 Texture TexTileDoor assets/images/tiles/tile_door.png
@@ -33,6 +34,7 @@ Texture TexPanelBoom assets/images/panel/panel_boom.png
 
 Animation TileBrick TexBrick 1 0
 Animation TileSoil TexSoil 1 0
+Animation TilePlatform2 TexPlatform2 1 0
 Animation TileGlass3 TexGlass3 1 0
 Animation TileLadder TexLadder 1 0
 Animation TileDoor TexTileDoor 1 1

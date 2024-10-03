@@ -96,16 +96,33 @@ void ScenePlay::loadLevel(const std::string& fileName)
             {
                 tile.add<CDamage>(4); // saw takes 4 HP
             }
-            if (name.find("Ladder") != std::string::npos)
+            else if (name.find("Ladder") != std::string::npos)
             {
                 tile.add<CClimbable>(); // can be climbed
+            }
+            else if (name.find("Platform") != std::string::npos)
+            {
+                // isM speed N X1 Y1 X2 Y2 ... XN YN
+                int n, posX, posY;
+                float speed;
+                bool isMoving;
+                std::vector<Vec2> platformNodes{};
+                fin >> isMoving >> speed >> n;
+                std::cout << "IsMoving? " << isMoving << ", speed? " << speed << ", n " << n << "\n";
+                // Could be N positions with coords posX, posY
+                for (size_t i = 0; i < n; i++)
+                {
+                    fin >> posX >> posY;
+                    std::cout << "Platform node: (" << posX << ", " << posY << ")\n";
+                    platformNodes.emplace_back(posX, posY);
+                }
+                tile.add<CMovable>(platformNodes, speed, isMoving);
             }
             token = "None";
         }
         else if (token == "Intr")
         {
-            int rx, ry, tx, ty, bm, bv, keyType, actionType;
-            bool open, locked;
+            int rx, ry, tx, ty, bm, bv;
             fin >> name >> rx >> ry >> tx >> ty >> bm >> bv;
             auto intr = m_entityManager.addEntity(TagName::eInteractable);
             intr.add<CAnimation>(m_game->assets().getAnimation(name), true);
@@ -113,8 +130,18 @@ void ScenePlay::loadLevel(const std::string& fileName)
             intr.add<CBoundingBox>(intr.get<CAnimation>().animation.getSize() - 4.0f, bm, bv);
             intr.add<CInteractableBox>(intr.get<CAnimation>().animation.getSize());
             intr.add<CDraggable>();
-            fin >> keyType >> open >> locked >> actionType;
-            intr.add<CLockable>(open, locked, keyType, actionType);
+            if (name.find("Door") != std::string::npos)
+            {
+                int keyType, actionType;
+                bool open, locked;
+                fin >> keyType >> open >> locked >> actionType;
+                intr.add<CLockable>(open, locked, keyType, actionType);
+            }
+            else if (name.find("Lever") != std::string::npos)
+            {
+                intr.add<Triggerable>();
+            }
+
             token = "None";
         }
         else if (token == "Dec")
@@ -191,8 +218,7 @@ void ScenePlay::loadLevel(const std::string& fileName)
             }
             else if (aiType == "Patrol")
             {
-                int n;
-                float posX, posY;
+                int n, posX, posY;
                 std::vector<Vec2> patrolNodes{};
                 fin >> n;
                 // Could be N positions with coords posX, posY
@@ -201,7 +227,7 @@ void ScenePlay::loadLevel(const std::string& fileName)
                     fin >> posX >> posY;
                     patrolNodes.emplace_back(posX, posY);
                 }
-                npc.add<CPatrol>(patrolNodes, speed);
+                npc.add<CMovable>(patrolNodes, speed);
             }
             token = "None";
         }
@@ -434,25 +460,17 @@ void ScenePlay::sAI()
 {
     for (auto& npc: m_entityManager.getEntities(eNpc))
     {
-        if (npc.has<CPatrol>()) // Patrol behavior
+        if (npc.has<CMovable>()) // Patrol behavior
         {
-            auto& patrol = npc.get<CPatrol>();
-            auto& transf = npc.get<CTransform>();
+            aiMoveByNodes(npc, true);
+        }
+    }
 
-            const auto roomPos = m_grid->getRoomXY(transf.pos);
-            const Vec2 npcTilePos = patrol.positions[patrol.currentPosition];
-            auto npcPos = m_grid->getPosition(
-                static_cast<int>(roomPos.x), static_cast<int>(roomPos.y),
-                static_cast<int>(npcTilePos.x), static_cast<int>(npcTilePos.y)
-                );
-            npcPos.y -= 16.f;
-
-            if (npcPos.dist(transf.pos) < 5.0f) // how smoothly npc changes angle
-            {
-                patrol.currentPosition = (1 + patrol.currentPosition) % patrol.positions.size();
-            }
-
-            transf.velocity = (npcPos - transf.pos).magnitude(patrol.speed);
+    for (auto& platform: m_entityManager.getEntities(eTile))
+    {
+        if (platform.has<CMovable>() && platform.get<CMovable>().isMoving)
+        {
+            aiMoveByNodes(platform);
         }
     }
 }
@@ -742,6 +760,34 @@ void ScenePlay::destroyEntity(Entity& entity)
     spawnEntity(tagId, spawnableId, pos);
 }
 
+void ScenePlay::aiMoveByNodes(Entity& entity, const bool addShift)
+{
+    auto& movable = entity.get<CMovable>();
+    auto& transf = entity.get<CTransform>();
+
+    const auto roomPos = m_grid->getRoomXY(transf.pos);
+    const Vec2 entityTilePos = movable.positions[movable.currentPosition];
+    auto entityPos = m_grid->getPosition(
+        static_cast<int>(roomPos.x), static_cast<int>(roomPos.y),
+        static_cast<int>(entityTilePos.x), static_cast<int>(entityTilePos.y)
+        );
+    if (addShift) { entityPos.y -= 16.f; }
+    if (entity.tagId() == eTile && (
+            entity.get<CBoundingBox>().size.x > 64.f && entity.get<CBoundingBox>().size.x < 128)
+    ) // two-gridsize platform
+    {
+        entityPos.x += 32.f;
+    }
+
+    if (entityPos.dist(transf.pos) < 5.0f) // how smoothly npc changes angle
+    {
+        movable.currentPosition = (1 + movable.currentPosition) % movable.positions.size();
+    }
+
+    transf.velocity = (entityPos - transf.pos).magnitude(movable.speed);
+}
+
+
 void ScenePlay::createPanelEntities()
 {
     std::vector<std::string> panelEntitiesNames{"PanelInk", "PanelShield", "PanelBoom"};
@@ -924,9 +970,9 @@ void ScenePlay::drawCollisions()
                 dot.setPosition(h.x, h.y);
                 m_game->window().draw(dot);
             }
-            if (entity.has<CPatrol>())
+            if (entity.has<CMovable>() && entity.tagId() == eNpc)
             {
-                for (auto& p: entity.get<CPatrol>().positions)
+                for (auto& p: entity.get<CMovable>().positions)
                 {
                     Vec2 r = m_grid->getRoomXY(entity.get<CTransform>().pos);
                     Vec2 pos = m_grid->getPosition(r.x, r.y, p.x, p.y);
