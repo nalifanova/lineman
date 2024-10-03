@@ -93,6 +93,7 @@ Tile TileBrick 0 0  7 12 1 1
 Tile TileBrick 0 0  8 12 1 1
 Tile TileBrick 0 0  9 12 1 1
 Tile TileBrick 0 0 10 12 1 1
+Tile TileBrick 0 0 19 11 1 1
 
 Tile TileLandSaws 0 0 11 23 1 1
 Tile TileLandSaws 0 0 12 23 1 1
@@ -103,9 +104,6 @@ Tile TileLandSaws 0 0 16 23 1 1
 Tile TileLandSaws 0 0 17 23 1 1
 Tile TileLandSaws 0 0 18 23 1 1
 Tile TileLandSaws 0 0 19 23 1 1
-
-Tile TileBrick 0 0 18 11 1 1
-Tile TileBrick 0 0 19 11 1 1
 
 #Room 1.0
 Tile TileBrick 1 0 0 22 1 1
@@ -144,7 +142,6 @@ Tile TileBrick 1 0 3 16 1 1
 Tile TileBrick 1 0 4 11 1 1
 Tile TileBrick 1 0 5 11 1 1
 Tile TileBrick 1 0 6 11 1 1
-Tile TileBrick 1 0 7 11 1 1
 
 Cons ConsInk   1 0 14 4 1 0
 Cons ConsInk   1 0 15 4 1 0

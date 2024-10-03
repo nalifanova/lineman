@@ -26,10 +26,13 @@ Vec2 PlayerMovement::getVelocityMove(float& dt)
 {
     Vec2 playerVelocity(m_transf.velocity.x, 0);
 
+    if (!m_state.inAir) { m_coyoteTimer = 0.1f; }
+    else { m_coyoteTimer -= dt; }
+
     if (!m_input.up)
     {
         dt = 0.0f;
-        m_state.canJump = false;
+        if (m_coyoteTimer <= 0.0f) { m_state.canJump = false; }
     }
     if (m_input.up)
     {
@@ -41,10 +44,11 @@ Vec2 PlayerMovement::getVelocityMove(float& dt)
         }
         else
         {
-            if (m_state.canJump && m_maxTime >= dt)
+            if ((m_state.canJump && m_maxTime >= dt) || m_coyoteTimer > 0.0f)
             {
                 playerVelocity.y = -m_jump;
                 m_state.inAir = true;
+                m_coyoteTimer = 0.0f;
             }
             else
             {
