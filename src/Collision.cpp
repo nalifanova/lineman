@@ -42,23 +42,12 @@ void Collision::resolveCollision(Entity& entity, Entity& another)
             // top/bottom collision
             if (prevOverlap.x > 0.0f)
             {
+                if (entity.has<CInput>()) { pushFromSides(entity, another); }
+
                 if (entityPos.y < tilePos.y) // down
                 {
                     entityPos.y -= overlap.y;
                     if (entity.has<CState>()) { entity.get<CState>().inAir = false; }
-
-                    // Push from sides - smooth moving
-                    const float entityRight = entityPos.x + entity.get<CBoundingBox>().halfSize.x;
-                    const float tileRight = tilePos.x + another.get<CBoundingBox>().halfSize.x;
-                    const float entityLeft = entityPos.x - entity.get<CBoundingBox>().halfSize.x;
-                    const float tileLeft = tilePos.x - another.get<CBoundingBox>().halfSize.x;
-
-                    // Checking if entity is on the edge of the tile
-                    if (entityRight < tileRight - 10.f || entityLeft > tileLeft + 10.f)
-                    {
-                        // Smoothing movement by reducing the velocity
-                        entity.get<CTransform>().velocity.x *= 0.01f;
-                    }
                 }
                 else // up
                 {
@@ -74,6 +63,8 @@ void Collision::resolveCollision(Entity& entity, Entity& another)
             // side collision
             if (prevOverlap.y > 0.0f)
             {
+                if (entity.has<CInput>()) { pushFromSides(entity, another); }
+
                 entityPos.x += entityPos.x < tilePos.x ? -overlap.x : overlap.x;
                 entity.get<CTransform>().velocity.x = 0.0f;
             }
@@ -338,5 +329,35 @@ void Collision::resolveLadderCollision(Entity& entity)
     {
         entity.get<CState>().inAir = false;
         entity.get<CState>().climbing = true;
+    }
+}
+
+void Collision::pushFromSides(Entity& entity, Entity& another)
+{
+    auto& entityPos = entity.get<CTransform>().pos;
+    auto& tilePos = another.get<CTransform>().pos;
+
+    if (entity.get<CInput>().up || entity.get<CInput>().down)
+    {
+        const float entityRight = entityPos.x + entity.get<CBoundingBox>().halfSize.x;
+        const float tileRight = tilePos.x + another.get<CBoundingBox>().halfSize.x;
+        const float entityLeft = entityPos.x - entity.get<CBoundingBox>().halfSize.x;
+        const float tileLeft = tilePos.x - another.get<CBoundingBox>().halfSize.x;
+
+        if (entityRight > tileRight - 5) { entityPos.x += 1.0f; }
+        else
+            if (entityLeft < tileLeft + 5) { entityPos.x -= 1.0f; }
+    }
+
+    if (entity.get<CInput>().left || entity.get<CInput>().right)
+    {
+        const float entityTop = entityPos.y + entity.get<CBoundingBox>().halfSize.y;
+        const float tileTop = tilePos.y + another.get<CBoundingBox>().halfSize.y;
+        const float entityBottom = entityPos.y - entity.get<CBoundingBox>().halfSize.y;
+        const float tileBottom = tilePos.y - another.get<CBoundingBox>().halfSize.y;
+
+        if (entityTop > tileTop - 5) { entityPos.y += 1.0f; }
+        else
+            if (entityBottom < tileBottom + 5) { entityPos.y -= 1.0f; }
     }
 }
