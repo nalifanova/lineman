@@ -46,6 +46,19 @@ void Collision::resolveCollision(Entity& entity, Entity& another)
                 {
                     entityPos.y -= overlap.y;
                     if (entity.has<CState>()) { entity.get<CState>().inAir = false; }
+
+                    // Push from sides - smooth moving
+                    const float entityRight = entityPos.x + entity.get<CBoundingBox>().halfSize.x;
+                    const float tileRight = tilePos.x + another.get<CBoundingBox>().halfSize.x;
+                    const float entityLeft = entityPos.x - entity.get<CBoundingBox>().halfSize.x;
+                    const float tileLeft = tilePos.x - another.get<CBoundingBox>().halfSize.x;
+
+                    // Checking if entity is on the edge of the tile
+                    if (entityRight < tileRight - 10.f || entityLeft > tileLeft + 10.f)
+                    {
+                        // Smoothing movement by reducing the velocity
+                        entity.get<CTransform>().velocity.x *= 0.01f;
+                    }
                 }
                 else // up
                 {
