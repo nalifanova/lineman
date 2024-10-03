@@ -27,6 +27,7 @@ private:
     // helper functions
     void resolveWeaponCollision(Entity& weapon, Entity& another);
     static void resolveLadderCollision(Entity& entity);
+    static void pushFromSides(Entity& entity, Entity& another);
 
     EntityManager& m_entityManager;
     size_t m_currentFrame;

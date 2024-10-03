@@ -4,7 +4,7 @@ Cons ConsInk 0 0  1 20 1 0
 Cons ConsInk 0 0  2 21 1 0
 Cons ConsInk 0 0  3 21 1 0
 
-Player 92 400 46 58 10 25 200 65
+Player 92 400 36 58 10 25 200 65
 #Name X Y BX BY H Speed Gravity Jump
 
 Tile TileBrick 0 0  0 21 1 1
