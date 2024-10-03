@@ -25,5 +25,6 @@ private:
     float m_speed = 0.0f;
     float m_jump = 0.0f;
     Vec2 m_facing = Vec2(0.0, 0.0f);
+    float m_coyoteTimer = 0.0f;
 };
 #endif //PLAYERMOVEMENT_HPP
