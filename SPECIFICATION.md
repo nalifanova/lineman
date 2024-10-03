@@ -81,8 +81,8 @@ finished feature marked as completed.
   - Our Game's Pathfinding/Steering:
     - [ ] Example 1: Heat seeking missile smooth steers toward target entity
     - [ ] Example 2: Path-finding algorithm used to guide NPC toward player
-- [ ] User Interface / HUD
-  - [ ] Must have a user interface / HUD which displays information such as:
+- [x] User Interface / HUD
+  - [x] Must have a user interface / HUD which displays information such as:
     - [x] Player health
     - [x] Weapons and Ammo
     - [ ] Game Progression
@@ -107,10 +107,10 @@ of marks are given for the project:
   - [ ] Sound Effects
   - [ ] Game Difficulty - Normal, Easy (deal 2x, take 0.5x damage), Hard (deal 0.5x, take 2x damage)
   - [ ] Rebind main gameplay scene keys – for example moving left / right, jump, shoot, etc
-- [ ] Game Progression
+- [x] Game Progression
   - [ ] Overworld map should somehow lock or unlock game progression based on levels completed
-  - [ ] You must have the ability to save and load your game progress somehow to a file
-- [ ] Status Effects
+  - [x] You must have the ability to save and load your game progress somehow to a file
+- [x] Status Effects
   - [ ] Must contain at least 3 separate status effects
   - [x] Status effects are obtainable in some way (item, collision, ability, etc) which alter the gameplay for a limited amount of time
   - Our Game's Status Effects are:

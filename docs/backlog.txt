@@ -3,12 +3,10 @@
 There's a list (not an order) of things to be done.
 
 ### TODO
-01. Add save game functionality (if you pass the level - save the level?)
-    (Should we save all consumables or start the level with brand-new settings?)
-02. New Game / Load Game (menu)
+01. Add save game functionality (save only time/inks and life) - done
+02. Finish the level (add elevator and a lever)
 03. Assign another keys to play
 04. Add name of the player
-07. Add throwable
 08. Add boss
 09. Modify changeScene/load next level logic
 10. Add NPCs that can jump and/or follow
@@ -25,3 +23,14 @@ There's a list (not an order) of things to be done.
 07. Add parallax (have no idea what to put on background)
 08. Add moving platforms (maybe with disappearing effect)
 09. Add menu cooldown animation
+
+### MUST BE DONE
+01. Three different NPC (one is done)
+02. Add a moving platform/elevator
+03. Overworld map?
+04. Add three shaders
+05. Add parallax
+... NPC pathfinding (follow the player)
+... Add Audio
+... Add menu to change (music volume, game difficulty, rebind keys)
+... Raycasting
