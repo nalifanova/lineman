@@ -1,6 +1,7 @@
 #ifndef PLAYERMOVEMENT_HPP
 #define PLAYERMOVEMENT_HPP
 
+#include "EffectManager.hpp"
 #include "Entity.hpp"
 
 class PlayerMovement
@@ -11,10 +12,9 @@ public:
     bool correctInputs();
     Vec2 getVelocityMove(float& dt);
     void runInteract();
+    void changeState(EffectManager& effectManager, size_t& currentFrame);
 
 private:
-    void changeState();
-
     Entity& m_player;
     CInput& m_input;
     CState& m_state;

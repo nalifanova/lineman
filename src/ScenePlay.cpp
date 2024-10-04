@@ -29,6 +29,7 @@ void ScenePlay::update()
     sDrag();
     if (!m_paused)
     {
+        m_effectManager.update(deltaTime);
         sAI();
         sMovement();
         sStatus();
@@ -330,6 +331,8 @@ void ScenePlay::sRender()
     Entity player = getPlayer();
     doPanelAction(player);
 
+    m_effectManager.render(m_game->window());
+
     // draw all textures
     drawTextures();
     // draw all Entity collision bounding boxes with a rectangle shape
@@ -437,6 +440,7 @@ void ScenePlay::sMovement()
     auto pm = PlayerMovement(player, m_playerConfig.speed, m_playerConfig.jump);
 
     player.get<CTransform>().velocity = pm.getVelocityMove(m_accel);
+    pm.changeState(m_effectManager, m_currentFrame);
 
     if (!m_collision->isClimbing(player))
     {

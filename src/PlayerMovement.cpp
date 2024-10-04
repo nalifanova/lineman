@@ -1,6 +1,7 @@
 #include "PlayerMovement.hpp"
 
 #include "DeltaTime.hpp"
+#include "GameEngine.hpp"
 
 PlayerMovement::PlayerMovement(Entity& player, const float& speed, const float& jump):
     m_player(player),
@@ -90,7 +91,6 @@ Vec2 PlayerMovement::getVelocityMove(float& dt)
         m_transf.facing = m_facing; // update
         m_state.changed = true;
     }
-    changeState();
 
     return playerVelocity;
 }
@@ -118,8 +118,7 @@ void PlayerMovement::runInteract()
     }
 }
 
-// private
-void PlayerMovement::changeState()
+void PlayerMovement::changeState(EffectManager& effectManager, size_t& currentFrame)
 {
     if (m_state.climbing)
     {
@@ -153,6 +152,11 @@ void PlayerMovement::changeState()
         {
             m_state.state = "Stand";
             m_state.changed = true;
+            if (m_transf.prevPos.y + 3.f < m_transf.pos.y)
+            {
+                // delta 24.f is based on halfSize of bbox of entity
+                effectManager.createDust(Vec2(m_transf.pos.x, m_transf.pos.y + 24.f), 100, currentFrame);
+            }
         }
     }
 }
