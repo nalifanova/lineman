@@ -1,6 +1,5 @@
 #include "PlayerMovement.hpp"
 
-#include "DeltaTime.hpp"
 #include "GameEngine.hpp"
 
 PlayerMovement::PlayerMovement(Entity& player, const float& speed, const float& jump):
@@ -152,10 +151,10 @@ void PlayerMovement::changeState(EffectManager& effectManager, size_t& currentFr
         {
             m_state.state = "Stand";
             m_state.changed = true;
-            if (m_transf.prevPos.y + 3.f < m_transf.pos.y)
+            if (m_transf.pos != m_transf.prevPos)
             {
                 // delta 24.f is based on halfSize of bbox of entity
-                effectManager.createDust(Vec2(m_transf.pos.x, m_transf.pos.y + 24.f), 100, currentFrame);
+                effectManager.createDust(Vec2(m_transf.pos.x, m_transf.pos.y + 22.f), 100, currentFrame);
             }
         }
     }
