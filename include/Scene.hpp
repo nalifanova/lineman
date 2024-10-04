@@ -4,6 +4,7 @@
 #include <map>
 
 #include "Action.hpp"
+#include "EffectManager.hpp"
 #include "EntityManager.hpp"
 #include "PlayerData.hpp"
 
@@ -41,6 +42,7 @@ protected:
 
     GameEngine* m_game = nullptr;
     EntityManager m_entityManager;
+    EffectManager m_effectManager;
     ActionMap m_actionMap;
 
     bool m_paused = false;

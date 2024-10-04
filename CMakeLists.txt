@@ -62,6 +62,8 @@ add_executable(${PROJECT_NAME}
     include/Data.hpp
     include/DebugGui.hpp
     include/DeltaTime.hpp
+    include/Effect.hpp
+    include/EffectManager.hpp
     include/Entity.hpp
     include/EntityManager.hpp
     include/EntityMemoryPool.hpp
@@ -84,6 +86,8 @@ add_executable(${PROJECT_NAME}
     src/Collision.cpp
     src/DebugGui.cpp
     src/DeltaTime.cpp
+    src/Effect.cpp
+    src/EffectManager.cpp
     src/Entity.cpp
     src/EntityManager.cpp
     src/EntityMemoryPool.cpp
