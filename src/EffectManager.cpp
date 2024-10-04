@@ -6,7 +6,7 @@ void EffectManager::createDust(Vec2 position, int count, size_t& currentFrame)
     {
         Vec2 velocity(rand() % 80 - 50, -abs(rand() % 30 - 25)); // Different directions
         float lifetime = 1.0f + static_cast<float>(rand() % 50) / 100.0f + 72.f; // + 1.2sec
-        auto size = static_cast<float>(rand() % 3 + 0.5); // .5-3.5 pixels
+        auto size = static_cast<float>(rand() % 5 + 0.5); // .5-5.5 pixels
         m_dust.emplace_back(position, velocity, size, lifetime, currentFrame);
     }
 }

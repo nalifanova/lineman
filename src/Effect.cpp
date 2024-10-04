@@ -19,5 +19,5 @@ size_t DustParticle::frameCreated() const { return m_frameCreated; }
 float DustParticle::getOpacity() const
 {
     const auto remainingTime = m_currentFrame - m_frameCreated;
-    return 255 - 128 * (static_cast<float>(remainingTime) / static_cast<float>(m_lifetime));
+    return 130 - 128 * (static_cast<float>(remainingTime) / static_cast<float>(m_lifetime));
 }

@@ -109,12 +109,11 @@ void ScenePlay::loadLevel(const std::string& fileName)
                 bool isMoving;
                 std::vector<Vec2> platformNodes{};
                 fin >> isMoving >> speed >> n;
-                std::cout << "IsMoving? " << isMoving << ", speed? " << speed << ", n " << n << "\n";
                 // Could be N positions with coords posX, posY
                 for (size_t i = 0; i < n; i++)
                 {
                     fin >> posX >> posY;
-                    std::cout << "Platform node: (" << posX << ", " << posY << ")\n";
+                    // std::cout << "Platform node: (" << posX << ", " << posY << ")\n";
                     platformNodes.emplace_back(posX, posY);
                 }
                 tile.add<CMovable>(platformNodes, speed, isMoving);
@@ -237,9 +236,6 @@ void ScenePlay::loadLevel(const std::string& fileName)
             fin >> m_playerConfig.x >> m_playerConfig.y >> m_playerConfig.cX >> m_playerConfig.cY
                 >> m_playerConfig.health >> m_playerConfig.speed >> m_playerConfig.gravity
                 >> m_playerConfig.jump;
-            std::cout << "Speed: " << m_playerConfig.speed
-                << ", Jump: " << m_playerConfig.jump
-                << ", Gravity: " << m_playerConfig.gravity << "\n";
             spawnPlayer(true);
             token = "None";
         }
