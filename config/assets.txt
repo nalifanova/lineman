@@ -62,3 +62,11 @@ Animation DropInk TexDropInk   2 16
 Animation PanelInk TexPanelInk 1 0
 Animation PanelShield TexPanelShield 1 0
 Animation PanelBoom TexPanelBoom 1 0
+
+Sound LevelComplete assets/sounds/level_complete.ogg
+Sound MusicLoop assets/sounds/music_loop.ogg
+Sound TitleTheme assets/sounds/title_theme.ogg
+Sound ShootWeapon assets/sounds/shoot_weapon.ogg
+Sound PickupInk assets/sounds/pickup_ink.ogg
+Sound PlayerDies assets/sounds/death_sound.ogg
+Sound Damage assets/sounds/damage.ogg

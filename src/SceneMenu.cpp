@@ -57,8 +57,8 @@ void SceneMenu::init()
     registerAction(sf::Keyboard::M, "MUTE");
     registerAction(sf::Keyboard::Q, "QUIT");
 
-    // m_titleMusic = m_game->assets().getSound("TitleTheme");
-    // m_titleMusic.play();
+    m_titleMusic = m_game->assets().getSound("TitleTheme");
+    m_titleMusic.play();
 
     createMenu();
     m_levelPaths.emplace_back("config/level1.txt");

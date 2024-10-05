@@ -1,13 +1,14 @@
 #ifndef COLLISION_HPP
 #define COLLISION_HPP
 
+#include "Assets.hpp"
 #include "Entity.hpp"
 #include "EntityManager.hpp"
 
 class Collision
 {
 public:
-    explicit Collision(EntityManager& entityManager, size_t& currentFrame);
+    explicit Collision(EntityManager& entityManager, size_t& currentFrame, Assets& assets);
 
     void resolveCollision(Entity& entity, Entity& another);
     void handleEffectsInCollision(Entity& entity, Entity& another);
@@ -30,6 +31,7 @@ private:
     static void pushFromSides(Entity& entity, Entity& another);
 
     EntityManager& m_entityManager;
+    Assets& m_assets;
     size_t m_currentFrame;
 };
 

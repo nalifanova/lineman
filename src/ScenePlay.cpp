@@ -63,7 +63,9 @@ void ScenePlay::init(const std::string& levelPath)
     createPanelEntities();
 
     m_pGui.emplace(m_game->window(), m_entityManager, font, m_playerData);
-    m_collision.emplace(m_entityManager, m_currentFrame);
+    m_collision.emplace(m_entityManager, m_currentFrame, m_game->assets());
+
+    m_game->playSound("MusicLoop");
 }
 
 void ScenePlay::loadLevel(const std::string& fileName)
@@ -258,6 +260,7 @@ void ScenePlay::onEnd()
     m_game->save(m_playerData, game::fileName); // think how to make filename
     m_zoom = false;
     sCamera(true);
+    m_game->stopSound("MusicLoop");
     for (auto& entity: m_entityManager.getEntities())
     {
         entity.destroy();
@@ -726,6 +729,7 @@ void ScenePlay::spawnWeaponDrop(Entity& entity)
     drop.add<CBoundingBox>(drop.get<CAnimation>().animation.getSize() / 2.0f);
     drop.add<CDamage>(1);
     drop.add<CLifespan>(2 * 60, m_currentFrame);
+    m_game->playSound("ShootWeapon");
 }
 
 void ScenePlay::destroyEntity(Entity& entity)
@@ -742,6 +746,7 @@ void ScenePlay::destroyEntity(Entity& entity)
         dead.get<CAnimation>().animation.getSprite().setColor(game::LightGray);
         dead.add<CTransform>(pos);
         m_playerData.updateLife(-1);
+        m_game->playSound("PlayerDies");
     }
     else if (tagId == eConsumable)
     {
