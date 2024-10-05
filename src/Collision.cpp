@@ -5,8 +5,8 @@
 #include "Physics.hpp"
 #include "Tags.hpp"
 
-Collision::Collision(EntityManager& entityManager, size_t& currentFrame):
-    m_entityManager(entityManager), m_currentFrame(currentFrame) {}
+Collision::Collision(EntityManager& entityManager, size_t& currentFrame, Assets& assets):
+    m_entityManager(entityManager), m_currentFrame(currentFrame), m_assets(assets) {}
 
 void Collision::resolveCollision(Entity& entity, Entity& another)
 {
@@ -91,7 +91,8 @@ void Collision::handleEffectsInCollision(Entity& entity, Entity& another)
         }
         else
         {
-            // m_game->playSound("hit");
+            auto& damage = m_assets.getSound("Damage");
+            damage.play();
         }
     }
 }
@@ -229,7 +230,8 @@ void Collision::entityItemCollision(Entity& player)
         if (Physics::isColliding(player, consumable))
         {
             moveEntity(consumable);
-            //m_game->playSound("pickupInk");
+            auto& pickupInk = m_assets.getSound("PickupInk");
+            pickupInk.play();
         }
 
         for (auto tile: m_entityManager.getEntities(eTile))
@@ -317,7 +319,6 @@ void Collision::resolveWeaponCollision(Entity& weapon, Entity& another)
         if (h.current <= 0)
         {
             destroyEntity(another);
-            // play dead sound
         }
         destroyEntity(weapon);
     }
