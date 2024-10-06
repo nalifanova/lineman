@@ -234,9 +234,9 @@ public:
     CSurprise(int rx, int ry, int tx, int ty, int t):
         roomX(rx), roomY(ry), tileX(tx), tileY(ty), tagId(static_cast<TagName>(t))
     {
-        if (tagId != eConsumable && tagId != eNpc && tagId != eInteractable)
+        if (tagId != eConsumable && tagId != eNpc && tagId != eItem)
         {
-            tagId = eInteractable;
+            tagId = eItem;
         }
     }
 
@@ -244,23 +244,35 @@ public:
     int roomY = 0;
     int tileX = 0;
     int tileY = 0;
-    TagName tagId = eInteractable;
+    TagName tagId = eItem;
     bool isActivated = false;
 };
 
 enum KeyType { eDoorBig = 99, eDoorSmall = 97, eChestBig = 95, eChestSmall = 93, eNoKey = 90 };
 
-enum LockTypeAction { eExit = 1, eRandomJump = 2, eExactJump = 3, eGrabAll = 4, eNoLockType = 0 };
-
-class CLockable: public Component
+class CKey: public Component
 {
 public:
-    CLockable() = default;
+    CKey() = default;
 
-    explicit CLockable(bool c):
+    explicit CKey(int t):
+        keyType(static_cast<KeyType>(t)) {};
+
+    bool isActivated = false;
+    KeyType keyType = eNoKey;
+};
+
+enum LockTypeAction { eExit = 1, eRandomJump = 2, eExactJump = 3, eGrabAll = 4, eNoLockType = 0 };
+
+class CLock: public Component
+{
+public:
+    CLock() = default;
+
+    explicit CLock(bool c):
         isOpen(c) {}
 
-    CLockable(bool c, bool l, int t, int a):
+    CLock(bool c, bool l, int t, int a):
         isOpen(c), isLocked(l), keyType(static_cast<KeyType>(t)), action(static_cast<LockTypeAction>(a)) {}
 
     bool isOpen = false;
@@ -270,12 +282,12 @@ public:
     LockTypeAction action = eNoLockType;
 };
 
-class Triggerable: public Component
+class Trigger: public Component
 {
 public:
-    Triggerable() = default;
+    Trigger() = default;
 
-    explicit Triggerable(bool a):
+    explicit Trigger(bool a):
         isActivated(a) {}
 
     bool isActivated = false;
@@ -292,7 +304,54 @@ public:
     std::vector<Vec2> positions;
     size_t currentPosition = 0;
     float speed = 0;
-    float isMoving = false;
+    bool isMoving = false;
+};
+
+class CInventory: public Component
+{
+public:
+    CInventory() = default;
+
+    void addItem(std::string& name, size_t entityId, int quantity = 1)
+    {
+        m_items[entityId] += quantity;
+        m_entityMap[name] = entityId;
+    }
+
+    void removeItem(std::string& name, int quantity = 1)
+    {
+        if (!m_entityMap[name]) { return; }
+
+        size_t entityId = m_entityMap[name];
+        if (m_items.count(entityId) > 0)
+        {
+            m_items[entityId] -= quantity;
+            if (m_items[entityId] <= 0)
+            {
+                m_items.erase(entityId);
+                m_entityMap.erase(name);
+            }
+        }
+    }
+
+    size_t getEntityId(std::string& name)
+    {
+        if (!m_entityMap[name]) { return -1; }
+        return m_entityMap[name];
+    }
+
+    [[nodiscard]] bool hasItem(std::string& name, int quantity = 1)
+    {
+        if (!m_entityMap[name]) { return false; }
+
+        size_t entityId = m_entityMap[name];
+        auto it = m_items.find(entityId);
+        return it != m_items.end() && it->second >= quantity;
+    }
+
+private:
+    std::unordered_map<size_t, int> m_items; // entityId, amount
+    std::unordered_map<std::string, size_t> m_entityMap; // entityName, entityId
 };
 
 #endif //COMPONENTS_H

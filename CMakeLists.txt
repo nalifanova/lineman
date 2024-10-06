@@ -78,6 +78,7 @@ add_executable(${PROJECT_NAME}
     include/SceneMenuControls.hpp
     include/SceneMenuOptions.hpp
     include/ScenePlay.hpp
+    include/Sinventory.hpp
     include/Tags.hpp
     include/Vec2.hpp
     src/Action.cpp
@@ -102,6 +103,7 @@ add_executable(${PROJECT_NAME}
     src/SceneMenuControls.cpp
     src/SceneMenuOptions.cpp
     src/ScenePlay.cpp
+    src/Sinventory.cpp
     src/Vec2.cpp
     # Tests
     tests/test_panel_icon.hpp

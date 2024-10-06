@@ -12,6 +12,15 @@ Entity EntityManager::addEntity(const size_t& tag)
     return entity;
 }
 
+std::optional<Entity> EntityManager::getEntityById(const size_t entityId)
+{
+    for (auto& entity: m_entities)
+    {
+        if (entity.id() == entityId) { return entity; }
+    }
+    return std::nullopt;
+}
+
 // called at beginning of each frame by game engine
 // entities added will now be available to use this frame
 void EntityManager::update()

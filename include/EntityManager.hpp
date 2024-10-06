@@ -14,6 +14,7 @@ public:
     EntityManager();
 
     Entity addEntity(const size_t& tag);
+    std::optional<Entity> getEntityById(size_t entityId);
     void update();
 
     std::vector<Entity> getEntities();

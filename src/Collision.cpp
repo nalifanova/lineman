@@ -3,6 +3,7 @@
 #include "Data.hpp"
 #include "GameEngine.hpp"
 #include "Physics.hpp"
+#include "Sinventory.hpp"
 #include "Tags.hpp"
 
 Collision::Collision(EntityManager& entityManager, size_t& currentFrame, Assets& assets):
@@ -26,11 +27,13 @@ void Collision::resolveCollision(Entity& entity, Entity& another)
                 return;
             }
 
+            if (entity.tagId() == ePlayer && another.tagId() == eItem) { resolveItemCollision(entity, another); }
+
             if (another.has<CInteractableBox>())
             {
-                if (entity.tagId() == ePlayer && another.has<CLockable>() && another.get<CLockable>().isActivated)
+                if (entity.tagId() == ePlayer && another.has<CLock>() && another.get<CLock>().isActivated)
                 {
-                    entity.get<CState>().interAction = game::interActions.at(another.get<CLockable>().action);
+                    entity.get<CState>().interAction = game::interActions.at(another.get<CLock>().action);
                 }
             }
 
@@ -113,7 +116,7 @@ void Collision::entityTileCollision(Entity& player)
             resolveCollision(cons, tile);
         }
 
-        for (auto& inter: m_entityManager.getEntities(eInteractable))
+        for (auto& inter: m_entityManager.getEntities(eItem))
         {
             resolveCollision(inter, tile);
         }
@@ -122,7 +125,7 @@ void Collision::entityTileCollision(Entity& player)
 
 void Collision::entityInteractableCollision(Entity& player)
 {
-    for (auto& intr: m_entityManager.getEntities(eInteractable))
+    for (auto& intr: m_entityManager.getEntities(eItem))
     {
         resolveCollision(player, intr);
 
@@ -131,7 +134,7 @@ void Collision::entityInteractableCollision(Entity& player)
             resolveCollision(npc, intr);
         }
 
-        for (auto& another: m_entityManager.getEntities(eInteractable))
+        for (auto& another: m_entityManager.getEntities(eItem))
         {
             if (another.id() == intr.id()) { continue; }
             resolveCollision(another, intr);
@@ -141,15 +144,20 @@ void Collision::entityInteractableCollision(Entity& player)
 
 void Collision::checkInteraction(Entity& player)
 {
-    for (auto& intr: m_entityManager.getEntities(eInteractable))
+    for (auto& intr: m_entityManager.getEntities(eItem))
     {
         if (Physics::isInteractableColliding(player, intr))
         {
-            if (intr.has<CLockable>() && player.get<CState>().state == "Interact")
+            if (intr.has<CLock>() && player.get<CState>().state == "Interact")
             {
-                auto& l = intr.get<CLockable>();
-                // TODO: think of a lockable mechanics with a key
-                if (!l.isOpen)
+                auto& l = intr.get<CLock>();
+                if (l.isLocked && SInventory::hasItem(player, "ItemKey"))
+                {
+                    SInventory::useItem(player, "ItemKey");
+                    l.isLocked = false;
+                }
+
+                if (!l.isLocked && !l.isOpen)
                 {
                     l.isOpen = true;
                     // Let character overlap the eInteractable
@@ -175,7 +183,7 @@ void Collision::weaponEntityCollision()
             resolveCollision(weapon, tile);
         }
 
-        for (auto& inter: m_entityManager.getEntities(eInteractable))
+        for (auto& inter: m_entityManager.getEntities(eItem))
         {
             resolveCollision(weapon, inter);
         }
@@ -225,6 +233,16 @@ void Collision::playerNpcCollision(Entity& player)
 
 void Collision::entityItemCollision(Entity& player)
 {
+    for (auto& item: m_entityManager.getEntities(eItem))
+    {
+        resolveCollision(player, item);
+
+        for (auto tile: m_entityManager.getEntities(eTile))
+        {
+            resolveCollision(item, tile);
+        }
+    }
+
     for (auto& consumable: m_entityManager.getEntities(eConsumable))
     {
         if (Physics::isColliding(player, consumable))
@@ -269,15 +287,8 @@ void Collision::moveEntity(Entity& entity)
     {
         name.replace(pos, entity.tag().length(), tags[ePanel]);
     }
-    if (entity.has<CSurprise>())
-    {
-        entity.get<CSurprise>().isActivated = true;
-        destroyEntity(entity);
-    }
-    else
-    {
-        destroyEntity(entity);
-    }
+    if (entity.has<CSurprise>()) { entity.get<CSurprise>().isActivated = true; }
+    destroyEntity(entity);
 
     for (auto item: m_entityManager.getEntities(ePanel))
     {
@@ -334,6 +345,16 @@ void Collision::resolveLadderCollision(Entity& entity)
     {
         entity.get<CState>().inAir = false;
         entity.get<CState>().climbing = true;
+    }
+}
+
+void Collision::resolveItemCollision(Entity& player, Entity& another)
+{
+    if (another.has<CKey>())
+    {
+        SInventory::pickUpItem(player, another);
+        another.remove<CGravity>();
+        another.get<CTransform>().pos = Vec2(0.f, 800.0f); // TODO: creepy workaround
     }
 }
 
