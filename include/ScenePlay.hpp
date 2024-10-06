@@ -59,7 +59,7 @@ protected:
     void spawnEntity(size_t tag, size_t spawnTag, Vec2 pos, int amount = 1);
     void spawnEntity(size_t tag, size_t spawnTag, int rx, int ry, int tx, int ty);
     void spawnInk(Vec2 pos, int amount = 1);
-    void spawnInteractable(Vec2 pos);
+    void spawnItem(Vec2 pos, bool fromBoss = false);
     void spawnSpecialWeapon(Entity& entity, const bool& hard);
     void spawnWeaponDrop(Entity& entity);
     void destroyEntity(Entity& entity);

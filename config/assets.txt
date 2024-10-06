@@ -8,8 +8,9 @@ Texture TexGlass3 assets/images/tiles/tile_glass_3.png
 Texture TexLadder assets/images/tiles/tile_ladder_short.png
 Texture TexTileDoor assets/images/tiles/tile_door.png
 
-Texture TexDoor assets/images/tiles/intr_door.png
-Texture TexDoorOpen assets/images/tiles/intr_door_open.png
+Texture TexItemDoor assets/images/tiles/item_door.png
+Texture TexItemDoorOpen assets/images/tiles/item_door_open.png
+Texture TexItemKey assets/images/tiles/item_key.png
 
 Texture TexManStand assets/images/lineman/man_stand.png
 Texture TexManAir assets/images/lineman/man_air.png
@@ -39,8 +40,9 @@ Animation TilePlatform2 TexPlatform2 1 0
 Animation TileGlass3 TexGlass3 1 0
 Animation TileLadder TexLadder 1 0
 Animation TileDoor TexTileDoor 1 1
-Animation IntrDoor TexDoor 1 0
-Animation IntrDoorOpen TexDoorOpen 1 0
+Animation ItemDoor TexItemDoor 1 0
+Animation ItemDoorOpen TexItemDoorOpen 1 0
+Animation ItemKey TexItemKey 2 16
 
 Animation TileLandSaws TexLandSaws 4 16
 

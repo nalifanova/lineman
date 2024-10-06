@@ -61,14 +61,16 @@ EntityMemoryPool::EntityMemoryPool(size_t maxEntities):
         CHealth,
         CInput,
         CInteractableBox,
+        CInventory,
         CInvincibility,
+        CKey,
         CLifespan,
-        CLockable,
+        CLock,
         CMovable,
         CState,
         CSurprise,
         CTransform,
-        Triggerable
+        Trigger
     >(maxEntities);
 }
 
@@ -98,14 +100,16 @@ void EntityMemoryPool::resetEntityComponents(const size_t index)
     std::get<std::vector<CHealth>>(m_pool)[index] = CHealth();
     std::get<std::vector<CInput>>(m_pool)[index] = CInput();
     std::get<std::vector<CInteractableBox>>(m_pool)[index] = CInteractableBox();
+    std::get<std::vector<CInventory>>(m_pool)[index] = CInventory();
     std::get<std::vector<CInvincibility>>(m_pool)[index] = CInvincibility();
+    std::get<std::vector<CKey>>(m_pool)[index] = CKey();
     std::get<std::vector<CLifespan>>(m_pool)[index] = CLifespan();
-    std::get<std::vector<CLockable>>(m_pool)[index] = CLockable();
+    std::get<std::vector<CLock>>(m_pool)[index] = CLock();
     std::get<std::vector<CMovable>>(m_pool)[index] = CMovable();
     std::get<std::vector<CState>>(m_pool)[index] = CState();
     std::get<std::vector<CSurprise>>(m_pool)[index] = CSurprise();
     std::get<std::vector<CTransform>>(m_pool)[index] = CTransform();
-    std::get<std::vector<Triggerable>>(m_pool)[index] = Triggerable();
+    std::get<std::vector<Trigger>>(m_pool)[index] = Trigger();
 }
 
 void EntityMemoryPool::deactivateEntityComponents(const size_t index)
@@ -122,12 +126,14 @@ void EntityMemoryPool::deactivateEntityComponents(const size_t index)
     std::get<std::vector<CHealth>>(m_pool)[index].active = false;
     std::get<std::vector<CInput>>(m_pool)[index].active = false;
     std::get<std::vector<CInteractableBox>>(m_pool)[index].active = false;
+    std::get<std::vector<CInventory>>(m_pool)[index].active = false;
     std::get<std::vector<CInvincibility>>(m_pool)[index].active = false;
+    std::get<std::vector<CKey>>(m_pool)[index].active = false;
     std::get<std::vector<CLifespan>>(m_pool)[index].active = false;
     std::get<std::vector<CMovable>>(m_pool)[index].active = false;
-    std::get<std::vector<CLockable>>(m_pool)[index].active = false;
+    std::get<std::vector<CLock>>(m_pool)[index].active = false;
     std::get<std::vector<CState>>(m_pool)[index].active = false;
     std::get<std::vector<CSurprise>>(m_pool)[index].active = false;
     std::get<std::vector<CTransform>>(m_pool)[index].active = false;
-    std::get<std::vector<Triggerable>>(m_pool)[index].active = false;
+    std::get<std::vector<Trigger>>(m_pool)[index].active = false;
 }

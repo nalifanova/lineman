@@ -127,26 +127,26 @@ void ScenePlay::loadLevel(const std::string& fileName)
             }
             token = "None";
         }
-        else if (token == "Intr")
+        else if (token == "Item")
         {
             int rx, ry, tx, ty, bm, bv;
             fin >> name >> rx >> ry >> tx >> ty >> bm >> bv;
-            auto intr = m_entityManager.addEntity(eInteractable);
-            intr.add<CAnimation>(m_game->assets().getAnimation(name), true);
-            intr.add<CTransform>(m_grid->getPosition(rx, ry, tx, ty));
-            intr.add<CBoundingBox>(intr.get<CAnimation>().animation.getSize() - 4.0f, bm, bv);
-            intr.add<CInteractableBox>(intr.get<CAnimation>().animation.getSize());
-            intr.add<CDraggable>();
+            auto item = m_entityManager.addEntity(eItem);
+            item.add<CAnimation>(m_game->assets().getAnimation(name), true);
+            item.add<CTransform>(m_grid->getPosition(rx, ry, tx, ty));
+            item.add<CBoundingBox>(item.get<CAnimation>().animation.getSize() - 4.0f, bm, bv);
+            item.add<CInteractableBox>(item.get<CAnimation>().animation.getSize());
+            item.add<CDraggable>();
             if (name.find("Door") != std::string::npos)
             {
                 int keyType, actionType;
                 bool open, locked;
                 fin >> keyType >> open >> locked >> actionType;
-                intr.add<CLockable>(open, locked, keyType, actionType);
+                item.add<CLock>(open, locked, keyType, actionType);
             }
             else if (name.find("Lever") != std::string::npos)
             {
-                intr.add<Triggerable>();
+                item.add<Trigger>();
             }
 
             token = "None";
@@ -492,13 +492,16 @@ void ScenePlay::sStatus()
             spawnEntity(entity.tagId(), s.tagId, s.roomX, s.roomY, s.tileX, s.tileY);
         }
 
-        if (entity.has<CLockable>())
+        if (entity.has<CLock>())
         {
-            auto& l = entity.get<CLockable>();
-            auto& anim = entity.get<CAnimation>().animation;
-            if (l.isOpen && !anim.getName().ends_with("Open"))
+            auto& l = entity.get<CLock>();
+            if (!l.isLocked)
             {
-                anim = m_game->assets().getAnimation(anim.getName() + "Open");
+                auto& anim = entity.get<CAnimation>().animation;
+                if (l.isOpen && !anim.getName().ends_with("Open"))
+                {
+                    anim = m_game->assets().getAnimation(anim.getName() + "Open");
+                }
             }
         }
 
@@ -633,6 +636,7 @@ void ScenePlay::spawnPlayer(bool init)
     player.add<CGravity>(m_playerConfig.gravity);
     player.add<CInput>();
     player.add<CState>("Air");
+    player.add<CInventory>();
     if (init) { std::cout << "A player is born with id[" << player.id() << "]\n"; }
     else { std::cout << "A player is respawned, id[" << player.id() << "]\n"; }
 }
@@ -647,13 +651,18 @@ void ScenePlay::spawnEntity(const size_t tag, size_t spawnTag, Vec2 pos, int amo
             m_pGui->gameOver([this] { backToMenu(); });
         }
     }
-    else if (tag == eTile || tag == eNpc)
+    else if (tag == eNpc)
+    {
+        if (spawnTag == eTile) { spawnItem(pos, true); } // Note: for now tiles are only from boss!
+        if (spawnTag == eConsumable) { spawnInk(pos, amount); } // Note: condition when tiles are ruined - ink appears
+    }
+    else if (tag == eTile)
     {
         if (spawnTag == eConsumable) { spawnInk(pos, amount); } // Note: condition when tiles are ruined - ink appears
     }
     else if (tag == eConsumable)
     {
-        if (spawnTag == eInteractable) { spawnInteractable(pos); }
+        if (spawnTag == eItem) { spawnItem(pos); }
         // if (spawnTag == eConsumable) { spawnInk(pos); } // TODO: dangerous! Check it out
     }
 }
@@ -680,18 +689,29 @@ void ScenePlay::spawnInk(Vec2 pos, int amount)
     }
 }
 
-void ScenePlay::spawnInteractable(Vec2 pos)
+void ScenePlay::spawnItem(Vec2 pos, bool fromBoss)
 {
+    if (fromBoss)
+    {
+        auto item = m_entityManager.addEntity(eItem);
+        item.add<CAnimation>(m_game->assets().getAnimation("ItemKey"), true);
+        item.add<CTransform>(pos);
+        item.add<CBoundingBox>(item.get<CAnimation>().animation.getSize() - 4, true, false);
+        item.add<CDraggable>();
+        item.add<CGravity>(game::gravity * 0.1);
+        item.add<CKey>(eDoorBig);
+        return;
+    }
     // TODO: make random tile!!! :D TileBrick vs TileDoor
     for (size_t i = 0; i < 4; i++)
     {
         pos.y -= 32.0f * static_cast<float>(i);
-        auto intr = m_entityManager.addEntity(eInteractable);
-        intr.add<CAnimation>(m_game->assets().getAnimation("TileBrick"), true);
-        intr.add<CTransform>(pos);
-        intr.add<CBoundingBox>(intr.get<CAnimation>().animation.getSize() - 4, true, true);
-        intr.add<CDraggable>();
-        intr.add<CGravity>(game::gravity * 0.1);
+        auto item = m_entityManager.addEntity(eItem);
+        item.add<CAnimation>(m_game->assets().getAnimation("TileBrick"), true);
+        item.add<CTransform>(pos);
+        item.add<CBoundingBox>(item.get<CAnimation>().animation.getSize() - 4, true, true);
+        item.add<CDraggable>();
+        item.add<CGravity>(game::gravity * 0.1);
     }
 }
 
@@ -712,6 +732,7 @@ void ScenePlay::spawnSpecialWeapon(Entity& entity, const bool& hard)
         boom.add<CAnimation>(m_game->assets().getAnimation("BoomInk"), true);
         boom.add<CTransform>(pos, velocity, scale, angle - 90);
         boom.add<CLifespan>(45, m_currentFrame);
+        boom.add<CDamage>(5);
     }
 }
 
@@ -737,6 +758,7 @@ void ScenePlay::destroyEntity(Entity& entity)
     auto tagId = entity.tagId();
     auto spawnableId = entity.tagId();
     int amount = entity.has<CHealth>() ? entity.get<CHealth>().max : 1;
+    bool isBoss = entity.get<CAnimation>().animation.getName().find("Boss") != std::string::npos;
 
     if (tagId == ePlayer)
     {
@@ -753,7 +775,8 @@ void ScenePlay::destroyEntity(Entity& entity)
     }
     else if (tagId == eNpc)
     {
-        spawnableId = eConsumable;
+        if (isBoss) { spawnableId = eTile; }
+        else { spawnableId = eConsumable; }
     }
     else if (tagId == eTile)
     {

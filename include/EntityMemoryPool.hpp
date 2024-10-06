@@ -20,14 +20,16 @@ typedef std::tuple<
     std::vector<CHealth>,
     std::vector<CInput>,
     std::vector<CInteractableBox>,
+    std::vector<CInventory>,
     std::vector<CInvincibility>,
+    std::vector<CKey>,
     std::vector<CLifespan>,
-    std::vector<CLockable>,
+    std::vector<CLock>,
     std::vector<CMovable>,
     std::vector<CState>,
     std::vector<CSurprise>,
     std::vector<CTransform>,
-    std::vector<Triggerable>
+    std::vector<Trigger>
 > EntityComponentVectorTuple;
 
 class EntityMemoryPool

@@ -3,9 +3,9 @@
 
 #include <map>
 
-enum TagName { ePlayer = 10, eNpc, eTile, eDecoration, eConsumable, ePanel, eWeapon, eInteractable };
+enum TagName { ePlayer = 10, eNpc, eTile, eDecoration, eConsumable, ePanel, eWeapon, eItem };
 
-inline std::vector vectorTags = {eTile, eDecoration, eConsumable, eInteractable, eNpc, ePlayer, eWeapon};
+inline std::vector vectorTags = {eTile, eDecoration, eConsumable, eItem, eNpc, ePlayer, eWeapon};
 
 // string names are used in config settings
 inline std::map<size_t, std::string> tags = {
@@ -16,7 +16,7 @@ inline std::map<size_t, std::string> tags = {
     {TagName::eConsumable, "Cons"},
     {TagName::ePanel, "Panel"},
     {TagName::eWeapon, "Weapon"},
-    {TagName::eInteractable, "Interactable"},
+    {TagName::eItem, "Item"},
 };
 
 #endif //TAGS_HPP

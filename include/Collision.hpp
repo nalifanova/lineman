@@ -28,6 +28,7 @@ private:
     // helper functions
     void resolveWeaponCollision(Entity& weapon, Entity& another);
     static void resolveLadderCollision(Entity& entity);
+    static void resolveItemCollision(Entity& player, Entity& another);
     static void pushFromSides(Entity& entity, Entity& another);
 
     EntityManager& m_entityManager;
