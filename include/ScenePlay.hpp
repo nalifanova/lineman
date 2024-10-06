@@ -56,9 +56,9 @@ protected:
     void doMovement();
     void doPanelAction(Entity& entity);
     void spawnPlayer(bool init = false);
-    void spawnEntity(size_t tag, size_t spawnTag, Vec2 pos);
+    void spawnEntity(size_t tag, size_t spawnTag, Vec2 pos, int amount = 1);
     void spawnEntity(size_t tag, size_t spawnTag, int rx, int ry, int tx, int ty);
-    void spawnInk(Vec2 pos);
+    void spawnInk(Vec2 pos, int amount = 1);
     void spawnInteractable(Vec2 pos);
     void spawnSpecialWeapon(Entity& entity, const bool& hard);
     void spawnWeaponDrop(Entity& entity);

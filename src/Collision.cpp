@@ -309,7 +309,11 @@ void Collision::resolveWeaponCollision(Entity& weapon, Entity& another)
 
     if (anim.getName().starts_with("Boom")) // only special weapon destroys everything
     {
-        destroyEntity(another);
+        if (another.has<CHealth>())
+        {
+            destroyEntity(another);
+            destroyEntity(weapon);
+        }
     }
     else if (another.tagId() == eNpc)
     {

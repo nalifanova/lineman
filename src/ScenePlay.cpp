@@ -29,6 +29,7 @@ void ScenePlay::update()
     sDrag();
     if (!m_paused)
     {
+        m_game->loopSound("MusicLoop");
         m_effectManager.update(deltaTime);
         sAI();
         sMovement();
@@ -90,7 +91,7 @@ void ScenePlay::loadLevel(const std::string& fileName)
         {
             int rx, ry, tx, ty, bm, bv;
             fin >> name >> rx >> ry >> tx >> ty >> bm >> bv;
-            auto tile = m_entityManager.addEntity(TagName::eTile);
+            auto tile = m_entityManager.addEntity(eTile);
             tile.add<CAnimation>(m_game->assets().getAnimation(name), true);
             tile.add<CTransform>(m_grid->getPosition(rx, ry, tx, ty));
             tile.add<CBoundingBox>(tile.get<CAnimation>().animation.getSize() - 4.0f, bm, bv);
@@ -102,6 +103,10 @@ void ScenePlay::loadLevel(const std::string& fileName)
             else if (name.find("Ladder") != std::string::npos)
             {
                 tile.add<CClimbable>(); // can be climbed
+            }
+            else if (name.find("Glass") != std::string::npos)
+            {
+                tile.add<CHealth>(3, 3); // can be broken
             }
             else if (name.find("Platform") != std::string::npos)
             {
@@ -126,7 +131,7 @@ void ScenePlay::loadLevel(const std::string& fileName)
         {
             int rx, ry, tx, ty, bm, bv;
             fin >> name >> rx >> ry >> tx >> ty >> bm >> bv;
-            auto intr = m_entityManager.addEntity(TagName::eInteractable);
+            auto intr = m_entityManager.addEntity(eInteractable);
             intr.add<CAnimation>(m_game->assets().getAnimation(name), true);
             intr.add<CTransform>(m_grid->getPosition(rx, ry, tx, ty));
             intr.add<CBoundingBox>(intr.get<CAnimation>().animation.getSize() - 4.0f, bm, bv);
@@ -150,7 +155,7 @@ void ScenePlay::loadLevel(const std::string& fileName)
         {
             int rx, ry, tx, ty;
             fin >> name >> rx >> ry >> tx >> ty;
-            auto dec = m_entityManager.addEntity(TagName::eDecoration);
+            auto dec = m_entityManager.addEntity(eDecoration);
             dec.add<CAnimation>(m_game->assets().getAnimation(name), true);
             dec.add<CTransform>(m_grid->getPosition(rx, ry, tx, ty));
             dec.add<CBoundingBox>(dec.get<CAnimation>().animation.getSize());
@@ -161,7 +166,7 @@ void ScenePlay::loadLevel(const std::string& fileName)
         {
             int rx, ry, tx, ty, surprise;
             fin >> name >> rx >> ry >> tx >> ty >> m_consConfig.gravity >> surprise;
-            auto cons = m_entityManager.addEntity(TagName::eConsumable);
+            auto cons = m_entityManager.addEntity(eConsumable);
             cons.add<CAnimation>(m_game->assets().getAnimation(name), true);
             cons.add<CTransform>(m_grid->getPosition(rx, ry, tx, ty));
             cons.get<CTransform>().pos.y += 16;
@@ -180,16 +185,6 @@ void ScenePlay::loadLevel(const std::string& fileName)
             }
             token = "None";
         }
-        else if (token == "Panel")
-        {
-            int rx, ry, tx, ty;
-            fin >> name >> rx >> ry >> tx >> ty;
-            auto cons = m_entityManager.addEntity(TagName::ePanel);
-            cons.add<CAnimation>(m_game->assets().getAnimation(name), true);
-            cons.add<CTransform>(m_grid->getPosition(rx, ry, tx, ty));
-            cons.add<CBoundingBox>(cons.get<CAnimation>().animation.getSize());
-            token = "None";
-        }
         else if (token == "Npc")
         {
             std::string aiType;
@@ -197,7 +192,7 @@ void ScenePlay::loadLevel(const std::string& fileName)
             float speed = 0.0f;
             fin >> name >> rx >> ry >> tx >> ty >> bm >> bv >> health >> damage >> aiType;
 
-            auto npc = m_entityManager.addEntity(TagName::eNpc);
+            auto npc = m_entityManager.addEntity(eNpc);
             npc.add<CAnimation>(m_game->assets().getAnimation(name), true);
             npc.add<CTransform>(m_grid->getPosition(rx, ry, tx, ty));
             Vec2 animSize = npc.get<CAnimation>().animation.getSize();
@@ -246,7 +241,7 @@ void ScenePlay::loadLevel(const std::string& fileName)
 
 Entity ScenePlay::getPlayer() const
 {
-    for (auto& entity: m_entityManager.getEntities(TagName::ePlayer))
+    for (auto& entity: m_entityManager.getEntities(ePlayer))
     {
         return entity;
     }
@@ -620,7 +615,7 @@ void ScenePlay::sGUI()
 
 void ScenePlay::spawnPlayer(bool init)
 {
-    auto player = m_entityManager.addEntity(TagName::ePlayer);
+    auto player = m_entityManager.addEntity(ePlayer);
     if (init)
     {
         player.add<CTransform>(Vec2(m_playerConfig.x, m_playerConfig.y));
@@ -642,7 +637,7 @@ void ScenePlay::spawnPlayer(bool init)
     else { std::cout << "A player is respawned, id[" << player.id() << "]\n"; }
 }
 
-void ScenePlay::spawnEntity(const size_t tag, size_t spawnTag, Vec2 pos)
+void ScenePlay::spawnEntity(const size_t tag, size_t spawnTag, Vec2 pos, int amount)
 {
     if (tag == ePlayer)
     {
@@ -654,7 +649,7 @@ void ScenePlay::spawnEntity(const size_t tag, size_t spawnTag, Vec2 pos)
     }
     else if (tag == eTile || tag == eNpc)
     {
-        if (spawnTag == eConsumable) { spawnInk(pos); } // Note: condition when tiles are ruined - ink appears
+        if (spawnTag == eConsumable) { spawnInk(pos, amount); } // Note: condition when tiles are ruined - ink appears
     }
     else if (tag == eConsumable)
     {
@@ -671,15 +666,18 @@ void ScenePlay::spawnEntity(const size_t tag, const size_t spawnTag, int rx, int
     spawnEntity(tag, spawnTag, m_grid->getPosition(rx, ry, tx, ty));
 }
 
-void ScenePlay::spawnInk(Vec2 pos)
+void ScenePlay::spawnInk(Vec2 pos, int amount)
 {
-    auto cons = m_entityManager.addEntity(eConsumable);
-    cons.add<CAnimation>(m_game->assets().getAnimation("ConsInk"), true);
-    cons.add<CTransform>(pos);
-    cons.add<CBoundingBox>(cons.get<CAnimation>().animation.getSize());
-    cons.add<CDraggable>();
-    cons.add<CGravity>(m_consConfig.gravity);
-    cons.add<CHealth>(m_consConfig.health, m_consConfig.health);
+    for (size_t i = amount; i > 0; i--)
+    {
+        auto cons = m_entityManager.addEntity(eConsumable);
+        cons.add<CAnimation>(m_game->assets().getAnimation("ConsInk"), true);
+        cons.add<CTransform>(pos);
+        cons.add<CBoundingBox>(cons.get<CAnimation>().animation.getSize());
+        cons.add<CDraggable>();
+        cons.add<CGravity>(m_consConfig.gravity);
+        cons.add<CHealth>(m_consConfig.health, m_consConfig.health);
+    }
 }
 
 void ScenePlay::spawnInteractable(Vec2 pos)
@@ -738,6 +736,7 @@ void ScenePlay::destroyEntity(Entity& entity)
     const auto pos = entity.get<CTransform>().pos;
     auto tagId = entity.tagId();
     auto spawnableId = entity.tagId();
+    int amount = entity.has<CHealth>() ? entity.get<CHealth>().max : 1;
 
     if (tagId == ePlayer)
     {
@@ -762,7 +761,7 @@ void ScenePlay::destroyEntity(Entity& entity)
     }
     entity.destroy();
     m_entityManager.update();
-    spawnEntity(tagId, spawnableId, pos);
+    spawnEntity(tagId, spawnableId, pos, amount);
 }
 
 void ScenePlay::aiMoveByNodes(Entity& entity, const bool addShift)
@@ -791,7 +790,6 @@ void ScenePlay::aiMoveByNodes(Entity& entity, const bool addShift)
 
     transf.velocity = (entityPos - transf.pos).magnitude(movable.speed);
 }
-
 
 void ScenePlay::createPanelEntities()
 {

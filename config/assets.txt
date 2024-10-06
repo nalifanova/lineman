@@ -21,6 +21,7 @@ Texture TexManAttack assets/images/lineman/man_attack.png
 Texture TexManDead assets/images/lineman/man_dead.png
 
 Texture TexNpcEraser assets/images/npc/npc_eraser.png
+Texture TexNpcEraserBoss assets/images/npc/npc_eraser_boss.png
 
 Texture TexDecBgrnd assets/images/decoration/dec_background.png
 Texture TexConsInk assets/images/consumables/cons_ink.png
@@ -54,6 +55,7 @@ Animation Attack TexManAttack 2 16
 Animation Dead TexManDead 1 0
 
 Animation NpcEraser TexNpcEraser 4 20
+Animation NpcEraserBoss TexNpcEraserBoss 4 20
 
 Animation ConsInk TexConsInk   2 16
 Animation ConsInkAir TexConsInkAir   2 16

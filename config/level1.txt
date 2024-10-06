@@ -244,4 +244,4 @@ Cons ConsInk   2 0 13 9 1 0
 Cons ConsInk   2 0 15 9 1 0
 
 Npc NpcEraser 2 0 2 9 1 1 3 4 Patrol 10 2 2 9 16 9
-Npc NpcEraser 2 0 10 19 1 1 12 4 Follow 20
+Npc NpcEraserBoss 2 0 10 19 1 1 12 4 Follow 20
