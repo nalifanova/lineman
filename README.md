@@ -40,7 +40,6 @@ along with the style the lecturer provided in his examples.
 ### Guide style
 * Each row of text in your code should be at most 120 characters long;
 * Use a .cpp suffix for code files and .hpp for interface files;
-  [NL.27](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines.html#Rl-file-suffix)
 * [Names and order of includes](https://google.github.io/styleguide/cppguide.html#Names_and_Order_of_Includes)
   Related header, C system headers, C++ standard library headers, other headers;
 * In a class I prefer to see public methods, private methods, public vars, private vars. Exactly

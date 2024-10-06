@@ -58,13 +58,16 @@ void GameEngine::save(PlayerData player, std::string filename)
     j["life"] = player.life();
     j["time"] = player.time();
     j["drops"] = player.drops();
-    j["position"] = { player.pos().x, player.pos().y };
+    j["position"] = {player.pos().x, player.pos().y};
     auto path = "saves/" + filename;
     std::ofstream file(path);
-    if (file.is_open()) {
+    if (file.is_open())
+    {
         file << j.dump(7);
         file.close();
-    } else {
+    }
+    else
+    {
         std::cerr << "Unable to open file `" << path << "` for saving!";
     }
 }
@@ -106,6 +109,12 @@ void GameEngine::playSound(const std::string& soundName)
 void GameEngine::stopSound(const std::string& soundName)
 {
     assets().getSound(soundName).stop();
+}
+
+void GameEngine::loopSound(const std::string& soundName)
+{
+    sf::Sound& sound = assets().getSound(soundName);
+    if (sound.getStatus() == sf::Sound::Stopped) { sound.play(); }
 }
 
 Assets& GameEngine::assets()
