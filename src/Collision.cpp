@@ -354,7 +354,7 @@ void Collision::resolveItemCollision(Entity& player, Entity& another)
     {
         SInventory::pickUpItem(player, another);
         another.remove<CGravity>();
-        another.get<CTransform>().pos = Vec2(-10.0f, -10.0f); // TODO: creepy workaround
+        another.get<CTransform>().pos = Vec2(0.f, 800.0f); // TODO: creepy workaround
     }
 }
 
