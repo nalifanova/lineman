@@ -355,6 +355,7 @@ void Collision::resolveItemCollision(Entity& player, Entity& another)
         SInventory::pickUpItem(player, another);
         another.remove<CGravity>();
         another.get<CTransform>().pos = Vec2(0.f, 800.0f); // TODO: creepy workaround
+        std::cout << player.get<CInventory>().totalItems() << "\n";
     }
 }
 

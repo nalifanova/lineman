@@ -2,6 +2,7 @@
 #define ENTITY_MANAGER_H
 
 #include <map>
+#include <optional>
 #include <vector>
 
 #include "Entity.hpp"

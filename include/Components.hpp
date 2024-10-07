@@ -348,6 +348,10 @@ public:
         auto it = m_items.find(entityId);
         return it != m_items.end() && it->second >= quantity;
     }
+    [[nodiscard]] size_t totalItems() const
+    {
+        return m_items.size();
+    }
 
 private:
     std::unordered_map<size_t, int> m_items; // entityId, amount
