@@ -109,6 +109,7 @@ add_executable(${PROJECT_NAME}
     tests/test_panel_icon.hpp
     tests/test_jumping.hpp
     tests/test_parallax_shader.hpp
+    tests/test_rain.hpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
