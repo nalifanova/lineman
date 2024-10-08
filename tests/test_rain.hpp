@@ -1,4 +1,4 @@
-/** Thoughts of changing jump mechanics */
+/** Thoughts of rain mechanics */
 #ifndef TEST_RAIN_HPP
 #define TEST_RAIN_HPP
 
