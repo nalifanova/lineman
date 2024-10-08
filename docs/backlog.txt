@@ -4,10 +4,11 @@ There's a list (not an order) of things to be done.
 
 ### TODO
 01. Add save game functionality (save only time/inks and life) - done
-02. Finish the level (add elevator and a lever)
+02. Finish the level (a lever? )
 03. Assign another keys to play
 04. Add name of the player
-08. Add boss
+05. Add boss mechanics (maybe follow mech too)
+06. Think of a inventory (as a Component it has gaps)
 09. Modify changeScene/load next level logic
 10. Add NPCs that can jump and/or follow
 
