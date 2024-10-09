@@ -196,7 +196,7 @@ void ScenePlay::loadLevel(const std::string& fileName)
             npc.add<CAnimation>(m_game->assets().getAnimation(name), true);
             npc.add<CTransform>(m_grid->getPosition(rx, ry, tx, ty));
             Vec2 animSize = npc.get<CAnimation>().animation.getSize();
-            if (npc.get<CAnimation>().animation.getName().ends_with("Eraser"))
+            if (npc.get<CAnimation>().animation.getName().find("Eraser") != std::string::npos)
             {
                 animSize = Vec2(animSize.x - 20, animSize.y);
             }
@@ -205,6 +205,11 @@ void ScenePlay::loadLevel(const std::string& fileName)
             npc.add<CHealth>(health, health);
             npc.add<CDamage>(damage);
             npc.add<CGravity>(200); // By default
+            if (npc.get<CAnimation>().animation.getName().find("Boss") != std::string::npos)
+            {
+                npc.add<CState>();
+                npc.add<CState>().canJump = true; // TODO: it does not jump yet
+            }
 
             // Npc stays still
             if (aiType != "Guard") { fin >> speed; }
@@ -456,8 +461,37 @@ void ScenePlay::sMovement()
 
 void ScenePlay::sAI()
 {
+    auto player = getPlayer();
+    auto& playerPos = player.get<CTransform>().pos;
+
     for (auto& npc: m_entityManager.getEntities(eNpc))
     {
+        if (npc.has<CFollowPlayer>())
+        {
+            auto& follow = npc.get<CFollowPlayer>();
+            auto& npcPos = npc.get<CTransform>().pos;
+            bool invisible = false;
+            if (npcPos.dist(playerPos) > game::kGridSizeX * 4.f) { invisible = true; }
+            else
+            {
+                for (auto& tile: m_entityManager.getEntities(eTile))
+                {
+                    if (tile.get<CBoundingBox>().blockVision
+                        && Physics::entityIntersect(playerPos, npcPos, tile))
+                    {
+                        invisible = true;
+                    }
+                }
+            }
+
+            // npc follows the target
+            if (!invisible) { npc.get<CTransform>().velocity = playerPos - npcPos; }
+            // npc returns to their initial position
+            else { npc.get<CTransform>().velocity = follow.home - npcPos; }
+
+            npc.get<CTransform>().velocity.magnitude(follow.speed);
+        }
+
         if (npc.has<CMovable>()) // Patrol behavior
         {
             aiMoveByNodes(npc, true);
@@ -698,7 +732,7 @@ void ScenePlay::spawnItem(Vec2 pos, bool fromBoss)
         item.add<CTransform>(pos);
         item.add<CBoundingBox>(item.get<CAnimation>().animation.getSize() - 4, true, false);
         item.add<CDraggable>();
-        item.add<CGravity>(game::gravity * 0.1);
+        item.add<CGravity>(game::gravity * 0.01);
         item.add<CKey>(eDoorBig);
         return;
     }
