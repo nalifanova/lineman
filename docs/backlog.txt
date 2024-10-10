@@ -7,11 +7,13 @@ There's a list (not an order) of things to be done.
 02. Finish the level (a lever? )
 03. Assign another keys to play
 04. Add name of the player
-05. Add boss mechanics (maybe follow mech too)
-06. Think of a inventory (as a Component it has gaps)
+05. Add boss mechanics (follow is added)
+06. Think of an inventory (as a Component it has gaps)
 07. Can boss jump if he has follow mech?
 09. Modify changeScene/load next level logic
 10. Add NPCs that can jump and/or follow
+11. Add shaders to a player when is hit, maybe to a boss and/or to a npc
+12. Can the rain be done with shaders?
 
 
 ### THINK OF
