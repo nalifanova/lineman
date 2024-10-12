@@ -110,6 +110,7 @@ add_executable(${PROJECT_NAME}
     tests/test_jumping.hpp
     tests/test_parallax_shader.hpp
     tests/test_rain.hpp
+    tests/test_shaders.hpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
@@ -147,6 +148,7 @@ file(GLOB img_npc ${CMAKE_SOURCE_DIR}/assets/images/npc/*.png)
 file(GLOB sounds ${CMAKE_SOURCE_DIR}/assets/sounds/*.*)
 file(GLOB texts ${CMAKE_SOURCE_DIR}/config/*.txt)
 file(GLOB ini ${CMAKE_SOURCE_DIR}/config/*.ini)
+file(GLOB shaders ${CMAKE_SOURCE_DIR}/shaders/*.*)
 
 file(COPY ${fonts} DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/fonts)
 file(COPY ${img_tiles} DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/images/tiles)
@@ -159,3 +161,4 @@ file(COPY ${img_npc} DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/images/npc)
 file(COPY ${sounds} DESTINATION ${CMAKE_BINARY_DIR}/bin/assets/sounds)
 file(COPY ${texts} DESTINATION ${CMAKE_BINARY_DIR}/bin/config)
 file(COPY ${ini} DESTINATION ${CMAKE_BINARY_DIR}/bin/config)
+file(COPY ${shaders} DESTINATION ${CMAKE_BINARY_DIR}/bin/shaders)
