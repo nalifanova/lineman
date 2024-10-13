@@ -14,10 +14,14 @@
 [Video Lectures on YouTube](https://www.youtube.com/playlist?list=PL_xRyXins848nDj2v-TJYahzvs-XW9sVV)
 COMP 4300 - C++ Game Programming (2022-09) by Dave Churchill
 
+### Shaders
+Sources to learn/play with shaders:
+* https://editor.thebookofshaders.com/
+* https://thebookofshaders.com/
 
 ## Description
 
-A line man is walking down the paper sheets and collects ink bottles.
+An ink man is walking down the paper sheets and collects ink bottles.
 
 Requirements to a project are taken from [Project Specification](https://github.com/davechurchill/COMP4300_Project/tree/main/Project%20Specification).
 The copy can be found [here](SPECIFICATION.md)
